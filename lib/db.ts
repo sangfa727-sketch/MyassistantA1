@@ -11,6 +11,13 @@ function getSql() {
   return sqlClient;
 }
 
+type SessionRow = {
+  id: string;
+  memory: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+};
+
 export type StoredMessage = {
   id: string;
   role: "user" | "assistant";
@@ -24,7 +31,7 @@ export async function createSession() {
     INSERT INTO a1_sessions (memory)
     VALUES ('{}'::jsonb)
     RETURNING id, memory, created_at, updated_at
-  `;
+  ` as unknown as SessionRow[];
   return rows[0];
 }
 
@@ -35,7 +42,7 @@ export async function getSession(sessionId: string) {
     FROM a1_sessions
     WHERE id = ${sessionId}::uuid
     LIMIT 1
-  `;
+  ` as unknown as SessionRow[];
   return rows[0] ?? null;
 }
 
@@ -46,7 +53,7 @@ export async function updateSessionMemory(sessionId: string, memory: Record<stri
     SET memory = ${JSON.stringify(memory)}::jsonb, updated_at = now()
     WHERE id = ${sessionId}::uuid
     RETURNING id, memory, updated_at
-  `;
+  ` as unknown as SessionRow[];
   return rows[0] ?? null;
 }
 
@@ -59,8 +66,8 @@ export async function getRecentMessages(sessionId: string, limit = 20): Promise<
     WHERE session_id = ${sessionId}::uuid
     ORDER BY created_at DESC
     LIMIT ${safeLimit}
-  `;
-  return rows.reverse() as StoredMessage[];
+  ` as unknown as StoredMessage[];
+  return rows.reverse();
 }
 
 export async function addMessage(
@@ -73,6 +80,6 @@ export async function addMessage(
     INSERT INTO a1_messages (session_id, role, content)
     VALUES (${sessionId}::uuid, ${role}, ${content})
     RETURNING id, role, content, created_at
-  `;
-  return rows[0] as StoredMessage;
+  ` as unknown as StoredMessage[];
+  return rows[0];
 }
