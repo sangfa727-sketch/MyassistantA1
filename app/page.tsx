@@ -52,7 +52,10 @@ export default function Home(){
   if(speakingId===id){speechSynthesis.cancel();setSpeakingId(null);return}
   speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="my-MM";u.onend=()=>setSpeakingId(null);u.onerror=()=>setSpeakingId(null);setSpeakingId(id);speechSynthesis.speak(u);
  }
- function addTask(seed?:string){const value=prompt("Task အသစ်ရေးပါ",seed||"");if(value?.trim())setTasks(v=>[...v,{id:crypto.randomUUID(),title:value.trim().slice(0,240),done:false,createdAt:Date.now()}])}\n function toggleTask(id:string){setTasks(v=>v.map(t=>t.id===id?{...t,done:!t.done}:t))}\n function deleteTask(id:string){setTasks(v=>v.filter(t=>t.id!==id))}\n function saveAssistantTask(text:string){const title=text.replace(/^\s+/,"").slice(0,240);if(!title)return;setTasks(v=>[...v,{id:crypto.randomUUID(),title,done:false,createdAt:Date.now()}]);setTab("tasks")}
+ function addTask(seed?:string){const value=prompt("Task အသစ်ရေးပါ",seed||"");if(value?.trim())setTasks(v=>[...v,{id:crypto.randomUUID(),title:value.trim().slice(0,240),done:false,createdAt:Date.now()}])}
+ function toggleTask(id:string){setTasks(v=>v.map(t=>t.id===id?{...t,done:!t.done}:t))}
+ function deleteTask(id:string){setTasks(v=>v.filter(t=>t.id!==id))}
+ function saveAssistantTask(text:string){const title=text.replace(/^\s+/,"").slice(0,240);if(!title)return;setTasks(v=>[...v,{id:crypto.randomUUID(),title,done:false,createdAt:Date.now()}]);setTab("tasks")}
 
  function quickTask(){setTab("tasks");setTimeout(addTask,40)}
 
