@@ -5,6 +5,10 @@ export const dynamic = "force-dynamic";
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 20;
+const MAX_MESSAGES = 20;
+const MAX_MESSAGE_CHARS = 12_000;
+const MAX_TOTAL_MESSAGE_CHARS = 80_000;
+const MAX_TOOL_ROUNDS = 3;
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 
 function rateLimitKey(request: NextRequest) {
@@ -59,6 +63,10 @@ function executeTool(call: ToolCall) {
   throw new Error("Unknown tool.");
 }
 
+function sanitizeText(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 function extractOutput(data: any): string {
   const content = data?.choices?.[0]?.message?.content;
   if (typeof content === "string") return content.trim();
@@ -87,7 +95,11 @@ export async function POST(request: NextRequest) {
     const incoming = Array.isArray(body?.messages) ? body.messages : [];
     const messages = incoming.filter((m: any) =>
       (m?.role === "user" || m?.role === "assistant") && typeof m?.content === "string"
-    ).slice(-20).map((m: any) => ({ role: m.role, content: m.content.slice(0, 12000) }));
+    ).slice(-MAX_MESSAGES).map((m: any) => ({ role: m.role, content: m.content.slice(0, MAX_MESSAGE_CHARS) }));
+
+    const totalMessageChars = messages.reduce((sum: number, m: any) => sum + m.content.length, 0);
+    if (totalMessageChars > MAX_TOTAL_MESSAGE_CHARS)
+      return NextResponse.json({ error: "Conversation context is too large." }, { status: 413 });
 
     if (!messages.length || messages[messages.length - 1].role !== "user")
       return NextResponse.json({ error: "A user message is required." }, { status: 400 });
@@ -96,7 +108,7 @@ export async function POST(request: NextRequest) {
     const timeout = setTimeout(() => controller.abort(), 45000);
     const chatMessages: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...messages];
     let reply = "";
-    for (let round = 0; round < 3; round += 1) {
+    for (let round = 0; round < MAX_TOOL_ROUNDS; round += 1) {
       const response = await fetch(baseUrl + "/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
