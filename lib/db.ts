@@ -30,12 +30,12 @@ export async function createSession() {
 
 export async function getSession(sessionId: string) {
   const sql = getSql();
-  const rows = await sql`
+  const rows = (await sql`
     SELECT id, memory, created_at, updated_at
     FROM a1_sessions
     WHERE id = ${sessionId}::uuid
     LIMIT 1
-  `;
+  `) as unknown as Array<Record<string, unknown>>;
   return rows[0] ?? null;
 }
 
