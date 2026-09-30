@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import A1RobotWidget, { type WidgetVariant } from "../components/A1RobotWidget";
 import { clearMemory, loadMemory, memorySummary, saveMemory, type A1Memory } from "../lib/a1-memory";
 
-type Message = { id:string; role:"user"|"assistant"; content:string; createdAt:number };\ntype Task = { id:string; title:string; done:boolean; createdAt:number };
+type Message = { id:string; role:"user"|"assistant"; content:string; createdAt:number };
+type Task = { id:string; title:string; done:boolean; createdAt:number };
 type Tab = "home" | "chat" | "tasks" | "me";
 
 const starter:Message[]=[{id:"welcome",role:"assistant",content:"မင်္ဂလာပါ 👋 ကျွန်တော် A1 ပါ။ မေးခွန်းဖြေခြင်း၊ စာရေးခြင်း၊ ဘာသာပြန်ခြင်း၊ အစီအစဉ်ဆွဲခြင်း၊ coding နဲ့ နေ့စဉ်လုပ်ငန်းတွေမှာ ကူညီပေးနိုင်ပါတယ်။ ဘာလုပ်ပေးရမလဲ?",createdAt:Date.now()}];
