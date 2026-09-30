@@ -29,7 +29,7 @@ function allowed(key: string) {
 
 function cleanTitle(value: unknown) {
   if (typeof value !== "string") return "";
-  return value.replace(/[\\r\\n\\t]+/g, " ").replace(/\\s+/g, " ").trim().slice(0, MAX_TITLE);
+  return value.replace(/[\r\n\t]+/g, " ").replace(/\s+/g, " ").trim().slice(0, MAX_TITLE);
 }
 
 export async function POST(request: NextRequest) {
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
   const key = process.env.OPENAI_API_KEY;
   const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
-  const baseUrl = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\\/$/, "");
+  const baseUrl = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
   if (!key) return NextResponse.json({ error: "A1 backend is not configured." }, { status: 503 });
 
   try {
