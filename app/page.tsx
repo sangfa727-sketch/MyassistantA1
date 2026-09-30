@@ -29,7 +29,8 @@ export default function Home(){
   const user:Message={id:crypto.randomUUID(),role:"user",content:value,createdAt:Date.now()},next=[...messages,user];
   setMessages(next);setInput("");setBusy(true);setTab("chat");
   try{
-   const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:value,sessionId:sessionId||undefined,memory:memorySummary(memory)})});
+   const apiBase=(process.env.NEXT_PUBLIC_API_BASE_URL||"").replace(/\/$/,"");
+    const response=await fetch(`${apiBase}/api/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:value,sessionId:sessionId||undefined,memory:memorySummary(memory)})});
    const data=await response.json();if(!response.ok)throw new Error(data?.error||"Request failed");if(data.sessionId){setSessionId(data.sessionId);localStorage.setItem("a1-session-id",data.sessionId)}
    setMessages(cur=>[...cur,{id:crypto.randomUUID(),role:"assistant",content:data.reply,createdAt:Date.now()}]);
   }catch(e){setMessages(cur=>[...cur,{id:crypto.randomUUID(),role:"assistant",content:"⚠️ "+(e instanceof Error?e.message:"ချိတ်ဆက်မှု မအောင်မြင်ပါ။"),createdAt:Date.now()}])}
@@ -62,7 +63,8 @@ export default function Home(){
   const seed=input.trim()||"ဒီနေ့အတွက် လုပ်စရာတွေကို စီစဉ်ပေးပါ";
   setBusy(true);
   try{
-   const response=await fetch("/api/tasks/plan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:seed})});
+   const apiBase=(process.env.NEXT_PUBLIC_API_BASE_URL||"").replace(/\/$/,"");
+    const response=await fetch(`${apiBase}/api/tasks/plan`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:seed})});
    const data=await response.json();
    if(!response.ok)throw new Error(data?.error||"Task planning failed");
    const planned=Array.isArray(data?.tasks)?data.tasks.filter((x:any)=>typeof x==="string"&&x.trim()).slice(0,8):[];
