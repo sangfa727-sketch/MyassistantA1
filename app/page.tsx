@@ -48,6 +48,7 @@ export default function Home(){
   speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="my-MM";u.onend=()=>setSpeakingId(null);u.onerror=()=>setSpeakingId(null);setSpeakingId(id);speechSynthesis.speak(u);
  }
  function addTask(){const value=prompt("Task အသစ်ရေးပါ");if(value?.trim())setTasks(v=>[...v,value.trim()])}
+ function quickTask(){setTab("tasks");setTimeout(addTask,40)}
 
  return <main className="app-shell">
   <header className="topbar">
