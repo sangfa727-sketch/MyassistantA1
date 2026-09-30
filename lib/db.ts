@@ -11,6 +11,13 @@ function getSql() {
   return sqlClient;
 }
 
+export type StoredSession = {
+  id: string;
+  memory: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type StoredMessage = {
   id: string;
   role: "user" | "assistant";
@@ -18,17 +25,26 @@ export type StoredMessage = {
   created_at: string;
 };
 
-export async function createSession() {
+export async function createSession(): Promise<StoredSession | null> {
   const sql = getSql();
-  const rows = await sql`
+  const rows = (await sql`
     INSERT INTO a1_sessions (memory)
     VALUES ('{}'::jsonb)
     RETURNING id, memory, created_at, updated_at
-  `;
-  return rows[0];
+  `) as unknown as Array<Record<string, unknown>>;
+  const row = rows[0];
+  if (!row || typeof row.id !== "string") return null;
+  return {
+    id: row.id,
+    memory: row.memory && typeof row.memory === "object" && !Array.isArray(row.memory)
+      ? row.memory as Record<string, unknown>
+      : null,
+    created_at: String(row.created_at ?? ""),
+    updated_at: String(row.updated_at ?? "")
+  };
 }
 
-export async function getSession(sessionId: string) {
+export async function getSession(sessionId: string): Promise<StoredSession | null> {
   const sql = getSql();
   const rows = (await sql`
     SELECT id, memory, created_at, updated_at
@@ -36,7 +52,16 @@ export async function getSession(sessionId: string) {
     WHERE id = ${sessionId}::uuid
     LIMIT 1
   `) as unknown as Array<Record<string, unknown>>;
-  return rows[0] ?? null;
+  const row = rows[0];
+  if (!row || typeof row.id !== "string") return null;
+  return {
+    id: row.id,
+    memory: row.memory && typeof row.memory === "object" && !Array.isArray(row.memory)
+      ? row.memory as Record<string, unknown>
+      : null,
+    created_at: String(row.created_at ?? ""),
+    updated_at: String(row.updated_at ?? "")
+  };
 }
 
 export async function updateSessionMemory(sessionId: string, memory: Record<string, unknown>) {
