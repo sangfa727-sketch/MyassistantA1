@@ -110,11 +110,15 @@ export async function POST(request: NextRequest) {
 
     const recent = await getRecentMessages(sessionId, 20);
     const clientMemory = cleanMessage(body?.memory).slice(0, 2000);
-    const storedMemory = activeSession.memory && typeof activeSession.memory === "object" ? activeSession.memory : {};
-    const memorySummary = clientMemory || (typeof storedMemory.summary === "string" ? storedMemory.summary : "");
+    const storedMemory: Record<string, unknown> =
+      activeSession.memory && typeof activeSession.memory === "object" && !Array.isArray(activeSession.memory)
+        ? activeSession.memory as Record<string, unknown>
+        : {};
+    const storedSummary = typeof storedMemory.summary === "string" ? storedMemory.summary : "";
+    const memorySummary = clientMemory || storedSummary;
 
     await addMessage(sessionId, "user", userMessage);
-    if (clientMemory && clientMemory !== (typeof storedMemory.summary === "string" ? storedMemory.summary : "")) {
+    if (clientMemory && clientMemory !== storedSummary) {
       await updateSessionMemory(sessionId, { ...storedMemory, summary: clientMemory });
     }
 
