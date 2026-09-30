@@ -56,4 +56,4 @@ export async function POST(request: NextRequest) {
         messages: [
           {
             role: "system",
-            content: "You are A1 task planner. Convert the user\'s request into a short actionable task list. Return ONLY valid JSON with a tasks array and title fields. Do not add commentary. Create at most 8 tasks. Keep each title under 180 characters. If the request is not actionable, return an empty tasks array."
+            content: "You are A1 task planner. Convert the user request into a short actionable task list. Return only JSON with a tasks array containing title fields. Create at most 8 tasks. Keep each title under 180 characters. If the request is not actionable, return an empty tasks array."
