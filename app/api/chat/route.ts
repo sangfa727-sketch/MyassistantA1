@@ -97,17 +97,24 @@ export async function POST(request: NextRequest) {
     let sessionId = isUuid(body?.sessionId) ? body.sessionId : "";
     let session = sessionId ? await getSession(sessionId) : null;
     if (!session) {
-      session = await createSession();
-      sessionId = String(session.id);
+      const created = await createSession();
+      if (!created || typeof created !== "object" || !("id" in created)) {
+        throw new Error("Could not create A1 session.");
+      }
+      sessionId = String(created.id);
+      session = created as Awaited<ReturnType<typeof getSession>>;
     }
+
+    const activeSession = session;
+    if (!activeSession) throw new Error("A1 session is unavailable.");
 
     const recent = await getRecentMessages(sessionId, 20);
     const clientMemory = cleanMessage(body?.memory).slice(0, 2000);
-    const storedMemory = session.memory && typeof session.memory === "object" ? session.memory : {};
+    const storedMemory = activeSession.memory && typeof activeSession.memory === "object" ? activeSession.memory : {};
     const memorySummary = clientMemory || (typeof storedMemory.summary === "string" ? storedMemory.summary : "");
 
     await addMessage(sessionId, "user", userMessage);
-    if (clientMemory && clientMemory !== storedMemory.summary) {
+    if (clientMemory && clientMemory !== (typeof storedMemory.summary === "string" ? storedMemory.summary : "")) {
       await updateSessionMemory(sessionId, { ...storedMemory, summary: clientMemory });
     }
 
