@@ -66,12 +66,12 @@ export async function getSession(sessionId: string): Promise<StoredSession | nul
 
 export async function updateSessionMemory(sessionId: string, memory: Record<string, unknown>) {
   const sql = getSql();
-  const rows = await sql`
+  const rows = (await sql`
     UPDATE a1_sessions
     SET memory = ${JSON.stringify(memory)}::jsonb, updated_at = now()
     WHERE id = ${sessionId}::uuid
     RETURNING id, memory, updated_at
-  `;
+  `) as unknown as Array<Record<string, unknown>>;
   return rows[0] ?? null;
 }
 
