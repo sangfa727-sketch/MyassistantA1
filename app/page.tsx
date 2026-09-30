@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import A1RobotWidget, { type WidgetVariant } from "../components/A1RobotWidget";
+import { clearMemory, loadMemory, memorySummary, saveMemory, type A1Memory } from "../lib/a1-memory";
 
 type Message = { id:string; role:"user"|"assistant"; content:string; createdAt:number };
 type Tab = "home" | "chat" | "tasks" | "me";
@@ -13,9 +14,10 @@ export default function Home(){
  const [tab,setTab]=useState<Tab>("home");
  const [messages,setMessages]=useState<Message[]>(starter),[input,setInput]=useState(""),[busy,setBusy]=useState(false),[listening,setListening]=useState(false),[speakingId,setSpeakingId]=useState<string|null>(null),[widgetVariant,setWidgetVariant]=useState<WidgetVariant>("robot"),[dark,setDark]=useState(true);
  const [tasks,setTasks]=useState<string[]>([]);
+ const [memory,setMemory]=useState<A1Memory>({});
  const bottomRef=useRef<HTMLDivElement>(null),recognitionRef=useRef<any>(null),inputRef=useRef<HTMLTextAreaElement>(null);
 
- useEffect(()=>{const s=localStorage.getItem("a1-messages");if(s)try{setMessages(JSON.parse(s))}catch{};const v=localStorage.getItem("a1-widget-variant");if(v==="glass"||v==="robot")setWidgetVariant(v);setTasks(JSON.parse(localStorage.getItem("a1-tasks")||"[]"));setDark(localStorage.getItem("a1-theme")!=="light")},[]);
+ useEffect(()=>{const s=localStorage.getItem("a1-messages");if(s)try{setMessages(JSON.parse(s))}catch{};const v=localStorage.getItem("a1-widget-variant");if(v==="glass"||v==="robot")setWidgetVariant(v);setTasks(JSON.parse(localStorage.getItem("a1-tasks")||"[]"));setMemory(loadMemory());setDark(localStorage.getItem("a1-theme")!=="light")},[]);
  useEffect(()=>{localStorage.setItem("a1-messages",JSON.stringify(messages));if(tab==="chat")bottomRef.current?.scrollIntoView({behavior:"smooth"})},[messages,busy,tab]);
  useEffect(()=>{localStorage.setItem("a1-tasks",JSON.stringify(tasks))},[tasks]);
  useEffect(()=>{document.documentElement.dataset.theme=dark?"dark":"light";localStorage.setItem("a1-theme",dark?"dark":"light")},[dark]);
@@ -26,12 +28,14 @@ export default function Home(){
   const user:Message={id:crypto.randomUUID(),role:"user",content:value,createdAt:Date.now()},next=[...messages,user];
   setMessages(next);setInput("");setBusy(true);setTab("chat");
   try{
-   const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:next.slice(-20).map(({role,content})=>({role,content}))})});
+   const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:next.slice(-20).map(({role,content})=>({role,content})), memory:memorySummary(memory)})});
    const data=await response.json();if(!response.ok)throw new Error(data?.error||"Request failed");
    setMessages(cur=>[...cur,{id:crypto.randomUUID(),role:"assistant",content:data.reply,createdAt:Date.now()}]);
   }catch(e){setMessages(cur=>[...cur,{id:crypto.randomUUID(),role:"assistant",content:"⚠️ "+(e instanceof Error?e.message:"ချိတ်ဆက်မှု မအောင်မြင်ပါ။"),createdAt:Date.now()}])}
   finally{setBusy(false)}
  }
+ function updateMemory(patch:A1Memory){const next={...memory,...patch};setMemory(next);saveMemory(next)}
+ function clearAllMemory(){if(!confirm("A1 မှတ်ထားတဲ့ personal preferences တွေကို ဖျက်မလား?"))return;clearMemory();setMemory({})}
  function clearChat(){if(!confirm("Conversation ကို ဖျက်မလား?"))return;setMessages(starter);localStorage.removeItem("a1-messages")}
  function focusAssistant(){setTab("chat");setTimeout(()=>inputRef.current?.focus(),40);bottomRef.current?.scrollIntoView({behavior:"smooth"})}
  function startVoice(){
@@ -72,7 +76,7 @@ export default function Home(){
 
   {tab==="tasks"&&<section className="simple-page"><div className="page-intro"><span className="eyebrow">PERSONAL WORKSPACE</span><h1>Tasks</h1><p>A1 နဲ့အတူ လုပ်စရာတွေကို ရိုးရှင်းစွာ စီမံပါ။</p></div><button className="primary-action" onClick={addTask}>＋ Add task</button><div className="task-list">{tasks.length?tasks.map((t,i)=><button key={i} onClick={()=>setTasks(v=>v.filter((_,n)=>n!==i))}><span>○</span><strong>{t}</strong><small>Done</small></button>):<div className="empty-card">ဒီနေ့လုပ်စရာတွေကို ထည့်လိုက်ပါ။</div>}</div></section>}
 
-  {tab==="me"&&<section className="simple-page"><div className="profile-card"><div className="profile-avatar">A1</div><div><span className="eyebrow">YOUR ASSISTANT</span><h1>My Assistant A1</h1><p>Personal • Private • Helpful</p></div></div><div className="settings-card"><button onClick={()=>setDark(v=>!v)}><span>◐</span><div><strong>Appearance</strong><small>{dark?"Dark premium":"Light clean"}</small></div><b>{dark?"ON":"OFF"}</b></button><button onClick={()=>setWidgetVariant(v=>{const n=v==="robot"?"glass":"robot";localStorage.setItem("a1-widget-variant",n);return n})}><span>◇</span><div><strong>Assistant style</strong><small>{widgetVariant==="robot"?"Cute Robot":"Glassmorphism"}</small></div><b>›</b></button><button onClick={clearChat}><span>⌫</span><div><strong>Clear conversation</strong><small>Remove local chat history</small></div><b>›</b></button></div><div className="privacy-note">A1 ရဲ့ conversation history ကို ဒီ browser ရဲ့ local storage မှာ သိမ်းထားပါတယ်။</div></section>}
+  {tab==="me"&&<section className="simple-page"><div className="profile-card"><div className="profile-avatar">A1</div><div><span className="eyebrow">YOUR ASSISTANT</span><h1>My Assistant A1</h1><p>Personal • Private • Helpful</p></div></div><div className="settings-card"><button onClick={()=>setDark(v=>!v)}><span>◐</span><div><strong>Appearance</strong><small>{dark?"Dark premium":"Light clean"}</small></div><b>{dark?"ON":"OFF"}</b></button><button onClick={()=>setWidgetVariant(v=>{const n=v==="robot"?"glass":"robot";localStorage.setItem("a1-widget-variant",n);return n})}><span>◇</span><div><strong>Assistant style</strong><small>{widgetVariant==="robot"?"Cute Robot":"Glassmorphism"}</small></div><b>›</b></button><button onClick={()=>{const name=prompt("A1 က သင့်ကို ဘယ်လိုခေါ်ရမလဲ?",memory.userName||"");if(name!==null)updateMemory({userName:name.trim().slice(0,80)||undefined})}}><span>◎</span><div><strong>Your name</strong><small>{memory.userName||"Not set"}</small></div><b>›</b></button><button onClick={()=>updateMemory({responseStyle:memory.responseStyle==="detailed"?"concise":"detailed"})}><span>≡</span><div><strong>Response style</strong><small>{memory.responseStyle==="detailed"?"Detailed":"Concise"}</small></div><b>›</b></button><button onClick={clearAllMemory}><span>⌫</span><div><strong>Clear A1 memory</strong><small>Remove saved preferences</small></div><b>›</b></button><button onClick={clearChat}><span>⌫</span><div><strong>Clear conversation</strong><small>Remove local chat history</small></div><b>›</b></button></div><div className="privacy-note">A1 ရဲ့ conversation history နဲ့ optional preferences တွေကို ဒီ browser ရဲ့ local storage မှာ သိမ်းထားပါတယ်။ Server ကို ပို့တဲ့ memory ကလည်း user preference အနည်းငယ်ပဲ ဖြစ်ပါတယ်။</div></section>}
 
   <A1RobotWidget state={busy?"thinking":listening?"listening":speakingId?"speaking":"idle"} variant={widgetVariant} onVariantChange={v=>{setWidgetVariant(v);localStorage.setItem("a1-widget-variant",v)}} onOpen={focusAssistant} onVoice={startVoice}/>
 
