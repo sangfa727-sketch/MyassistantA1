@@ -39,11 +39,11 @@ jobs:
           GITHUB_PAGES: "true"
         run: |
           set -euo pipefail
-          mv app/api app/api-server
-          trap 'mv app/api-server app/api' EXIT
+          mv app/api ../a1-api-server
+          trap 'mv ../a1-api-server app/api' EXIT
           if [ -f proxy.ts ]; then
             mv proxy.ts proxy.server.ts
-            trap 'mv app/api-server app/api; mv proxy.server.ts proxy.ts' EXIT
+            trap 'mv ../a1-api-server app/api; mv proxy.server.ts proxy.ts' EXIT
           fi
           npm run build
 
