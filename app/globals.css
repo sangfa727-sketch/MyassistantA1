@@ -39,3 +39,28 @@
 @keyframes robotSignal{50%{transform:scale(1.35);box-shadow:0 0 18px rgba(124,140,255,1)}}
 @keyframes robotTalkHead{50%{transform:translateY(-1px) scale(1.015)}}
 @media(prefers-reduced-motion:reduce){.robot-heart,.robot-arm,.robot-antenna i,.robot-head{animation:none!important}}
+
+/* A1 widget style picker */
+.a1-widget-shell{position:fixed;right:14px;bottom:calc(92px + env(safe-area-inset-bottom));z-index:30;width:160px;height:112px;pointer-events:none}
+.a1-widget-shell>*{pointer-events:auto}
+.widget-picker{position:absolute;right:0;top:0;z-index:5}
+.widget-settings{width:28px;height:28px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(15,23,41,.72);backdrop-filter:blur(12px);color:#c9d2e9;font-size:13px;cursor:pointer;box-shadow:0 7px 20px rgba(0,0,0,.18)}
+.widget-picker-menu{position:absolute;right:0;top:34px;width:166px;padding:5px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(10,16,30,.94);backdrop-filter:blur(18px);box-shadow:0 16px 45px rgba(0,0,0,.35)}
+.widget-option{width:100%;display:flex;align-items:center;gap:8px;padding:8px 9px;border:0;border-radius:10px;background:transparent;color:#aeb9d1;font-size:11px;text-align:left;cursor:pointer}
+.widget-option:hover,.widget-option.active{background:rgba(103,116,255,.16);color:#eef2ff}
+.widget-option b{margin-left:auto;color:#8f9cff}
+.glass-widget{position:absolute;right:30px;bottom:8px;width:124px;height:58px;display:flex;align-items:center;gap:9px;padding:7px 12px;border:1px solid rgba(255,255,255,.22);border-radius:20px;background:linear-gradient(135deg,rgba(255,255,255,.20),rgba(119,137,255,.12));backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);color:#eef2ff;box-shadow:0 15px 35px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.25);cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
+.glass-widget:hover{transform:translateY(-2px);box-shadow:0 18px 42px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.3)}
+.glass-widget:active{transform:scale(.96)}
+.glass-orb{width:38px;height:38px;display:grid;place-items:center;flex:0 0 38px;border-radius:13px;background:linear-gradient(135deg,rgba(125,139,255,.95),rgba(124,58,237,.9));font-size:11px;font-weight:900;box-shadow:0 6px 20px rgba(88,95,220,.38)}
+.glass-copy{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}.glass-copy strong{font-size:12px}.glass-copy small{margin-top:3px;color:#aab4ca;font-size:9px}
+.glass-status{position:absolute;right:10px;top:9px;width:6px;height:6px;border-radius:50%;background:#51e18b;box-shadow:0 0 9px rgba(81,225,139,.65)}
+.glass-mic{position:absolute;right:0;bottom:8px;width:32px;height:32px;border:1px solid rgba(255,255,255,.22);border-radius:50%;background:rgba(255,255,255,.9);color:#29335e;font-size:13px;display:grid;place-items:center;cursor:pointer;box-shadow:0 7px 18px rgba(0,0,0,.28)}
+.glass-thinking .glass-orb{animation:glassPulse 1s ease-in-out infinite}.glass-listening .glass-orb{animation:glassListen .7s ease-in-out infinite}.glass-speaking .glass-orb{animation:glassTalk .5s ease-in-out infinite}
+.glass-widget-hint{position:absolute;right:30px;bottom:70px;padding:6px 9px;border-radius:11px 11px 4px 11px;background:rgba(15,23,41,.9);border:1px solid rgba(255,255,255,.1);color:#cdd5eb;font-size:10px;opacity:0;transform:translateY(4px);transition:.2s;white-space:nowrap}
+.a1-widget-shell:hover .glass-widget-hint,.a1-widget-shell:focus-within .glass-widget-hint{opacity:1;transform:none}
+.robot-shell{width:92px}
+.robot-shell .widget-picker{right:-2px}
+@keyframes glassPulse{50%{transform:scale(1.08);box-shadow:0 0 24px rgba(124,140,255,.65)}}@keyframes glassListen{50%{transform:translateY(-2px) scale(1.05)}}@keyframes glassTalk{50%{transform:scale(.92)}}
+@media(min-width:700px){.a1-widget-shell{right:24px;bottom:105px}}
+@media(prefers-reduced-motion:reduce){.glass-widget,.glass-orb{animation:none!important;transition:none}}
