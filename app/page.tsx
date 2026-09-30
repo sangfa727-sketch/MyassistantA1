@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import A1RobotWidget, { type WidgetVariant } from "../components/A1RobotWidget";
 import { clearMemory, loadMemory, memorySummary, saveMemory, type A1Memory } from "../lib/a1-memory";
 
-type Message = { id:string; role:"user"|"assistant"; content:string; createdAt:number };\ntype Task = { id:string; title:string; done:boolean; createdAt:number };
+type Message = { id:string; role:"user"|"assistant"; content:string; createdAt:number };
+type Task = { id:string; title:string; done:boolean; createdAt:number };
 type Tab = "home" | "chat" | "tasks" | "me";
 
 const starter:Message[]=[{id:"welcome",role:"assistant",content:"မင်္ဂလာပါ 👋 ကျွန်တော် A1 ပါ။ မေးခွန်းဖြေခြင်း၊ စာရေးခြင်း၊ ဘာသာပြန်ခြင်း၊ အစီအစဉ်ဆွဲခြင်း၊ coding နဲ့ နေ့စဉ်လုပ်ငန်းတွေမှာ ကူညီပေးနိုင်ပါတယ်။ ဘာလုပ်ပေးရမလဲ?",createdAt:Date.now()}];
@@ -51,7 +52,10 @@ export default function Home(){
   if(speakingId===id){speechSynthesis.cancel();setSpeakingId(null);return}
   speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="my-MM";u.onend=()=>setSpeakingId(null);u.onerror=()=>setSpeakingId(null);setSpeakingId(id);speechSynthesis.speak(u);
  }
- function addTask(seed?:string){const value=prompt("Task အသစ်ရေးပါ",seed||"");if(value?.trim())setTasks(v=>[...v,{id:crypto.randomUUID(),title:value.trim().slice(0,240),done:false,createdAt:Date.now()}])}\n function toggleTask(id:string){setTasks(v=>v.map(t=>t.id===id?{...t,done:!t.done}:t))}\n function deleteTask(id:string){setTasks(v=>v.filter(t=>t.id!==id))}\n function saveAssistantTask(text:string){const title=text.replace(/^\s+/,"").slice(0,240);if(!title)return;setTasks(v=>[...v,{id:crypto.randomUUID(),title,done:false,createdAt:Date.now()}]);setTab("tasks")}
+ function addTask(seed?:string){const value=prompt("Task အသစ်ရေးပါ",seed||"");if(value?.trim())setTasks(v=>[...v,{id:crypto.randomUUID(),title:value.trim().slice(0,240),done:false,createdAt:Date.now()}])}
+ function toggleTask(id:string){setTasks(v=>v.map(t=>t.id===id?{...t,done:!t.done}:t))}
+ function deleteTask(id:string){setTasks(v=>v.filter(t=>t.id!==id))}
+ function saveAssistantTask(text:string){const title=text.replace(/^\s+/,"").slice(0,240);if(!title)return;setTasks(v=>[...v,{id:crypto.randomUUID(),title,done:false,createdAt:Date.now()}]);setTab("tasks")}
 
  function quickTask(){setTab("tasks");setTimeout(addTask,40)}
 
