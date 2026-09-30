@@ -16,20 +16,25 @@ jobs:
 
       - name: Check lockfile
         id: lock
-        run: test -f package-lock.json
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Setup Node
-        if: steps.lock.outcome == 'failure'
+        if: steps.lock.outputs.present == 'false'
         uses: actions/setup-node@v5
         with:
           node-version: 24
 
       - name: Generate lockfile
-        if: steps.lock.outcome == 'failure'
+        if: steps.lock.outputs.present == 'false'
         run: npm install --package-lock-only --ignore-scripts
 
       - name: Commit lockfile
-        if: steps.lock.outcome == 'failure'
+        if: steps.lock.outputs.present == 'false'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
