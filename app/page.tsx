@@ -25,7 +25,8 @@ export default function Home(){
   finally{setBusy(false)}
  }
  function clearChat(){if(!confirm("Conversation ကို ဖျက်မလား?"))return;setMessages(starter);localStorage.removeItem("a1-messages")}
- function focusAssistant(){ inputRef.current?.focus(); bottomRef.current?.scrollIntoView({behavior:"smooth"}); }\n function startVoice(){
+ function focusAssistant(){ inputRef.current?.focus(); bottomRef.current?.scrollIntoView({behavior:"smooth"}); }
+ function startVoice(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){alert("ဒီ browser မှာ voice input မထောက်ပံ့သေးပါ။ Chrome/Edge ကို အသုံးပြုကြည့်ပါ။");return}
   if(listening){recognitionRef.current?.stop();setListening(false);return}
@@ -38,7 +39,8 @@ export default function Home(){
   if(speakingId===id){speechSynthesis.cancel();setSpeakingId(null);return}
   speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="my-MM";u.onend=()=>setSpeakingId(null);u.onerror=()=>setSpeakingId(null);setSpeakingId(id);speechSynthesis.speak(u);
  }
- return <main className="app-shell">\n  <A1RobotWidget state={busy?"thinking":listening?"listening":speakingId?"speaking":"idle"} onOpen={focusAssistant} onVoice={startVoice} />
+ return <main className="app-shell">
+  <A1RobotWidget state={busy?"thinking":listening?"listening":speakingId?"speaking":"idle"} onOpen={focusAssistant} onVoice={startVoice} />
   <header className="topbar"><div className="brand"><div className="avatar">A1</div><div><strong>My Assistant A1</strong><span><i/> Online assistant</span></div></div><button className="icon-btn" onClick={clearChat}>⌫</button></header>
   <section className="chat"><div className="hero"><div className="hero-orb">✦</div><h1>A1 Assistant</h1><p>သင်လိုချင်တာကို ရိုးရိုးရှင်းရှင်း ပြောပါ။</p></div>
    <div className="messages">{messages.map(m=><article key={m.id} className={m.role==="user"?"message user":"message"}><div className="bubble">{m.content}</div>{m.role==="assistant"&&m.id!=="welcome"&&<button className="speak-btn" onClick={()=>speak(m.id,m.content)}>{speakingId===m.id?"◼ Stop":"🔊 နားထောင်"}</button>}</article>)}{busy&&<article className="message"><div className="bubble typing"><span/><span/><span/></div></article>}<div ref={bottomRef}/></div>
