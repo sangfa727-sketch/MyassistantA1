@@ -94,10 +94,10 @@ export async function addMessage(
   content: string
 ) {
   const sql = getSql();
-  const rows = await sql`
+  const rows = (await sql`
     INSERT INTO a1_messages (session_id, role, content)
     VALUES (${sessionId}::uuid, ${role}, ${content})
     RETURNING id, role, content, created_at
-  `;
-  return rows[0] as StoredMessage;
+  `) as unknown as StoredMessage[];
+  return rows[0] ?? null;
 }
