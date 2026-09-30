@@ -1,0 +1,37 @@
+name: Security Audit
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "17 18 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Run npm audit
+        run: npm audit --json > npm-audit.json || true
+
+      - name: Print audit summary
+        run: |
+          node -e "const r=require('./npm-audit.json'); const m=r.metadata?.vulnerabilities||{}; console.log(JSON.stringify({info:m.info||0,low:m.low||0,moderate:m.moderate||0,high:m.high||0,critical:m.critical||0,total:m.total||0},null,2))"
+          echo "Detailed audit JSON was generated for this run."
