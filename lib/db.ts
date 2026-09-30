@@ -78,14 +78,14 @@ export async function updateSessionMemory(sessionId: string, memory: Record<stri
 export async function getRecentMessages(sessionId: string, limit = 20): Promise<StoredMessage[]> {
   const sql = getSql();
   const safeLimit = Math.min(Math.max(Math.floor(limit), 1), 50);
-  const rows = await sql`
+  const rows = (await sql`
     SELECT id, role, content, created_at
     FROM a1_messages
     WHERE session_id = ${sessionId}::uuid
     ORDER BY created_at DESC
     LIMIT ${safeLimit}
-  `;
-  return rows.reverse() as StoredMessage[];
+  `) as unknown as StoredMessage[];
+  return rows.reverse();
 }
 
 export async function addMessage(
