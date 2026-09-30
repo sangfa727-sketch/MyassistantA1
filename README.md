@@ -31,4 +31,23 @@ Deploy to a Next.js-compatible host such as Vercel. Add OPENAI_API_KEY and OPENA
 
 Phone/PWA -> Next.js /api/chat -> OpenAI-compatible model provider.
 
-For public multi-user production, add authentication, rate limiting, abuse protection, privacy/retention controls, monitoring and a database-backed account system before large-scale release.
+## Security baseline
+
+- API request rate limit: 20 requests/minute per detected client address (in-memory; use a shared store for multi-instance deployment).
+- Request body size guard on the chat endpoint.
+- Security response headers via middleware.
+- API responses are marked no-store where appropriate.
+- API keys remain server-side.
+
+## Production roadmap
+
+Before opening the service to a large public audience, add:
+1. Authentication and per-user authorization.
+2. Persistent database-backed conversations and optional memory.
+3. Shared rate limiting (Redis/Upstash or a database-backed limiter) for multiple server instances.
+4. Abuse controls, quotas and spend limits.
+5. Privacy/retention settings and account deletion.
+6. Observability, alerts and provider-failure handling.
+7. Automated dependency/security scanning.
+
+The current rate limiter is intentionally lightweight and is not a replacement for a shared production limiter.
