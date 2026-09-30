@@ -57,3 +57,33 @@ export async function POST(request: NextRequest) {
           {
             role: "system",
             content: "You are A1 task planner. Convert the user request into a short actionable task list. Return only JSON with a tasks array containing title fields. Create at most 8 tasks. Keep each title under 180 characters. If the request is not actionable, return an empty tasks array."
+          },
+          { role: "user", content: input }
+        ],
+        response_format: { type: "json_object" }
+      }),
+      signal: AbortSignal.timeout(30_000),
+      cache: "no-store"
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) return NextResponse.json({ error: "AI task planner request failed." }, { status: 502 });
+
+    const raw = data?.choices?.[0]?.message?.content;
+    let parsed: unknown;
+    try { parsed = JSON.parse(typeof raw === "string" ? raw : "{}"); } catch { parsed = {}; }
+
+    const source = parsed && typeof parsed === "object" && Array.isArray((parsed as any).tasks)
+      ? (parsed as any).tasks
+      : [];
+
+    const tasks = source
+      .slice(0, MAX_TASKS)
+      .map((item: any) => cleanTitle(item?.title))
+      .filter(Boolean);
+
+    return NextResponse.json({ tasks });
+  } catch {
+    return NextResponse.json({ error: "A1 could not create tasks." }, { status: 500 });
+  }
+}
