@@ -57,7 +57,21 @@ export default function Home(){
  function deleteTask(id:string){setTasks(v=>v.filter(t=>t.id!==id))}
  function saveAssistantTask(text:string){const title=text.replace(/^\s+/,"").slice(0,240);if(!title)return;setTasks(v=>[...v,{id:crypto.randomUUID(),title,done:false,createdAt:Date.now()}]);setTab("tasks")}
 
- function quickTask(){setTab("tasks");setTimeout(addTask,40)}
+ async function planTasks(){
+  if(busy)return;
+  const seed=input.trim()||"ဒီနေ့အတွက် လုပ်စရာတွေကို စီစဉ်ပေးပါ";
+  setBusy(true);
+  try{
+   const response=await fetch("/api/tasks/plan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:seed})});
+   const data=await response.json();
+   if(!response.ok)throw new Error(data?.error||"Task planning failed");
+   const planned=Array.isArray(data?.tasks)?data.tasks.filter((x:any)=>typeof x==="string"&&x.trim()).slice(0,8):[];
+   if(planned.length)setTasks(v=>[...v,...planned.map((title:string)=>({id:crypto.randomUUID(),title:title.trim().slice(0,240),done:false,createdAt:Date.now()}))]);
+   setTab("tasks");
+  }catch(e){alert(e instanceof Error?e.message:"Task planning failed.")}
+  finally{setBusy(false)}
+ }
+ function quickTask(){setTab("tasks");setTimeout(()=>addTask(),40)}
 
  return <main className="app-shell">
   <header className="topbar">
@@ -79,7 +93,7 @@ export default function Home(){
    <div className="messages">{messages.map(m=><article key={m.id} className={m.role==="user"?"message user":"message"}><div className="bubble">{m.content}</div>{m.role==="assistant"&&m.id!=="welcome"&&<div className="message-actions"><button className="speak-btn" onClick={()=>speak(m.id,m.content)}>{speakingId===m.id?"◼ Stop":"🔊 နားထောင်"}</button><button className="speak-btn" onClick={()=>saveAssistantTask(m.content)}>＋ Task ထဲသိမ်း</button></div>}</article>)}{busy&&<article className="message"><div className="bubble typing"><span/><span/><span/></div></article>}<div ref={bottomRef}/></div>
   </section>}
 
-  {tab==="tasks"&&<section className="simple-page"><div className="page-intro"><span className="eyebrow">PERSONAL WORKSPACE</span><h1>Tasks</h1><p>A1 နဲ့အတူ လုပ်စရာတွေကို ရိုးရှင်းစွာ စီမံပါ။</p></div><div className="task-actions"><button className="primary-action" onClick={addTask}>＋ Add task</button><button className="secondary-action" onClick={planTasks} disabled={busy}>✦ AI နဲ့ Task ခွဲမယ်</button></div><div className="task-list">{tasks.length?tasks.map(t=><div className={t.done?"task-row done":"task-row"} key={t.id}><button className="task-toggle" onClick={()=>toggleTask(t.id)} aria-label={t.done?"Mark incomplete":"Mark complete"}>{t.done?"✓":"○"}</button><strong>{t.title}</strong><button className="task-delete" onClick={()=>deleteTask(t.id)} aria-label="Delete task">×</button></div>):<div className="empty-card">ဒီနေ့လုပ်စရာတွေကို ထည့်လိုက်ပါ။</div>}</div></section>}
+  {tab==="tasks"&&<section className="simple-page"><div className="page-intro"><span className="eyebrow">PERSONAL WORKSPACE</span><h1>Tasks</h1><p>A1 နဲ့အတူ လုပ်စရာတွေကို ရိုးရှင်းစွာ စီမံပါ။</p></div><div className="task-actions"><button className="primary-action" onClick={()=>addTask()}>＋ Add task</button><button className="secondary-action" onClick={planTasks} disabled={busy}>✦ AI နဲ့ Task ခွဲမယ်</button></div><div className="task-list">{tasks.length?tasks.map(t=><div className={t.done?"task-row done":"task-row"} key={t.id}><button className="task-toggle" onClick={()=>toggleTask(t.id)} aria-label={t.done?"Mark incomplete":"Mark complete"}>{t.done?"✓":"○"}</button><strong>{t.title}</strong><button className="task-delete" onClick={()=>deleteTask(t.id)} aria-label="Delete task">×</button></div>):<div className="empty-card">ဒီနေ့လုပ်စရာတွေကို ထည့်လိုက်ပါ။</div>}</div></section>}
 
   {tab==="me"&&<section className="simple-page"><div className="profile-card"><div className="profile-avatar">A1</div><div><span className="eyebrow">YOUR ASSISTANT</span><h1>My Assistant A1</h1><p>Personal • Private • Helpful</p></div></div><div className="settings-card"><button onClick={()=>setDark(v=>!v)}><span>◐</span><div><strong>Appearance</strong><small>{dark?"Dark premium":"Light clean"}</small></div><b>{dark?"ON":"OFF"}</b></button><button onClick={()=>setWidgetVariant(v=>{const n=v==="robot"?"glass":"robot";localStorage.setItem("a1-widget-variant",n);return n})}><span>◇</span><div><strong>Assistant style</strong><small>{widgetVariant==="robot"?"Cute Robot":"Glassmorphism"}</small></div><b>›</b></button><button onClick={()=>{const name=prompt("A1 က သင့်ကို ဘယ်လိုခေါ်ရမလဲ?",memory.userName||"");if(name!==null)updateMemory({userName:name.trim().slice(0,80)||undefined})}}><span>◎</span><div><strong>Your name</strong><small>{memory.userName||"Not set"}</small></div><b>›</b></button><button onClick={()=>updateMemory({responseStyle:memory.responseStyle==="detailed"?"concise":"detailed"})}><span>≡</span><div><strong>Response style</strong><small>{memory.responseStyle==="detailed"?"Detailed":"Concise"}</small></div><b>›</b></button><button onClick={clearAllMemory}><span>⌫</span><div><strong>Clear A1 memory</strong><small>Remove saved preferences</small></div><b>›</b></button><button onClick={clearChat}><span>⌫</span><div><strong>Clear conversation</strong><small>Remove local chat history</small></div><b>›</b></button></div><div className="privacy-note">A1 ရဲ့ conversation history နဲ့ optional preferences တွေကို ဒီ browser ရဲ့ local storage မှာ သိမ်းထားပါတယ်။ Server ကို ပို့တဲ့ memory ကလည်း user preference အနည်းငယ်ပဲ ဖြစ်ပါတယ်။</div></section>}
 
