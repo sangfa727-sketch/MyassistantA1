@@ -19,13 +19,15 @@ Mobile-first AI assistant web app for phones, tablets and desktop browsers.
 1. Use Node.js 20+.
 2. Copy .env.example to .env.local.
 3. Set OPENAI_API_KEY on the server.
-4. Run npm install.
+4. Run npm ci.
 5. Run npm run dev.
 6. Open http://localhost:3000.
 
 ## Deploy
 
-Deploy to a Next.js-compatible host such as Vercel. Add OPENAI_API_KEY and OPENAI_MODEL as server environment variables. Never expose the API key as NEXT_PUBLIC_*.
+Deploy the full app to a Next.js-compatible host such as Vercel. Add OPENAI_API_KEY, OPENAI_MODEL and DATABASE_URL as server environment variables. Never expose secrets as NEXT_PUBLIC_*.
+
+GitHub Pages can host the static UI, but it cannot execute the server-side `/api/chat`, `/api/tasks/plan` or `/api/health` routes. When the UI is hosted on Pages and the API is hosted separately, set `NEXT_PUBLIC_API_BASE_URL` at build time to the HTTPS origin of that backend.
 
 ## Architecture
 
