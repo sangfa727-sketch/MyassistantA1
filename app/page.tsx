@@ -12,12 +12,12 @@ const suggestions=["ဒီနေ့အတွက် အလုပ်အစီအ�
 
 export default function Home(){
  const [tab,setTab]=useState<Tab>("home");
- const [messages,setMessages]=useState<Message[]>(starter),[input,setInput]=useState(""),[busy,setBusy]=useState(false),[listening,setListening]=useState(false),[speakingId,setSpeakingId]=useState<string|null>(null),[widgetVariant,setWidgetVariant]=useState<WidgetVariant>("robot"),[dark,setDark]=useState(true);
+ const [messages,setMessages]=useState<Message[]>(starter),[input,setInput]=useState(""),[sessionId,setSessionId]=useState(""),[busy,setBusy]=useState(false),[listening,setListening]=useState(false),[speakingId,setSpeakingId]=useState<string|null>(null),[widgetVariant,setWidgetVariant]=useState<WidgetVariant>("robot"),[dark,setDark]=useState(true);
  const [tasks,setTasks]=useState<Task[]>([]);
  const [memory,setMemory]=useState<A1Memory>({});
  const bottomRef=useRef<HTMLDivElement>(null),recognitionRef=useRef<any>(null),inputRef=useRef<HTMLTextAreaElement>(null);
 
- useEffect(()=>{const s=localStorage.getItem("a1-messages");if(s)try{setMessages(JSON.parse(s))}catch{};const v=localStorage.getItem("a1-widget-variant");if(v==="glass"||v==="robot")setWidgetVariant(v);const savedTasks=JSON.parse(localStorage.getItem("a1-tasks")||"[]");setTasks(Array.isArray(savedTasks)?savedTasks.map((t:any)=>typeof t==="string"?{id:crypto.randomUUID(),title:t,done:false,createdAt:Date.now()}:t).filter((t:any)=>t&&typeof t.title==="string"):[]);setMemory(loadMemory());setDark(localStorage.getItem("a1-theme")!=="light")},[]);
+ useEffect(()=>{const sid=localStorage.getItem("a1-session-id");if(sid)setSessionId(sid);const s=localStorage.getItem("a1-messages");if(s)try{setMessages(JSON.parse(s))}catch{};const v=localStorage.getItem("a1-widget-variant");if(v==="glass"||v==="robot")setWidgetVariant(v);const savedTasks=JSON.parse(localStorage.getItem("a1-tasks")||"[]");setTasks(Array.isArray(savedTasks)?savedTasks.map((t:any)=>typeof t==="string"?{id:crypto.randomUUID(),title:t,done:false,createdAt:Date.now()}:t).filter((t:any)=>t&&typeof t.title==="string"):[]);setMemory(loadMemory());setDark(localStorage.getItem("a1-theme")!=="light")},[]);
  useEffect(()=>{localStorage.setItem("a1-messages",JSON.stringify(messages));if(tab==="chat")bottomRef.current?.scrollIntoView({behavior:"smooth"})},[messages,busy,tab]);
  useEffect(()=>{localStorage.setItem("a1-tasks",JSON.stringify(tasks))},[tasks]);
  useEffect(()=>{document.documentElement.dataset.theme=dark?"dark":"light";localStorage.setItem("a1-theme",dark?"dark":"light")},[dark]);
@@ -28,15 +28,15 @@ export default function Home(){
   const user:Message={id:crypto.randomUUID(),role:"user",content:value,createdAt:Date.now()},next=[...messages,user];
   setMessages(next);setInput("");setBusy(true);setTab("chat");
   try{
-   const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:next.slice(-20).map(({role,content})=>({role,content})), memory:memorySummary(memory)})});
-   const data=await response.json();if(!response.ok)throw new Error(data?.error||"Request failed");
+   const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:value,sessionId:sessionId||undefined,memory:memorySummary(memory)})});
+   const data=await response.json();if(!response.ok)throw new Error(data?.error||"Request failed");if(data.sessionId){setSessionId(data.sessionId);localStorage.setItem("a1-session-id",data.sessionId)}
    setMessages(cur=>[...cur,{id:crypto.randomUUID(),role:"assistant",content:data.reply,createdAt:Date.now()}]);
   }catch(e){setMessages(cur=>[...cur,{id:crypto.randomUUID(),role:"assistant",content:"⚠️ "+(e instanceof Error?e.message:"ချိတ်ဆက်မှု မအောင်မြင်ပါ။"),createdAt:Date.now()}])}
   finally{setBusy(false)}
  }
  function updateMemory(patch:A1Memory){const next={...memory,...patch};setMemory(next);saveMemory(next)}
  function clearAllMemory(){if(!confirm("A1 မှတ်ထားတဲ့ personal preferences တွေကို ဖျက်မလား?"))return;clearMemory();setMemory({})}
- function clearChat(){if(!confirm("Conversation ကို ဖျက်မလား?"))return;setMessages(starter);localStorage.removeItem("a1-messages")}
+ function clearChat(){if(!confirm("Conversation ကို ဖျက်မလား?"))return;setMessages(starter);setSessionId("");localStorage.removeItem("a1-messages");localStorage.removeItem("a1-session-id")}
  function focusAssistant(){setTab("chat");setTimeout(()=>inputRef.current?.focus(),40);bottomRef.current?.scrollIntoView({behavior:"smooth"})}
  function startVoice(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
