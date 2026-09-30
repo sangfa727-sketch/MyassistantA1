@@ -8,9 +8,9 @@ const starter:Message[]=[{id:"welcome",role:"assistant",content:"မင်္ဂ
 const suggestions=["ဒီနေ့အတွက် အလုပ်အစီအစဉ်ဆွဲပေးပါ","ဒီစာကို မြန်မာလို ဘာသာပြန်ပေးပါ","business idea ၅ ခု ပေးပါ","ဒီ code ကို စစ်ပေးပါ"];
 
 export default function Home(){
- const [messages,setMessages]=useState<Message[]>(starter),[input,setInput]=useState(""),[busy,setBusy]=useState(false),[listening,setListening]=useState(false),[speakingId,setSpeakingId]=useState<string|null>(null);
+ const [messages,setMessages]=useState<Message[]>(starter),[input,setInput]=useState(""),[busy,setBusy]=useState(false),[listening,setListening]=useState(false),[speakingId,setSpeakingId]=useState<string|null>(null),[widgetVariant,setWidgetVariant]=useState<"glass"|"robot">("robot");
  const bottomRef=useRef<HTMLDivElement>(null),recognitionRef=useRef<any>(null),inputRef=useRef<HTMLTextAreaElement>(null);
- useEffect(()=>{const s=localStorage.getItem("a1-messages");if(s)try{setMessages(JSON.parse(s))}catch{}},[]);
+ useEffect(()=>{const s=localStorage.getItem("a1-messages");if(s)try{setMessages(JSON.parse(s))}catch{};const v=localStorage.getItem("a1-widget-variant");if(v==="glass"||v==="robot")setWidgetVariant(v)},[]);
  useEffect(()=>{localStorage.setItem("a1-messages",JSON.stringify(messages));bottomRef.current?.scrollIntoView({behavior:"smooth"})},[messages,busy]);
  const canSend=useMemo(()=>!!input.trim()&&!busy,[input,busy]);
  async function sendMessage(text=input){
@@ -40,7 +40,7 @@ export default function Home(){
   speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="my-MM";u.onend=()=>setSpeakingId(null);u.onerror=()=>setSpeakingId(null);setSpeakingId(id);speechSynthesis.speak(u);
  }
  return <main className="app-shell">
-  <A1RobotWidget state={busy?"thinking":listening?"listening":speakingId?"speaking":"idle"} onOpen={focusAssistant} onVoice={startVoice} />
+  <A1RobotWidget state={busy?"thinking":listening?"listening":speakingId?"speaking":"idle"} variant={widgetVariant} onVariantChange={v=>{setWidgetVariant(v);localStorage.setItem("a1-widget-variant",v)}} onOpen={focusAssistant} onVoice={startVoice} />
   <header className="topbar"><div className="brand"><div className="avatar">A1</div><div><strong>My Assistant A1</strong><span><i/> Online assistant</span></div></div><button className="icon-btn" onClick={clearChat}>⌫</button></header>
   <section className="chat"><div className="hero"><div className="hero-orb">✦</div><h1>A1 Assistant</h1><p>သင်လိုချင်တာကို ရိုးရိုးရှင်းရှင်း ပြောပါ။</p></div>
    <div className="messages">{messages.map(m=><article key={m.id} className={m.role==="user"?"message user":"message"}><div className="bubble">{m.content}</div>{m.role==="assistant"&&m.id!=="welcome"&&<button className="speak-btn" onClick={()=>speak(m.id,m.content)}>{speakingId===m.id?"◼ Stop":"🔊 နားထောင်"}</button>}</article>)}{busy&&<article className="message"><div className="bubble typing"><span/><span/><span/></div></article>}<div ref={bottomRef}/></div>
