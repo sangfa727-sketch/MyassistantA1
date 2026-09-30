@@ -69,7 +69,20 @@ export default function Home(){
    <div className="home-greeting"><span className="eyebrow">PERSONAL AI ASSISTANT</span><h1>မင်္ဂလာပါ 👋<br/><em>ဒီနေ့ ဘာလုပ်ပေးရမလဲ?</em></h1><p>A1 ကို ရိုးရိုးရှင်းရှင်း ပြောလိုက်ပါ။</p></div>
    <div className="home-a1-card"><div className="home-a1-orb">✦</div><div><strong>A1 is ready</strong><span>မေးပါ၊ ရေးခိုင်းပါ၊ စီစဉ်ခိုင်းပါ</span></div><button onClick={focusAssistant}>Chat →</button></div>
    <div className="section-heading"><h2>Quick actions</h2><span>အမြန်စတင်ရန်</span></div>
-   <div className="action-grid">{[["✍️","Write","စာရေးခြင်း"],["🌐","Translate","ဘာသာပြန်"],["💡","Ideas","အကြံဉာဏ်"],["📚","Learn","လေ့လာခြင်း"],["💻","Code","Coding"],["📊","Plan","စီမံကိန်း"]].map(([icon,title,sub])=><button className="action-card" key={title} onClick={()=>sendMessage(title==="Write"?"စာတစ်ပုဒ်ရေးပေးပါ":title==="Translate"?"ဒီစာကို ဘာသာပြန်ပေးပါ":title==="Ideas"?"business idea ၅ ခု ပေးပါ":title==="Learn"?"ဒီအကြောင်းကို ရှင်းပြပေးပါ":title==="Code"?"ဒီ code ကို စစ်ပေးပါ":"ဒီအတွက် အစီအစဉ်ဆွဲပေးပါ"}><b>{icon}</b><strong>{title}</strong><span>{sub}</span></button>)}</div>
+   <div className="action-grid">
+    {[
+      ["✍️","Write","စာရေးခြင်း","စာတစ်ပုဒ်ရေးပေးပါ"],
+      ["🌐","Translate","ဘာသာပြန်","ဒီစာကို ဘာသာပြန်ပေးပါ"],
+      ["💡","Ideas","အကြံဉာဏ်","business idea ၅ ခု ပေးပါ"],
+      ["📚","Learn","လေ့လာခြင်း","ဒီအကြောင်းကို ရှင်းပြပေးပါ"],
+      ["💻","Code","Coding","ဒီ code ကို စစ်ပေးပါ"],
+      ["📊","Plan","စီမံကိန်း","ဒီအတွက် အစီအစဉ်ဆွဲပေးပါ"],
+    ].map(([icon,title,sub,prompt]) => (
+      <button className="action-card" key={title} onClick={() => sendMessage(prompt)}>
+        <b>{icon}</b><strong>{title}</strong><span>{sub}</span>
+      </button>
+    ))}
+   </div>
    <div className="section-heading recent-heading"><h2>Recent</h2><span>{`${messages.length-1} messages`}</span></div>
    <div className="recent-list">{messages.filter(m=>m.id!=="welcome").slice(-3).reverse().map(m=><button key={m.id} onClick={focusAssistant}><span>◦</span><div><strong>{m.content.slice(0,48)}{m.content.length>48?"…":""}</strong><small>A1 conversation</small></div><b>›</b></button>)}{messages.length<=1&&<div className="empty-state">သင်စကားပြောပြီးတဲ့ conversation တွေ ဒီနေရာမှာ ပေါ်လာပါမယ်။</div>}</div>
   </section>}
