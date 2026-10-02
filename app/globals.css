@@ -358,3 +358,45 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 @media(prefers-reduced-motion:reduce){
   .robot-shell .robot-launcher{transition:none!important}
 }
+
+
+/* A1 Robot 3D movement: body yaw/pitch + independent head yaw/pitch */
+.robot-shell .robot-launcher{
+  perspective:520px;
+  transform-style:preserve-3d;
+  touch-action:none;
+  overflow:visible;
+}
+.robot-shell .robot-body{
+  transform-style:preserve-3d;
+  transform-origin:50% 0%;
+  transform:translateZ(0) rotateY(var(--robot-body-yaw,0deg)) rotateX(var(--robot-body-pitch,0deg));
+  transition:transform .12s cubic-bezier(.2,.8,.2,1);
+}
+.robot-shell .robot-head{
+  transform-style:preserve-3d;
+  transform-origin:50% 100%;
+  transform:translateZ(14px) rotateY(var(--robot-head-yaw,0deg)) rotateX(var(--robot-head-pitch,0deg));
+  transition:transform .12s cubic-bezier(.2,.8,.2,1);
+  z-index:4;
+}
+.robot-shell .robot-antenna{
+  transform-style:preserve-3d;
+  transform-origin:center bottom;
+}
+.robot-shell .robot-antenna.left{
+  transform:rotate(-18deg) rotateY(var(--robot-head-yaw,0deg)) rotateX(var(--robot-head-pitch,0deg));
+}
+.robot-shell .robot-antenna.right{
+  transform:rotate(18deg) rotateY(var(--robot-head-yaw,0deg)) rotateX(var(--robot-head-pitch,0deg));
+}
+.robot-shell .robot-head::after,
+.robot-shell .robot-body::after{
+  pointer-events:none;
+}
+.robot-shell .robot-launcher[aria-label]{
+  -webkit-tap-highlight-color:transparent;
+}
+@media(prefers-reduced-motion:reduce){
+  .robot-shell .robot-body,.robot-shell .robot-head{transition:none!important}
+}
