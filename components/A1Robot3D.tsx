@@ -556,9 +556,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           // Hi wave: the shoulder/upper arm holds the hand high while the
           // elbow stays lowered. Only the forearm + palm perform the small
           // side-to-side "ta-ta" motion, like a servo-driven mascot arm.
-          leftArmRef.current?.rotation.set(-0.03, -0.10, -0.32);
+          leftArmRef.current?.rotation.set(-0.03, -0.10, -0.22);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          leftElbowRef.current?.rotation.set(0, 0, Math.PI / 2);
+          leftElbowRef.current?.rotation.set(0, 0, Math.PI / 4);
           leftWristRef.current?.rotation.set(0, 0, wave * 0.42);
           rightWristRef.current?.rotation.set(0, 0, 0);
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + pointerLookPitch;
@@ -576,9 +576,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         } else if (wavePhase) {
           // A short friendly wave, then return to neutral.
           const wave = Math.sin((cycle - 11.5) * 7.5);
-          leftArmRef.current?.rotation.set(-0.03, -0.08, -0.32);
+          leftArmRef.current?.rotation.set(-0.03, -0.08, -0.22);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          leftElbowRef.current?.rotation.set(0, 0, 2.55);
+          leftElbowRef.current?.rotation.set(0, 0, Math.PI / 4);
           leftWristRef.current?.rotation.set(0, 0, wave * 0.36);
           rightWristRef.current?.rotation.set(0, 0, 0);
         } else {
