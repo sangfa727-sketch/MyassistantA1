@@ -55,6 +55,7 @@ export default function A1RobotWidget({
       headPitch,
     };
     event.currentTarget.setPointerCapture?.(event.pointerId);
+    event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:dragstart"));
   }
 
   function handleRobotPointerMove(event: PointerEvent<HTMLButtonElement>) {
@@ -99,6 +100,7 @@ export default function A1RobotWidget({
     }
 
     gestureStart.current = null;
+    event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:dragend"));
     if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -112,8 +114,9 @@ export default function A1RobotWidget({
     finishRobotGesture(event, true);
   }
 
-  function handleRobotPointerLostCapture() {
+  function handleRobotPointerLostCapture(event: PointerEvent<HTMLButtonElement>) {
     gestureStart.current = null;
+    event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:dragend"));
   }
 
   function choose(next: WidgetVariant) {
@@ -173,6 +176,7 @@ export default function A1RobotWidget({
       >
         <span className="robot-aura" />
         <span className="robot-aura-ring" />
+        <span className="robot-reaction" aria-hidden="true">?</span>
         <A1Robot3D
           state={state}
           bodyYaw={bodyYaw}
