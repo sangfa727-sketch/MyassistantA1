@@ -58,7 +58,9 @@ export default function A1RobotWidget({
   }
 
   if (variant === "glass") {
-    return (
+    const turnSide = robotTurn > 5 ? "right" : robotTurn < -5 ? "left" : "center";
+
+  return (
       <div className="a1-widget-shell">
         <div className={`widget-picker ${pickerOpen ? "open" : ""}`}>
           <button className="widget-settings" onClick={() => setPickerOpen(v => !v)} aria-label="Widget style ရွေးရန်" aria-expanded={pickerOpen}>⚙</button>
@@ -97,8 +99,8 @@ export default function A1RobotWidget({
       </div>
 
       <button
-        className={`robot-launcher robot-${state}`}
-        style={{ transform: `perspective(260px) rotateY(${robotTurn}deg)` }}
+        className={`robot-launcher robot-${state} robot-turn-${turnSide}`}
+        style={{ "--robot-turn": `${robotTurn}deg`, transform: "perspective(260px) rotateY(var(--robot-turn))" } as CSSProperties}
         onPointerDown={handleRobotPointerDown}
         onPointerMove={handleRobotPointerMove}
         onPointerUp={handleRobotPointerUp}
