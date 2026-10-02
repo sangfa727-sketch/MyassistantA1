@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useRef, type MutableRefObject } from "react";
-// Three.js ships JavaScript runtime modules; the project keeps a lightweight local shim for this client-only renderer.\n// @ts-ignore TS7016: runtime package is intentionally consumed without the full optional type bundle.\nimport * as THREE from "three";
-// @ts-ignore TS7016: addon is a runtime geometry module.\nimport { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+// Three.js ships JavaScript runtime modules; the project keeps a lightweight local shim for this client-only renderer.
+// @ts-ignore TS7016: runtime package is intentionally consumed without the full optional type bundle.
+import * as THREE from "three";
+// @ts-ignore TS7016: addon is a runtime geometry module.
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
 type RobotState = "idle" | "thinking" | "listening" | "speaking";
 
