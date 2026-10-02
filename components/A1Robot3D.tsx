@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type MutableRefObject } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
@@ -13,8 +13,6 @@ type Props = {
   headYaw: number;
   headPitch: number;
 };
-
-const TAU = Math.PI * 2;
 
 function roundedBox(width: number, height: number, depth: number, radius: number, smoothness = 5) {
   return new RoundedBoxGeometry(width, height, depth, smoothness, radius);
@@ -40,7 +38,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
-    scene.environment = new THREE.Color(0x152a4a);
 
     const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
     camera.position.set(0, 1.05, 6.5);
@@ -119,7 +116,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const armGeo = new THREE.CapsuleGeometry(0.13, 0.56, 8, 16);
     const handGeo = new THREE.SphereGeometry(0.19, 20, 14);
 
-    function addArm(side: number, ref: React.MutableRefObject<THREE.Group | null>) {
+    function addArm(side: number, ref: MutableRefObject<THREE.Group | null>) {
       const g = new THREE.Group();
       ref.current = g;
       g.position.set(side * 0.86, 0.35, 0);
