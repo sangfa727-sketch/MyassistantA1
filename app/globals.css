@@ -2,6 +2,9 @@
 .robot-widget{position:fixed;right:14px;bottom:calc(92px + env(safe-area-inset-bottom));z-index:30;width:92px;height:112px;pointer-events:none}
 .robot-launcher{position:absolute;right:0;bottom:0;width:74px;height:92px;border:0;background:transparent;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 14px 22px rgba(0,0,0,.32));transition:transform .2s ease}
 .robot-launcher:active{transform:scale(.94)}
+.robot-reaction{position:absolute;right:6px;top:2px;z-index:8;min-width:24px;height:24px;padding:0 6px;border-radius:999px;display:grid;place-items:center;background:rgba(15,23,41,.9);border:1px solid rgba(180,193,255,.34);color:#eef2ff;font-size:14px;font-weight:900;opacity:0;transform:translateY(5px) scale(.72);pointer-events:none;box-shadow:0 8px 20px rgba(0,0,0,.28);transition:opacity .16s ease,transform .22s cubic-bezier(.2,.8,.2,1)}
+.robot-reaction.show{opacity:1;transform:translateY(0) scale(1);animation:robotReactionPop .9s ease-in-out infinite}
+@keyframes robotReactionPop{50%{transform:translateY(-2px) scale(1.06)}}
 .robot-aura{position:absolute;inset:15px 4px 0;border-radius:30px;background:radial-gradient(circle,rgba(104,119,255,.28),transparent 68%);animation:robotAura 3s ease-in-out infinite}
 .robot-antenna{position:absolute;left:34px;top:0;width:6px;height:18px;border-radius:8px;background:#aeb8ff}
 .robot-antenna i{position:absolute;top:-3px;left:-3px;width:12px;height:12px;border-radius:50%;background:#7c8cff;box-shadow:0 0 12px rgba(124,140,255,.8)}
