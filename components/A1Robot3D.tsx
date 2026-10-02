@@ -181,10 +181,17 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     headShell.castShadow = true;
     head.add(headShell);
 
-    const facePlate = new THREE.Mesh(new THREE.SphereGeometry(0.67, 32, 24), darkMat);
-    facePlate.scale.set(1.0, 0.68, 0.22);
-    facePlate.position.set(0, -0.01, 0.69);
+    // Deep, curved face visor: keep real thickness so side/back turns reveal volume.
+    const facePlate = new THREE.Mesh(new THREE.SphereGeometry(0.67, 40, 28), darkMat);
+    facePlate.scale.set(1.0, 0.70, 0.34);
+    facePlate.position.set(0, -0.01, 0.61);
+    facePlate.castShadow = true;
     head.add(facePlate);
+
+    const faceInner = new THREE.Mesh(new THREE.SphereGeometry(0.51, 32, 22), darkMat);
+    faceInner.scale.set(1.0, 0.72, 0.26);
+    faceInner.position.set(0, -0.01, 0.82);
+    head.add(faceInner);
 
     const eyeGeo = new THREE.SphereGeometry(0.15, 24, 18);
     const eyeL = new THREE.Mesh(eyeGeo, cyanMat);
@@ -217,13 +224,42 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     earR.scale.set(0.5, 1, 0.7);
     head.add(earL, earR);
 
-    const antennaMat = new THREE.MeshStandardMaterial({ color: 0x5bdcff, emissive: 0x168dff, emissiveIntensity: 1.6, metalness: 0.55, roughness: 0.2 });
-    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.055, 0.48, 16), antennaMat);
-    antenna.position.y = 1.0;
-    head.add(antenna);
-    const antennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 14), cyanMat);
-    antennaTip.position.y = 1.25;
-    head.add(antennaTip);
+    // Ear-mounted antennae are children of the head, so the entire mast + tip
+    // follows the head rotation as one rigid assembly instead of leaving a piece behind.
+    const antennaMat = new THREE.MeshStandardMaterial({
+      color: 0x5bdcff,
+      emissive: 0x168dff,
+      emissiveIntensity: 1.6,
+      metalness: 0.55,
+      roughness: 0.2,
+    });
+    const antennaMastGeo = new THREE.CylinderGeometry(0.035, 0.055, 0.42, 18);
+    const antennaTipGeo = new THREE.SphereGeometry(0.105, 24, 16);
+
+    function addEarAntenna(side: number) {
+      const assembly = new THREE.Group();
+      assembly.position.set(side * 0.82, 0.12, 0.02);
+      assembly.rotation.z = side * -0.24;
+      head.add(assembly);
+
+      const base = new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 14), trimMat);
+      base.position.y = 0.02;
+      base.castShadow = true;
+      assembly.add(base);
+
+      const mast = new THREE.Mesh(antennaMastGeo, antennaMat);
+      mast.position.y = 0.23;
+      mast.castShadow = true;
+      assembly.add(mast);
+
+      const tip = new THREE.Mesh(antennaTipGeo, cyanMat);
+      tip.position.y = 0.45;
+      tip.castShadow = true;
+      assembly.add(tip);
+    }
+
+    addEarAntenna(-1);
+    addEarAntenna(1);
 
     let animationId = 0;
     const clock = new THREE.Clock();
@@ -298,8 +334,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       bodyRef.current.rotation.x = THREE.MathUtils.degToRad(bodyPitch * 0.65);
     }
     if (headRef.current) {
-      // Head rotation is local to the body, so the whole character turns
-      // together and the back of the head remains visible from behind.
+      // Head rotation is local to the body. Every child — ears, face depth,
+      // and ear-mounted antenna assembly — therefore moves as one rigid 3D part.
       headRef.current.rotation.y = THREE.MathUtils.degToRad(headYaw);
       headRef.current.rotation.x = THREE.MathUtils.degToRad(headPitch);
     }
