@@ -56,11 +56,11 @@ export default function A1RobotWidget({
     const dx = event.clientX - start.x;
     const dy = event.clientY - start.y;
 
-    // Horizontal drag = body left/right turn.
-    const nextBodyYaw = clamp(start.bodyYaw + dx * 0.55, -55, 55);
+    // Horizontal drag = full-body 360° turn; head remains independently limited.
+    const nextBodyYaw = clamp(start.bodyYaw + dx * 1.15, -180, 180);
     // Vertical drag = body lean forward/back + independent head look up/down.
     const nextBodyPitch = clamp(start.bodyPitch - dy * 0.20, -18, 18);
-    const nextHeadYaw = clamp(start.headYaw + dx * 0.72, -45, 45);
+    const nextHeadYaw = clamp(start.headYaw + dx * 0.42, -45, 45);
     const nextHeadPitch = clamp(start.headPitch - dy * 0.34, -26, 26);
 
     setBodyYaw(nextBodyYaw);
