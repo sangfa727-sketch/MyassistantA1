@@ -158,21 +158,32 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       shoulder.castShadow = true;
       g.add(shoulder);
 
-      const shoulderCover = new THREE.Mesh(
-        roundedBox(0.32, 0.30, 0.28, 0.08),
+      // Compact servo housing: a rounded side shell with a real circular motor
+      // face/axle, rather than a block crossing the arm at an unnatural angle.
+      const shoulderHousing = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.18, 0.18, 0.22, 32),
         darkMat
       );
-      shoulderCover.position.set(0, -0.02, 0.035);
-      shoulderCover.castShadow = true;
-      g.add(shoulderCover);
+      shoulderHousing.rotation.z = Math.PI / 2;
+      shoulderHousing.position.set(0, -0.02, 0.03);
+      shoulderHousing.castShadow = true;
+      g.add(shoulderHousing);
 
-      const shoulderServo = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.075, 0.075, 0.30, 20),
+      const shoulderCap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.13, 0.13, 0.035, 32),
+        trimMat
+      );
+      shoulderCap.rotation.z = Math.PI / 2;
+      shoulderCap.position.set(side * 0.125, -0.02, 0.03);
+      g.add(shoulderCap);
+
+      const shoulderAxle = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.045, 0.045, 0.045, 24),
         cyanMat
       );
-      shoulderServo.rotation.z = Math.PI / 2;
-      shoulderServo.position.set(0, -0.02, 0.18);
-      g.add(shoulderServo);
+      shoulderAxle.rotation.z = Math.PI / 2;
+      shoulderAxle.position.set(side * 0.155, -0.02, 0.03);
+      g.add(shoulderAxle);
 
       // Real two-segment arm: the elbow is an actual joint, so A1 can
       // lift the hand above shoulder height instead of only swinging one
@@ -188,27 +199,40 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       else rightElbowRef.current = elbow;
       g.add(elbow);
 
-      const elbowCover = new THREE.Mesh(
-        roundedBox(0.26, 0.22, 0.24, 0.07),
+      // The elbow is a compact circular servo pod. The dark housing is the
+      // motor body, the blue ring is its visible side cap, and the cyan axle
+      // gives the joint a believable mechanical center.
+      const elbowHousing = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.16, 0.16, 0.22, 32),
         darkMat
       );
-      elbowCover.position.set(0, 0, 0.025);
-      elbowCover.castShadow = true;
-      elbow.add(elbowCover);
+      elbowHousing.rotation.z = Math.PI / 2;
+      elbowHousing.castShadow = true;
+      elbow.add(elbowHousing);
 
-      const elbowServo = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.065, 0.065, 0.26, 20),
+      const elbowCap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.115, 0.115, 0.035, 32),
+        trimMat
+      );
+      elbowCap.rotation.z = Math.PI / 2;
+      elbowCap.position.x = side * 0.125;
+      elbow.add(elbowCap);
+
+      const elbowAxle = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.038, 0.038, 0.045, 24),
         cyanMat
       );
-      elbowServo.rotation.z = Math.PI / 2;
-      elbowServo.position.set(0, 0, 0.15);
-      elbow.add(elbowServo);
+      elbowAxle.rotation.z = Math.PI / 2;
+      elbowAxle.position.x = side * 0.155;
+      elbow.add(elbowAxle);
 
       const elbowJoint = new THREE.Mesh(elbowGeo, trimMat);
-      elbowJoint.castShadow = true;
+      elbowJoint.scale.set(0.92, 0.92, 0.92);
       elbow.add(elbowJoint);
 
       const forearm = new THREE.Mesh(forearmGeo, torsoMat);
+      // Neutral arm points down. A 180° elbow rotation folds the forearm
+      // upward through a natural hinge, so the hand can sit above the elbow.
       forearm.position.y = -0.22;
       forearm.castShadow = true;
       elbow.add(forearm);
@@ -512,7 +536,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           // side-to-side "ta-ta" motion, like a servo-driven mascot arm.
           leftArmRef.current?.rotation.set(-0.03, -0.10, -1.08);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          leftElbowRef.current?.rotation.set(0, 0, 0.72 + wave * 0.34);
+          leftElbowRef.current?.rotation.set(0, 0, Math.PI + wave * 0.24);
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + pointerLookPitch;
           head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
           head.rotation.z = Math.sin(waveTime * 2.2) * 0.025;
@@ -528,7 +552,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           const wave = Math.sin((cycle - 11.5) * 7.5);
           leftArmRef.current?.rotation.set(-0.03, -0.08, -1.05);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          leftElbowRef.current?.rotation.set(0, 0, 0.68 + wave * 0.30);
+          leftElbowRef.current?.rotation.set(0, 0, Math.PI + wave * 0.22);
         } else {
           const relax = Math.sin(elapsed * 1.5) * 0.025;
           leftArmRef.current?.rotation.set(0, 0, -relax);
