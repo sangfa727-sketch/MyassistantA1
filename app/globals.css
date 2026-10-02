@@ -297,3 +297,8 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 @media(max-width:380px){
   .robot-shell .robot-head{border-radius:26px 26px 19px 19px}
 }
+
+
+/* A1 antenna tip simplification */
+.robot-shell .robot-antenna i{display:none!important}
+.robot-shell .robot-antenna{width:4px;height:28px;border-radius:3px;box-shadow:0 0 6px rgba(128,143,255,.18)}
