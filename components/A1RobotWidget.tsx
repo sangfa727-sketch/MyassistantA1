@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type PointerEvent } from "react";
 
 type RobotState = "idle" | "thinking" | "listening" | "speaking";
 export type WidgetVariant = "glass" | "robot";
@@ -20,7 +20,10 @@ export default function A1RobotWidget({
   onOpen,
   onVoice,
 }: Props) {
-  const [pickerOpen, setPickerOpen] = useState(false);\n  const [robotTurn, setRobotTurn] = useState(0);\n  const turnStartX = useRef<number | null>(null);\n  const turnStart = useRef(0);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [robotTurn, setRobotTurn] = useState(0);
+  const turnStartX = useRef<number | null>(null);
+  const turnStart = useRef(0);
 
   const label =
     state === "thinking" ? "ခဏစဉ်းစားနေတယ်…" :
@@ -28,7 +31,28 @@ export default function A1RobotWidget({
     state === "speaking" ? "မင်းနဲ့စကားပြောနေတယ် ✨" :
     "A1 နဲ့ပြောမယ် 💙";
 
-  function handleRobotPointerDown(event: React.PointerEvent<HTMLButtonElement>) {\n    turnStartX.current = event.clientX;\n    turnStart.current = robotTurn;\n    event.currentTarget.setPointerCapture?.(event.pointerId);\n  }\n\n  function handleRobotPointerMove(event: React.PointerEvent<HTMLButtonElement>) {\n    if (turnStartX.current === null) return;\n    const delta = event.clientX - turnStartX.current;\n    setRobotTurn(Math.max(-24, Math.min(24, turnStart.current + delta * 0.22)));\n  }\n\n  function handleRobotPointerUp(event: React.PointerEvent<HTMLButtonElement>) {\n    if (turnStartX.current === null) return;\n    const delta = event.clientX - turnStartX.current;\n    turnStartX.current = null;\n    if (Math.abs(delta) < 8) onOpen();\n    else setRobotTurn(Math.max(-18, Math.min(18, turnStart.current + delta * 0.18)));\n    event.currentTarget.releasePointerCapture?.(event.pointerId);\n  }\n\n  function choose(next: WidgetVariant) {
+  function handleRobotPointerDown(event: PointerEvent<HTMLButtonElement>) {
+    turnStartX.current = event.clientX;
+    turnStart.current = robotTurn;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  }
+
+  function handleRobotPointerMove(event: React.PointerEvent<HTMLButtonElement>) {
+    if (turnStartX.current === null) return;
+    const delta = event.clientX - turnStartX.current;
+    setRobotTurn(Math.max(-24, Math.min(24, turnStart.current + delta * 0.22)));
+  }
+
+  function handleRobotPointerUp(event: React.PointerEvent<HTMLButtonElement>) {
+    if (turnStartX.current === null) return;
+    const delta = event.clientX - turnStartX.current;
+    turnStartX.current = null;
+    if (Math.abs(delta) < 8) onOpen();
+    else setRobotTurn(Math.max(-18, Math.min(18, turnStart.current + delta * 0.18)));
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+  }
+
+  function choose(next: WidgetVariant) {
     onVariantChange(next);
     setPickerOpen(false);
   }
@@ -72,7 +96,15 @@ export default function A1RobotWidget({
         <span className="robot-hint-dot" />{label}
       </div>
 
-      <button\n        className={`robot-launcher robot-${state}`}\n        style={{ transform: `perspective(260px) rotateY(${robotTurn}deg)` }}\n        onPointerDown={handleRobotPointerDown}\n        onPointerMove={handleRobotPointerMove}\n        onPointerUp={handleRobotPointerUp}\n        onPointerCancel={() => { turnStartX.current = null; }}\n        aria-label="A1 Assistant ဖွင့်ရန် — ဘယ်ညာ swipe လုပ်၍ လှည့်ရန်"\n      >
+      <button
+        className={`robot-launcher robot-${state}`}
+        style={{ transform: `perspective(260px) rotateY(${robotTurn}deg)` }}
+        onPointerDown={handleRobotPointerDown}
+        onPointerMove={handleRobotPointerMove}
+        onPointerUp={handleRobotPointerUp}
+        onPointerCancel={() => { turnStartX.current = null; }}
+        aria-label="A1 Assistant ဖွင့်ရန် — ဘယ်ညာ swipe လုပ်၍ လှည့်ရန်"
+      >
         <span className="robot-aura" />
         <span className="robot-aura-ring" />
         <span className="robot-antenna left"><i /></span>
