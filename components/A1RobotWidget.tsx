@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type PointerEvent } from "react";
+import { useRef, useState, type PointerEvent } from "react";
+import A1Robot3D from "./A1Robot3D";
 
 type RobotState = "idle" | "thinking" | "listening" | "speaking";
 export type WidgetVariant = "glass" | "robot";
@@ -135,20 +136,6 @@ export default function A1RobotWidget({
     );
   }
 
-  const bodyStyle = {
-    "--robot-body-yaw": `${bodyYaw}deg`,
-    "--robot-body-pitch": `${bodyPitch}deg`,
-    "--robot-body-shadow-x": `${bodyYaw * -0.16}px`,
-    "--robot-body-shadow-x-soft": `${bodyYaw * 0.11}px`,
-  } as CSSProperties;
-
-  const headStyle = {
-    "--robot-head-yaw": `${headYaw}deg`,
-    "--robot-head-pitch": `${headPitch}deg`,
-    "--robot-shadow-x": `${headYaw * -0.12}px`,
-    "--robot-shadow-x-soft": `${headYaw * 0.12}px`,
-  } as CSSProperties;
-
   return (
     <div className="a1-widget-shell robot-shell">
       <div className={`widget-picker ${pickerOpen ? "open" : ""}`}>
@@ -176,40 +163,13 @@ export default function A1RobotWidget({
       >
         <span className="robot-aura" />
         <span className="robot-aura-ring" />
-        <span className="robot-antenna left"><i /></span>
-        <span className="robot-antenna right"><i /></span>
-
-        <span className="robot-body" style={bodyStyle}>
-          <span className="robot-neck" />
-          <span className="robot-badge">A1</span>
-          <span className="robot-core" aria-hidden="true" />
-          <span className="robot-heart">♥</span>
-          <span className="robot-shoulder left" />
-          <span className="robot-shoulder right" />
-          <span className="robot-arm left" />
-          <span className="robot-arm right" />
-          <span className="robot-leg left"><i className="robot-foot" /></span>
-          <span className="robot-leg right"><i className="robot-foot" /></span>
-        </span>
-
-        <span className="robot-head" style={headStyle}>
-          <span className="robot-ear left" />
-          <span className="robot-ear right" />
-          <span className="robot-face">
-            <i className="robot-eye left" />
-            <i className="robot-eye right" />
-            <span className="robot-eye-glow" />
-          </span>
-          <span className="robot-eyebrow left" />
-          <span className="robot-eyebrow right" />
-          <span className="robot-mouth">
-            {state === "speaking" ? "⌣" : state === "thinking" ? "…" : state === "listening" ? "ᴗ" : "•"}
-          </span>
-          <span className="robot-cheek left" />
-          <span className="robot-cheek right" />
-          <span className="robot-blush left" />
-          <span className="robot-blush right" />
-        </span>
+        <A1Robot3D
+          state={state}
+          bodyYaw={bodyYaw}
+          bodyPitch={bodyPitch}
+          headYaw={headYaw}
+          headPitch={headPitch}
+        />
       </button>
 
       <button className="robot-mic" onClick={onVoice} aria-label="A1 voice input">🎙</button>
