@@ -400,3 +400,127 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 @media(prefers-reduced-motion:reduce){
   .robot-shell .robot-body,.robot-shell .robot-head{transition:none!important}
 }
+
+
+/* A1 full-body 3D robot — visible front, sides, back and articulated lower body */
+.robot-shell .robot-launcher{
+  perspective:620px;
+  transform-style:preserve-3d;
+}
+.robot-shell .robot-body{
+  transform-style:preserve-3d;
+  transform:translateZ(0) rotateY(var(--robot-body-yaw,0deg)) rotateX(var(--robot-body-pitch,0deg));
+  animation:none!important;
+  transform-origin:50% 72%;
+}
+.robot-shell .robot-body::after{
+  content:"";
+  position:absolute;
+  inset:2px -1px -1px;
+  border-radius:16px 16px 14px 14px;
+  background:linear-gradient(90deg,rgba(20,30,92,.42),transparent 20%,transparent 78%,rgba(15,24,82,.38)),linear-gradient(180deg,rgba(255,255,255,.10),transparent 34%,rgba(5,12,54,.20));
+  transform:translateZ(-3px);
+  pointer-events:none;
+}
+.robot-shell .robot-head{
+  transform-style:preserve-3d;
+  transform:translateZ(15px) rotateY(var(--robot-head-yaw,0deg)) rotateX(var(--robot-head-pitch,0deg));
+  transform-origin:50% 75%;
+}
+.robot-shell .robot-head::after{
+  content:"";
+  position:absolute;
+  inset:4px -1px 3px;
+  border-radius:20px;
+  background:linear-gradient(90deg,rgba(70,82,164,.38),transparent 22%,transparent 78%,rgba(60,72,151,.36));
+  transform:translateZ(-4px);
+  pointer-events:none;
+}
+.robot-shell .robot-neck{
+  transform:translateZ(-1px);
+}
+.robot-shell .robot-shoulder{
+  position:absolute;
+  top:7px;
+  width:13px;
+  height:13px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#eef1ff,#9ba8f2 48%,#4858bd 100%);
+  border:1px solid rgba(230,234,255,.35);
+  box-shadow:0 3px 6px rgba(11,18,65,.35);
+  transform:translateZ(4px);
+  z-index:4;
+}
+.robot-shell .robot-shoulder.left{left:-10px}
+.robot-shell .robot-shoulder.right{right:-10px}
+.robot-shell .robot-arm{
+  transform-style:preserve-3d;
+  transform:translateZ(2px) rotateY(calc(var(--robot-body-yaw,0deg) * .18));
+  transform-origin:50% 15%;
+}
+.robot-shell .robot-arm.left{left:-10px}
+.robot-shell .robot-arm.right{right:-10px}
+.robot-shell .robot-leg{
+  position:absolute;
+  top:37px;
+  width:13px;
+  height:25px;
+  border-radius:7px 7px 8px 8px;
+  background:linear-gradient(145deg,#7585f4,#4656c2 55%,#283887);
+  border:1px solid rgba(174,186,255,.22);
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.16),0 4px 7px rgba(15,23,75,.32);
+  transform:translateZ(1px) rotateY(calc(var(--robot-body-yaw,0deg) * .12));
+  transform-origin:50% 0;
+  z-index:1;
+}
+.robot-shell .robot-leg.left{left:7px}
+.robot-shell .robot-leg.right{right:7px}
+.robot-shell .robot-leg::before{
+  content:"";
+  position:absolute;
+  left:2px;right:2px;top:-3px;height:6px;
+  border-radius:5px;
+  background:#9aa7f4;
+}
+.robot-shell .robot-foot{
+  position:absolute;
+  left:-3px;
+  bottom:-5px;
+  width:19px;
+  height:8px;
+  border-radius:6px 6px 4px 4px;
+  background:linear-gradient(180deg,#aab5fa,#5364d1 65%,#29398d);
+  box-shadow:0 3px 5px rgba(7,12,48,.38);
+}
+.robot-shell .robot-leg.left .robot-foot{transform:rotateY(calc(var(--robot-body-yaw,0deg) * .2))}
+.robot-shell .robot-leg.right .robot-foot{transform:rotateY(calc(var(--robot-body-yaw,0deg) * .2))}
+.robot-shell .robot-core{transform:translateZ(7px)}
+.robot-shell .robot-badge{transform:translateZ(6px)}
+.robot-shell .robot-heart{transform:translateZ(6px)}
+.robot-shell .robot-antenna{
+  transform-style:preserve-3d;
+}
+.robot-shell .robot-antenna.left{transform:rotate(-18deg) translateZ(3px)}
+.robot-shell .robot-antenna.right{transform:rotate(18deg) translateZ(3px)}
+.robot-shell .robot-head .robot-eye,
+.robot-shell .robot-head .robot-mouth,
+.robot-shell .robot-head .robot-eyebrow,
+.robot-shell .robot-head .robot-cheek,
+.robot-shell .robot-head .robot-blush{
+  transform-style:preserve-3d;
+  transform:translateZ(5px);
+}
+.robot-shell .robot-head .robot-eye-glow{transform:translateZ(4px)}
+/* State motion lives on inner details so gesture transforms remain authoritative. */
+.robot-shell .robot-listening .robot-head,
+.robot-shell .robot-thinking .robot-head,
+.robot-shell .robot-speaking .robot-head{
+  animation:none!important;
+}
+.robot-shell .robot-listening .robot-arm.left{animation:robotWaveLeft .7s ease-in-out infinite}
+.robot-shell .robot-listening .robot-arm.right{animation:robotWaveRight .7s ease-in-out infinite}
+.robot-shell .robot-speaking .robot-arm.left{animation:robotTalkLeft .55s ease-in-out infinite}
+.robot-shell .robot-speaking .robot-arm.right{animation:robotTalkRight .55s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){
+  .robot-shell .robot-body,.robot-shell .robot-head{animation:none!important}
+}
