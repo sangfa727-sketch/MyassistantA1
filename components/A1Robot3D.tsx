@@ -59,17 +59,17 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const hemi = new THREE.HemisphereLight(0x9fc9ff, 0x07101f, 2.2);
     scene.add(hemi);
 
-    const key = new THREE.DirectionalLight(0xffffff, 3.6);
+    const key = new THREE.DirectionalLight(0xffffff, 3.1);
     key.position.set(-3.5, 4.5, 5.5);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
     scene.add(key);
 
-    const rim = new THREE.PointLight(0x38a9ff, 16, 7, 2);
+    const rim = new THREE.PointLight(0x38a9ff, 18, 8, 2);
     rim.position.set(3, 1.8, -1.8);
     scene.add(rim);
 
-    const warm = new THREE.PointLight(0x7dd3fc, 7, 5, 2);
+    const warm = new THREE.PointLight(0x7dd3fc, 9, 6, 2);
     warm.position.set(-2.5, 0.8, 2.8);
     scene.add(warm);
 
@@ -99,11 +99,26 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8fcf, emissive: 0xff3f9f, emissiveIntensity: 1.2, metalness: 0.1, roughness: 0.25 });
 
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.72, 0.72, 10, 32), torsoMat);
-    torso.scale.set(0.98, 1.02, 0.72);
+    torso.scale.set(0.98, 1.02, 0.96);
     torso.position.y = 0.02;
     torso.castShadow = true;
     torso.receiveShadow = true;
     body.add(torso);
+
+    // Rear hardware makes the back a real modeled surface, not an empty reverse side.
+    const backPanel = new THREE.Mesh(roundedBox(0.70, 0.68, 0.10, 0.13), darkMat);
+    backPanel.position.set(0, 0.08, -0.57);
+    backPanel.castShadow = true;
+    body.add(backPanel);
+
+    const backCore = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.07, 24), cyanMat);
+    backCore.rotation.x = Math.PI / 2;
+    backCore.position.set(0, 0.08, -0.65);
+    body.add(backCore);
+
+    const spine = new THREE.Mesh(roundedBox(0.12, 0.44, 0.07, 0.035), trimMat);
+    spine.position.set(0, -0.27, -0.64);
+    body.add(spine);
 
     const chest = new THREE.Mesh(roundedBox(0.72, 0.7, 0.08, 0.14), darkMat);
     chest.position.set(0, 0.1, 0.47);
@@ -180,6 +195,17 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     headShell.scale.set(1.0, 0.94, 0.82);
     headShell.castShadow = true;
     head.add(headShell);
+
+    // Rear head cap/detail: at 180° this becomes the visible face of the mascot.
+    const rearHeadCap = new THREE.Mesh(new THREE.SphereGeometry(0.63, 32, 22), darkMat);
+    rearHeadCap.scale.set(1.0, 0.72, 0.22);
+    rearHeadCap.position.set(0, 0, -0.66);
+    rearHeadCap.castShadow = true;
+    head.add(rearHeadCap);
+
+    const rearHeadCore = new THREE.Mesh(new THREE.SphereGeometry(0.105, 20, 14), cyanMat);
+    rearHeadCore.position.set(0, 0.02, -0.87);
+    head.add(rearHeadCore);
 
     // Deep, curved face visor: keep real thickness so side/back turns reveal volume.
     const facePlate = new THREE.Mesh(new THREE.SphereGeometry(0.67, 40, 28), darkMat);
