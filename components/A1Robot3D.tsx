@@ -244,7 +244,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       elbow.add(forearm);
 
       const wrist = new THREE.Group();
-      wrist.position.set(0, -0.46, 0.045);
+      wrist.position.set(0, -0.52, 0.075);
       if (side < 0) leftWristRef.current = wrist;
       else rightWristRef.current = wrist;
       elbow.add(wrist);
@@ -257,7 +257,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       wrist.add(wristRing);
 
       const hand = new THREE.Mesh(handGeo, whiteMat);
-      hand.position.y = -0.10;
+      hand.position.y = -0.13;
       hand.scale.set(1.05, 0.72, 0.82);
       wrist.add(hand);
     }
@@ -556,9 +556,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           // Hi wave: the shoulder/upper arm holds the hand high while the
           // elbow stays lowered. Only the forearm + palm perform the small
           // side-to-side "ta-ta" motion, like a servo-driven mascot arm.
-          leftArmRef.current?.rotation.set(-0.03, -0.10, -0.62);
+          leftArmRef.current?.rotation.set(-0.03, -0.10, -0.45);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          leftElbowRef.current?.rotation.set(0, 0, 2.78);
+          leftElbowRef.current?.rotation.set(0, 0, 2.55);
           leftWristRef.current?.rotation.set(0, 0, wave * 0.28);
           rightWristRef.current?.rotation.set(0, 0, 0);
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + pointerLookPitch;
@@ -576,9 +576,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         } else if (wavePhase) {
           // A short friendly wave, then return to neutral.
           const wave = Math.sin((cycle - 11.5) * 7.5);
-          leftArmRef.current?.rotation.set(-0.03, -0.08, -0.62);
+          leftArmRef.current?.rotation.set(-0.03, -0.08, -0.45);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          leftElbowRef.current?.rotation.set(0, 0, Math.PI);
+          leftElbowRef.current?.rotation.set(0, 0, 2.55);
           leftWristRef.current?.rotation.set(0, 0, wave * 0.24);
           rightWristRef.current?.rotation.set(0, 0, 0);
         } else {
