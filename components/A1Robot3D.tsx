@@ -40,10 +40,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     if (!host) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
 
-    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
-    camera.position.set(0, 0.85, 5.25);
+    const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100);
+    camera.position.set(0, 0.72, 5.65);
     camera.lookAt(0, 0.28, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
