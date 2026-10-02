@@ -100,7 +100,14 @@ export default function A1RobotWidget({
 
       <button
         className={`robot-launcher robot-${state} robot-turn-${turnSide}`}
-        style={{ "--robot-turn": `${robotTurn}deg`, transform: "perspective(260px) rotateY(var(--robot-turn))" } as CSSProperties}
+        style={{
+          "--robot-turn": `${robotTurn}deg`,
+          "--robot-shadow-x": `${robotTurn * -0.12}px`,
+          "--robot-shadow-x-soft": `${robotTurn * 0.12}px`,
+          "--robot-body-shadow-x": `${robotTurn * -0.16}px`,
+          "--robot-body-shadow-x-soft": `${robotTurn * 0.11}px`,
+          transform: "perspective(260px) rotateY(var(--robot-turn))",
+        } as CSSProperties}
         onPointerDown={handleRobotPointerDown}
         onPointerMove={handleRobotPointerMove}
         onPointerUp={handleRobotPointerUp}
