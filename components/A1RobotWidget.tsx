@@ -107,7 +107,11 @@ export default function A1RobotWidget({
         <span className="robot-head">
           <span className="robot-ear left" />
           <span className="robot-ear right" />
-          <span className="robot-face">{face}</span>
+          <span className="robot-face">
+            <i className="robot-eye left" />
+            <i className="robot-eye right" />
+            <span className="robot-eye-glow" />
+          </span>
           <span className="robot-mouth">{state === "speaking" ? "⌣" : state === "thinking" ? "…" : "•"}</span>
           <span className="robot-cheek left" />
           <span className="robot-cheek right" />
