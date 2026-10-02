@@ -42,9 +42,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
-    const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
-    camera.position.set(0, 1.05, 6.5);
-    camera.lookAt(0, 0.65, 0);
+    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+    camera.position.set(0, 0.85, 5.25);
+    camera.lookAt(0, 0.28, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -59,17 +59,17 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const hemi = new THREE.HemisphereLight(0x9fc9ff, 0x07101f, 2.2);
     scene.add(hemi);
 
-    const key = new THREE.DirectionalLight(0xffffff, 3.1);
-    key.position.set(-3, 5, 5);
+    const key = new THREE.DirectionalLight(0xffffff, 3.6);
+    key.position.set(-3.5, 4.5, 5.5);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
     scene.add(key);
 
-    const rim = new THREE.PointLight(0x38a9ff, 12, 7, 2);
+    const rim = new THREE.PointLight(0x38a9ff, 16, 7, 2);
     rim.position.set(3, 1.8, -1.8);
     scene.add(rim);
 
-    const warm = new THREE.PointLight(0x7dd3fc, 5, 5, 2);
+    const warm = new THREE.PointLight(0x7dd3fc, 7, 5, 2);
     warm.position.set(-2.5, 0.8, 2.8);
     scene.add(warm);
 
@@ -83,6 +83,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
     const root = new THREE.Group();
     root.position.y = -0.18;
+    root.rotation.y = THREE.MathUtils.degToRad(-8);
     scene.add(root);
 
     const body = new THREE.Group();
@@ -97,7 +98,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const cyanMat = new THREE.MeshStandardMaterial({ color: 0x62e7ff, emissive: 0x1ab9ff, emissiveIntensity: 2.4, metalness: 0.2, roughness: 0.14 });
     const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8fcf, emissive: 0xff3f9f, emissiveIntensity: 1.2, metalness: 0.1, roughness: 0.25 });
 
-    const torso = new THREE.Mesh(roundedBox(1.35, 1.32, 0.86, 0.24), torsoMat);
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.72, 0.72, 10, 32), torsoMat);
+    torso.scale.set(0.98, 1.02, 0.72);
     torso.position.y = 0.02;
     torso.castShadow = true;
     torso.receiveShadow = true;
@@ -138,7 +140,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     addArm(-1, leftArmRef);
     addArm(1, rightArmRef);
 
-    const hip = new THREE.Mesh(roundedBox(1.02, 0.38, 0.68, 0.15), darkMat);
+    const hip = new THREE.Mesh(new THREE.SphereGeometry(0.58, 28, 20), darkMat);
+    hip.scale.set(1.0, 0.48, 0.72);
     hip.position.y = -0.78;
     body.add(hip);
 
@@ -173,12 +176,14 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     head.position.set(0, 1.3, 0.03);
     root.add(head);
 
-    const headShell = new THREE.Mesh(roundedBox(1.55, 1.22, 1.12, 0.34), torsoMat);
+    const headShell = new THREE.Mesh(new THREE.SphereGeometry(0.92, 40, 28), torsoMat);
+    headShell.scale.set(1.0, 0.94, 0.82);
     headShell.castShadow = true;
     head.add(headShell);
 
-    const facePlate = new THREE.Mesh(roundedBox(1.22, 0.83, 0.08, 0.25), darkMat);
-    facePlate.position.set(0, -0.02, 0.58);
+    const facePlate = new THREE.Mesh(new THREE.SphereGeometry(0.67, 32, 24), darkMat);
+    facePlate.scale.set(1.0, 0.68, 0.22);
+    facePlate.position.set(0, -0.01, 0.69);
     head.add(facePlate);
 
     const eyeGeo = new THREE.SphereGeometry(0.15, 24, 18);
@@ -186,28 +191,28 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const eyeR = new THREE.Mesh(eyeGeo, cyanMat);
     eyeLRef.current = eyeL;
     eyeRRef.current = eyeR;
-    eyeL.position.set(-0.29, 0.11, 0.66);
-    eyeR.position.set(0.29, 0.11, 0.66);
+    eyeL.position.set(-0.29, 0.12, 0.82);
+    eyeR.position.set(0.29, 0.12, 0.82);
     eyeL.scale.set(1, 1.18, 0.48);
     eyeR.scale.set(1, 1.18, 0.48);
     head.add(eyeL, eyeR);
 
     const cheekL = new THREE.Mesh(new THREE.SphereGeometry(0.09, 18, 12), pinkMat);
     const cheekR = cheekL.clone();
-    cheekL.position.set(-0.5, -0.18, 0.63);
-    cheekR.position.set(0.5, -0.18, 0.63);
+    cheekL.position.set(-0.5, -0.18, 0.78);
+    cheekR.position.set(0.5, -0.18, 0.78);
     head.add(cheekL, cheekR);
 
     const mouth = new THREE.Mesh(roundedBox(0.34, 0.11, 0.05, 0.05), whiteMat);
     mouthRef.current = mouth;
-    mouth.position.set(0, -0.28, 0.64);
+    mouth.position.set(0, -0.28, 0.84);
     head.add(mouth);
 
     const earGeo = new THREE.SphereGeometry(0.27, 20, 14);
     const earL = new THREE.Mesh(earGeo, trimMat);
     const earR = earL.clone();
-    earL.position.set(-0.82, 0.04, 0);
-    earR.position.set(0.82, 0.04, 0);
+    earL.position.set(-0.84, 0.02, 0.02);
+    earR.position.set(0.84, 0.02, 0.02);
     earL.scale.set(0.5, 1, 0.7);
     earR.scale.set(0.5, 1, 0.7);
     head.add(earL, earR);
