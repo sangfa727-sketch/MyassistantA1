@@ -153,7 +153,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     function addArm(side: number, ref: MutableRefObject<any>) {
       const g = new THREE.Group();
       ref.current = g;
-      g.position.set(side * 0.86, 0.35, 0);
+      // Keep the shoulder mount slightly outside the torso shell. This gives
+      // the arm a real clearance envelope so rotations cannot visually sink
+      // the forearm/hand into the chest.
+      g.position.set(side * 0.92, 0.35, 0.10);
       body.add(g);
 
       const shoulder = new THREE.Mesh(shoulderGeo, trimMat);
@@ -191,7 +194,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       // lift the hand above shoulder height instead of only swinging one
       // rigid capsule from the shoulder.
       const upper = new THREE.Mesh(upperArmGeo, torsoMat);
-      upper.position.y = -0.24;
+      upper.position.set(0, -0.24, 0.02);
       upper.castShadow = true;
       g.add(upper);
 
@@ -234,13 +237,14 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
       const forearm = new THREE.Mesh(forearmGeo, torsoMat);
       // Neutral arm points down. A 180° elbow rotation folds the forearm
-      // upward through a natural hinge, so the hand can sit above the elbow.
-      forearm.position.y = -0.22;
+      // upward through a natural hinge, while this small outward offset keeps
+      // the forearm from disappearing inside the torso during interaction.
+      forearm.position.set(0, -0.22, 0.035);
       forearm.castShadow = true;
       elbow.add(forearm);
 
       const wrist = new THREE.Group();
-      wrist.position.y = -0.46;
+      wrist.position.set(0, -0.46, 0.045);
       if (side < 0) leftWristRef.current = wrist;
       else rightWristRef.current = wrist;
       elbow.add(wrist);
@@ -539,8 +543,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         if (dragPhase) {
           // While the user is physically moving A1, show a curious reaction.
           const reaction = Math.sin(elapsed * 7.5);
-          leftArmRef.current?.rotation.set(-0.12, -0.08, 0.18 + reaction * 0.10);
-          rightArmRef.current?.rotation.set(-0.12, 0.08, -0.18 - reaction * 0.10);
+          // During a touch/drag the arms remain in a protected outward
+          // envelope instead of being allowed to fold through the torso.
+          leftArmRef.current?.rotation.set(-0.08, -0.03, 0.10 + reaction * 0.05);
+          rightArmRef.current?.rotation.set(-0.08, 0.03, -0.10 - reaction * 0.05);
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + Math.sin(elapsed * 3.8) * 0.025;
           head.rotation.z = Math.sin(elapsed * 4.2) * 0.045;
           head.position.y = 1.3;
