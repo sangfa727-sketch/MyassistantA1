@@ -148,7 +148,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const upperArmGeo = new THREE.CapsuleGeometry(0.13, 0.36, 8, 16);
     const forearmGeo = new THREE.CapsuleGeometry(0.12, 0.34, 8, 16);
     const elbowGeo = new THREE.SphereGeometry(0.15, 20, 14);
-    const handGeo = new THREE.SphereGeometry(0.19, 20, 14);
 
     function addArm(side: number, ref: MutableRefObject<any>) {
       const g = new THREE.Group();
@@ -156,7 +155,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       // Keep the shoulder mount slightly outside the torso shell. This gives
       // the arm a real clearance envelope so rotations cannot visually sink
       // the forearm/hand into the chest.
-      g.position.set(side * 0.92, 0.35, 0.10);
+      g.position.set(side * 0.96, 0.35, 0.16);
       body.add(g);
 
       const shoulder = new THREE.Mesh(shoulderGeo, trimMat);
@@ -239,12 +238,12 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       // Neutral arm points down. A 180° elbow rotation folds the forearm
       // upward through a natural hinge, while this small outward offset keeps
       // the forearm from disappearing inside the torso during interaction.
-      forearm.position.set(0, -0.22, 0.035);
+      forearm.position.set(0, -0.22, 0.075);
       forearm.castShadow = true;
       elbow.add(forearm);
 
       const wrist = new THREE.Group();
-      wrist.position.set(0, -0.52, 0.075);
+      wrist.position.set(0, -0.52, 0.13);
       if (side < 0) leftWristRef.current = wrist;
       else rightWristRef.current = wrist;
       elbow.add(wrist);
@@ -256,10 +255,38 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       wristRing.rotation.x = Math.PI / 2;
       wrist.add(wristRing);
 
-      const hand = new THREE.Mesh(handGeo, whiteMat);
-      hand.position.y = -0.13;
-      hand.scale.set(1.05, 0.72, 0.82);
-      wrist.add(hand);
+      // Cute articulated hand: a small palm plus four rounded fingers and a
+      // thumb. Fingers are separate children so the hand reads as a mascot
+      // hand rather than a featureless ball.
+      const palm = new THREE.Mesh(
+        new THREE.SphereGeometry(0.18, 24, 18),
+        whiteMat
+      );
+      palm.position.set(0, -0.13, 0.01);
+      palm.scale.set(1.05, 0.78, 0.78);
+      palm.castShadow = true;
+      wrist.add(palm);
+
+      const fingerGeo = new THREE.CapsuleGeometry(0.045, 0.105, 6, 12);
+      const fingerX = [-0.105, -0.035, 0.035, 0.105];
+      fingerX.forEach((x, index) => {
+        const finger = new THREE.Mesh(fingerGeo, whiteMat);
+        finger.position.set(x, -0.275, 0.025);
+        finger.rotation.z = (index - 1.5) * 0.055;
+        finger.scale.set(0.9, 0.9 + (index === 1 || index === 2 ? 0.08 : 0), 0.9);
+        finger.castShadow = true;
+        wrist.add(finger);
+      });
+
+      const thumb = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.052, 0.11, 6, 12),
+        whiteMat
+      );
+      thumb.position.set(side * 0.15, -0.18, 0.045);
+      thumb.rotation.z = side * -0.72;
+      thumb.rotation.x = -0.18;
+      thumb.castShadow = true;
+      wrist.add(thumb);
     }
     addArm(-1, leftArmRef);
     addArm(1, rightArmRef);
@@ -281,12 +308,42 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       leg.position.y = -0.25;
       leg.castShadow = true;
       g.add(leg);
-      const foot = new THREE.Mesh(footGeo, darkMat);
-      foot.position.set(0, -0.67, 0.16);
-      g.add(foot);
-      const sole = new THREE.Mesh(roundedBox(0.34, 0.06, 0.56, 0.03), trimMat);
-      sole.position.set(0, -0.79, 0.17);
+      // Chubby child-shoe silhouette: rounded toe, padded upper and a
+      // slightly wider soft sole keep the mascot proportions cute and grounded.
+      const shoe = new THREE.Mesh(
+        new THREE.SphereGeometry(0.38, 28, 20),
+        darkMat
+      );
+      shoe.scale.set(0.78, 0.46, 1.12);
+      shoe.position.set(0, -0.66, 0.18);
+      shoe.castShadow = true;
+      g.add(shoe);
+
+      const shoeToe = new THREE.Mesh(
+        new THREE.SphereGeometry(0.28, 24, 18),
+        trimMat
+      );
+      shoeToe.scale.set(0.92, 0.42, 0.82);
+      shoeToe.position.set(0, -0.65, 0.39);
+      shoeToe.castShadow = true;
+      g.add(shoeToe);
+
+      const sole = new THREE.Mesh(
+        new THREE.SphereGeometry(0.32, 24, 16),
+        darkMat
+      );
+      sole.scale.set(0.86, 0.14, 1.02);
+      sole.position.set(0, -0.82, 0.2);
       g.add(sole);
+
+      const shoeAccent = new THREE.Mesh(
+        new THREE.TorusGeometry(0.22, 0.025, 8, 24),
+        cyanMat
+      );
+      shoeAccent.rotation.x = Math.PI / 2;
+      shoeAccent.scale.set(0.8, 1, 1.15);
+      shoeAccent.position.set(0, -0.69, 0.42);
+      g.add(shoeAccent);
     }
     addLeg(-1, leftLegRef);
     addLeg(1, rightLegRef);
@@ -305,16 +362,49 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     headShell.castShadow = true;
     head.add(headShell);
 
-    // Rear head cap/detail: at 180° this becomes the visible face of the mascot.
-    const rearHeadCap = new THREE.Mesh(new THREE.SphereGeometry(0.63, 32, 22), darkMat);
-    rearHeadCap.scale.set(1.0, 0.72, 0.22);
-    rearHeadCap.position.set(0, 0, -0.66);
+    // Premium rear head design: a layered curved shell, central service
+    // ring, twin vent details and a small lower neck cover make the 180° view
+    // feel intentionally designed rather than like the back of a sphere.
+    const rearHeadCap = new THREE.Mesh(
+      new THREE.SphereGeometry(0.68, 36, 24),
+      darkMat
+    );
+    rearHeadCap.scale.set(1.0, 0.76, 0.22);
+    rearHeadCap.position.set(0, 0.02, -0.64);
     rearHeadCap.castShadow = true;
     head.add(rearHeadCap);
 
-    const rearHeadCore = new THREE.Mesh(new THREE.SphereGeometry(0.105, 20, 14), cyanMat);
-    rearHeadCore.position.set(0, 0.02, -0.87);
+    const rearTrim = new THREE.Mesh(
+      new THREE.TorusGeometry(0.28, 0.035, 10, 36),
+      trimMat
+    );
+    rearTrim.rotation.x = Math.PI / 2;
+    rearTrim.position.set(0, 0.03, -0.865);
+    rearTrim.scale.set(1, 0.88, 1);
+    head.add(rearTrim);
+
+    const rearHeadCore = new THREE.Mesh(
+      new THREE.SphereGeometry(0.105, 20, 14),
+      cyanMat
+    );
+    rearHeadCore.position.set(0, 0.03, -0.91);
     head.add(rearHeadCore);
+
+    const rearVentGeo = roundedBox(0.13, 0.045, 0.035, 0.018);
+    [-0.24, 0.24].forEach((x) => {
+      const vent = new THREE.Mesh(rearVentGeo, trimMat);
+      vent.position.set(x, -0.30, -0.83);
+      vent.rotation.z = x < 0 ? -0.18 : 0.18;
+      head.add(vent);
+    });
+
+    const rearLowerCover = new THREE.Mesh(
+      new THREE.SphereGeometry(0.34, 24, 16),
+      trimMat
+    );
+    rearLowerCover.scale.set(1.25, 0.34, 0.18);
+    rearLowerCover.position.set(0, -0.53, -0.62);
+    head.add(rearLowerCover);
 
     // Deep, curved face visor: keep real thickness so side/back turns reveal volume.
     const facePlate = new THREE.Mesh(new THREE.SphereGeometry(0.67, 40, 28), new THREE.MeshStandardMaterial({ color: 0x090d11, metalness: 0.38, roughness: 0.12, emissive: 0x05080b, emissiveIntensity: 0.35 }));
@@ -505,7 +595,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       // Grounded companion loop: A1 stays planted on its feet.
       // No breathing bob and no whole-body vertical movement. Instead it
       // shows small character actions: looking around, blinking, typing,
-      // settling, and an occasional friendly wave.
+      // and settling. The former Hi-wave behavior remains disabled.
       const cycle = elapsed % 16;
       const focusPhase = cycle > 3 && cycle < 5.5;
       const typingPhase = cycle >= 6 && cycle < 10;
@@ -545,8 +635,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           const reaction = Math.sin(elapsed * 7.5);
           // During a touch/drag the arms remain in a protected outward
           // envelope instead of being allowed to fold through the torso.
-          leftArmRef.current?.rotation.set(-0.08, -0.03, 0.10 + reaction * 0.05);
-          rightArmRef.current?.rotation.set(-0.08, 0.03, -0.10 - reaction * 0.05);
+          leftArmRef.current?.rotation.set(-0.08, -0.06, 0.12 + reaction * 0.035);
+          rightArmRef.current?.rotation.set(-0.08, 0.06, -0.12 - reaction * 0.035);
+          leftWristRef.current?.rotation.set(0, 0, -0.10);
+          rightWristRef.current?.rotation.set(0, 0, 0.10);
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + Math.sin(elapsed * 3.8) * 0.025;
           head.rotation.z = Math.sin(elapsed * 4.2) * 0.045;
           head.position.y = 1.3;
