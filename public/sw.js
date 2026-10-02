@@ -1,5 +1,5 @@
 const BASE_PATH = "/MyassistantA1";
-const CACHE_NAME = "a1-shell-v5";
+const CACHE_NAME = "a1-shell-v6";
 const APP_SHELL = [`${BASE_PATH}/`, `${BASE_PATH}/manifest.webmanifest`, `${BASE_PATH}/icon.svg`];
 
 self.addEventListener("install", (event) => {
@@ -29,7 +29,6 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
   if (!url.pathname.startsWith(BASE_PATH)) return;
-
   if (url.pathname.startsWith(`${BASE_PATH}/api/`)) return;
 
   if (request.mode === "navigate") {
