@@ -545,21 +545,25 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 .robot-shell .robot-aura-ring{pointer-events:none;}
 .robot-shell .a1-robot-3d-stage{
   position:absolute;
-  inset:-18px -54px -25px -54px;
+  inset:-38px -86px -52px -86px;
   width:auto;
   height:auto;
   z-index:2;
+  overflow:visible;
   pointer-events:none;
 }
 .robot-shell .a1-robot-3d-stage canvas{
   display:block;
   width:100%!important;
   height:100%!important;
+  max-width:none;
+  max-height:none;
+  overflow:visible;
 }
 .robot-shell .robot-mic{z-index:5}
 .robot-shell .robot-hint{z-index:6}
 @media(max-width:380px){
-  .robot-shell .a1-robot-3d-stage{inset:-16px -50px -23px -50px}
+  .robot-shell .a1-robot-3d-stage{inset:-34px -76px -46px -76px}
 }
 @media(prefers-reduced-motion:reduce){
   .robot-shell .robot-launcher:hover,.robot-shell .robot-launcher:active{transform:none}
