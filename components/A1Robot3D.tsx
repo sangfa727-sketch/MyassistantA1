@@ -34,10 +34,12 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const mouthRef = useRef<any>(null);
   const stateRef = useRef(state);
   const headYawRef = useRef(headYaw);
+  const headPitchRef = useRef(headPitch);
   const hoverRef = useRef(false);
   const draggingRef = useRef(false);
   stateRef.current = state;
   headYawRef.current = headYaw;
+  headPitchRef.current = headPitch;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -364,6 +366,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
         // Head stays at a fixed height; only tiny natural turns/tilts remain.
         head.position.y = 1.3;
+        head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current);
         head.rotation.z = lookTilt;
         head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
         eyeL.scale.y = eyeR.scale.y = 1.12 - attention * 0.08;
@@ -373,6 +376,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           const reaction = Math.sin(elapsed * 7.5);
           leftArmRef.current?.rotation.set(-0.12, -0.08, 0.18 + reaction * 0.10);
           rightArmRef.current?.rotation.set(-0.12, 0.08, -0.18 - reaction * 0.10);
+          head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + Math.sin(elapsed * 3.8) * 0.025;
           head.rotation.z = Math.sin(elapsed * 4.2) * 0.045;
           head.position.y = 1.3;
         } else if (hiPhase) {
@@ -380,6 +384,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           const wave = Math.sin(waveTime * 10.5);
           leftArmRef.current?.rotation.set(-0.22, -0.12, 0.38 + wave * 0.30);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
+          head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current);
           head.rotation.z = Math.sin(waveTime * 2.2) * 0.025;
         } else if (typingPhase) {
           const keyTap = Math.sin(elapsed * 9.5);
@@ -399,9 +404,11 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       }
 
       if (s === "thinking") {
+        head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current);
         head.position.y = 1.3 + Math.sin(elapsed * 2.8) * 0.025;
         eyeL.scale.y = eyeR.scale.y = 0.92 + Math.sin(elapsed * 2.1) * 0.08;
       } else if (s === "listening") {
+        head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current);
         head.rotation.z = Math.sin(elapsed * 2.2) * 0.035;
       } else if (s === "speaking") {
         const talk = 0.92 + (Math.sin(elapsed * 10) * 0.5 + 0.5) * 0.28;
