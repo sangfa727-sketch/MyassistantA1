@@ -103,7 +103,8 @@ export default function A1RobotWidget({
       <div className="robot-hint" aria-hidden="true">{label}</div>
       <button className={`robot-launcher robot-${state}`} onClick={onOpen} aria-label="A1 Assistant ဖွင့်ရန်">
         <span className="robot-aura" />
-        <span className="robot-antenna"><i /></span>
+        <span className="robot-antenna left"><i /></span>
+        <span className="robot-antenna right"><i /></span>
         <span className="robot-head">
           <span className="robot-ear left" />
           <span className="robot-ear right" />
