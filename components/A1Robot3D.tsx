@@ -140,7 +140,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     body.add(badge);
 
     const shoulderGeo = new THREE.SphereGeometry(0.24, 24, 16);
-    const armGeo = new THREE.CapsuleGeometry(0.13, 0.56, 8, 16);
+    const upperArmGeo = new THREE.CapsuleGeometry(0.13, 0.36, 8, 16);
+    const forearmGeo = new THREE.CapsuleGeometry(0.12, 0.34, 8, 16);
+    const elbowGeo = new THREE.SphereGeometry(0.15, 20, 14);
     const handGeo = new THREE.SphereGeometry(0.19, 20, 14);
 
     function addArm(side: number, ref: MutableRefObject<any>) {
@@ -148,16 +150,35 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       ref.current = g;
       g.position.set(side * 0.86, 0.35, 0);
       body.add(g);
+
       const shoulder = new THREE.Mesh(shoulderGeo, trimMat);
+      shoulder.castShadow = true;
       g.add(shoulder);
-      const upper = new THREE.Mesh(armGeo, torsoMat);
-      upper.position.y = -0.42;
-      upper.rotation.z = side * -0.08;
+
+      // Real two-segment arm: the elbow is an actual joint, so A1 can
+      // lift the hand above shoulder height instead of only swinging one
+      // rigid capsule from the shoulder.
+      const upper = new THREE.Mesh(upperArmGeo, torsoMat);
+      upper.position.y = -0.24;
       upper.castShadow = true;
       g.add(upper);
+
+      const elbow = new THREE.Group();
+      elbow.position.y = -0.49;
+      g.add(elbow);
+
+      const elbowJoint = new THREE.Mesh(elbowGeo, trimMat);
+      elbowJoint.castShadow = true;
+      elbow.add(elbowJoint);
+
+      const forearm = new THREE.Mesh(forearmGeo, torsoMat);
+      forearm.position.y = -0.22;
+      forearm.castShadow = true;
+      elbow.add(forearm);
+
       const hand = new THREE.Mesh(handGeo, whiteMat);
-      hand.position.y = -0.82;
-      g.add(hand);
+      hand.position.y = -0.46;
+      elbow.add(hand);
     }
     addArm(-1, leftArmRef);
     addArm(1, rightArmRef);
@@ -444,9 +465,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         } else if (hiPhase) {
           const waveTime = Math.max(0, elapsed - Math.max(0, waveStartedAt));
           const wave = Math.sin(waveTime * 10.5);
-          // The left arm stays outside the torso; its shoulder is the pivot.
-          // Wave by changing the elbow/hand arc, not by swinging through the chest.
-          leftArmRef.current?.rotation.set(-0.18, -0.12, -0.58 + wave * 0.22);
+          // Lift from the shoulder first, then let the real elbow/forearm
+          // create the wave arc. The hand now rises above the shoulder
+          // instead of staying at a low 45° angle.
+          leftArmRef.current?.rotation.set(-0.05, -0.10, -1.12 + wave * 0.22);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + pointerLookPitch;
           head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
@@ -459,7 +481,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         } else if (wavePhase) {
           // A short friendly wave, then return to neutral.
           const wave = Math.sin((cycle - 11.5) * 7.5);
-          leftArmRef.current?.rotation.set(-0.18, -0.08, 0.34 + wave * 0.24);
+          leftArmRef.current?.rotation.set(-0.05, -0.08, -1.02 + wave * 0.28);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
         } else {
           const relax = Math.sin(elapsed * 1.5) * 0.025;
