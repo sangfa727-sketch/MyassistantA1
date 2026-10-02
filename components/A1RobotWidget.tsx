@@ -30,6 +30,43 @@ export default function A1RobotWidget({
   const [headYaw, setHeadYaw] = useState(0);
   const [headPitch, setHeadPitch] = useState(0);
   const gestureStart = useRef<{ x: number; y: number; bodyYaw: number; bodyPitch: number; headYaw: number; headPitch: number } | null>(null);
+  const settleFrameRef = useRef<number | null>(null);
+  const isInteractingRef = useRef(false);
+
+  function stopSettleAnimation() {
+    if (settleFrameRef.current !== null) {
+      cancelAnimationFrame(settleFrameRef.current);
+      settleFrameRef.current = null;
+    }
+  }
+
+  function settleBackToAutonomous() {
+    stopSettleAnimation();
+    const from = { bodyYaw, bodyPitch, headYaw, headPitch };
+    const startedAt = performance.now();
+    const duration = 720;
+
+    const step = (now: number) => {
+      const t = Math.min(1, (now - startedAt) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setBodyYaw(from.bodyYaw * (1 - eased));
+      setBodyPitch(from.bodyPitch * (1 - eased));
+      setHeadYaw(from.headYaw * (1 - eased));
+      setHeadPitch(from.headPitch * (1 - eased));
+
+      if (t < 1) {
+        settleFrameRef.current = requestAnimationFrame(step);
+      } else {
+        settleFrameRef.current = null;
+        setBodyYaw(0);
+        setBodyPitch(0);
+        setHeadYaw(0);
+        setHeadPitch(0);
+      }
+    };
+    settleFrameRef.current = requestAnimationFrame(step);
+  }
+
 
   const label =
     state === "thinking" ? "ခဏစဉ်းစားနေတယ်…" :
@@ -46,6 +83,8 @@ export default function A1RobotWidget({
   }
 
   function handleRobotPointerDown(event: PointerEvent<HTMLButtonElement>) {
+    stopSettleAnimation();
+    isInteractingRef.current = true;
     gestureStart.current = {
       x: event.clientX,
       y: event.clientY,
@@ -100,7 +139,9 @@ export default function A1RobotWidget({
     }
 
     gestureStart.current = null;
+    isInteractingRef.current = false;
     event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:dragend"));
+    if (!cancelled && moved >= 8) settleBackToAutonomous();
     if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -115,9 +156,14 @@ export default function A1RobotWidget({
   }
 
   function handleRobotPointerLostCapture(event: PointerEvent<HTMLButtonElement>) {
+    if (!gestureStart.current) return;
     gestureStart.current = null;
+    isInteractingRef.current = false;
     event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:dragend"));
+    settleBackToAutonomous();
   }
+
+  useEffect(() => () => stopSettleAnimation(), []);
 
   function choose(next: WidgetVariant) {
     onVariantChange(next);
