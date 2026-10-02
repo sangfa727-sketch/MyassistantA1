@@ -37,6 +37,14 @@ export default function A1RobotWidget({
     state === "speaking" ? "မင်းနဲ့စကားပြောနေတယ် ✨" :
     "A1 နဲ့ပြောမယ် 💙";
 
+  function handleRobotHover(event: PointerEvent<HTMLButtonElement>) {
+    event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:hover"));
+  }
+
+  function handleRobotLeave(event: PointerEvent<HTMLButtonElement>) {
+    event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:leave"));
+  }
+
   function handleRobotPointerDown(event: PointerEvent<HTMLButtonElement>) {
     gestureStart.current = {
       x: event.clientX,
@@ -154,6 +162,8 @@ export default function A1RobotWidget({
 
       <button
         className={`robot-launcher robot-${state}`}
+        onPointerEnter={handleRobotHover}
+        onPointerLeave={handleRobotLeave}
         onPointerDown={handleRobotPointerDown}
         onPointerMove={handleRobotPointerMove}
         onPointerUp={handleRobotPointerUp}
