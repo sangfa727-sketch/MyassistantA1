@@ -202,3 +202,34 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
   .robot-shell .robot-aura-ring,.robot-shell .robot-hint-dot{animation:none!important}
   .robot-shell .robot-blush{transition:none}
 }
+
+
+/* A1 character expression layer — happy, curious, thoughtful micro-cues */
+.robot-shell .robot-eyebrow{position:absolute;top:10px;width:11px;height:3px;border-radius:50%;background:linear-gradient(90deg,rgba(45,58,120,.05),rgba(63,76,151,.72));opacity:.72;transform-origin:center;z-index:3;transition:transform .2s ease,opacity .2s ease}
+.robot-shell .robot-eyebrow.left{left:14px;transform:rotate(12deg)}
+.robot-shell .robot-eyebrow.right{right:14px;transform:rotate(-12deg)}
+.robot-shell .robot-thinking .robot-eyebrow.left{transform:translateY(-2px) rotate(-14deg)}
+.robot-shell .robot-thinking .robot-eyebrow.right{transform:translateY(-2px) rotate(14deg)}
+.robot-shell .robot-listening .robot-eyebrow{transform:translateY(-1px) scaleX(1.08)}
+.robot-shell .robot-speaking .robot-eyebrow.left{transform:rotate(18deg)}
+.robot-shell .robot-speaking .robot-eyebrow.right{transform:rotate(-18deg)}
+.robot-shell .robot-eye{transform-origin:center}
+.robot-shell .robot-idle .robot-eye{animation:robotBlink 4.8s ease-in-out infinite}
+.robot-shell .robot-idle .robot-eye.right{animation-delay:.08s}
+.robot-shell .robot-thinking .robot-eye.left{transform:translate(-1px,2px) scale(.9,.72)}
+.robot-shell .robot-thinking .robot-eye.right{transform:translate(1px,1px) scale(.9,.72)}
+.robot-shell .robot-listening .robot-eye{transform:scale(1.08,1.12)}
+.robot-shell .robot-speaking .robot-eye{animation:robotEyeHappy .55s ease-in-out infinite alternate}
+.robot-shell .robot-idle .robot-mouth{animation:robotSmile .9s ease-in-out infinite alternate}
+.robot-shell .robot-listening .robot-mouth{transform:scale(1.15,.9)}
+.robot-shell .robot-thinking .robot-mouth{font-size:9px}
+.robot-shell .robot-speaking .robot-cheek{opacity:1;transform:scale(1.08)}
+.robot-shell .robot-listening .robot-head{animation:robotNodCute .8s ease-in-out infinite}
+@keyframes robotBlink{0%,44%,48%,100%{transform:scaleY(1)}46%{transform:scaleY(.12)}}
+@keyframes robotEyeHappy{to{transform:translateY(-1px) scale(1.1,.92)}}
+@keyframes robotSmile{to{transform:translateY(-1px) scale(1.08,1.04)}}
+@keyframes robotNodCute{50%{transform:translateY(-1.5px) rotate(-1.2deg)}}
+@media(prefers-reduced-motion:reduce){
+  .robot-shell .robot-idle .robot-eye,.robot-shell .robot-idle .robot-mouth{animation:none!important}
+  .robot-shell .robot-listening .robot-head{animation:none!important}
+}
