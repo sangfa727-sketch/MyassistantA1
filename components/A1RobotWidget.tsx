@@ -13,6 +13,9 @@ type Props = {
   onVoice: () => void;
 };
 
+const clamp = (value: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, value));
+
 export default function A1RobotWidget({
   state,
   variant,
@@ -21,9 +24,11 @@ export default function A1RobotWidget({
   onVoice,
 }: Props) {
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [robotTurn, setRobotTurn] = useState(0);
-  const turnStartX = useRef<number | null>(null);
-  const turnStart = useRef(0);
+  const [bodyYaw, setBodyYaw] = useState(0);
+  const [bodyPitch, setBodyPitch] = useState(0);
+  const [headYaw, setHeadYaw] = useState(0);
+  const [headPitch, setHeadPitch] = useState(0);
+  const gestureStart = useRef<{ x: number; y: number; bodyYaw: number; bodyPitch: number; headYaw: number; headPitch: number } | null>(null);
 
   const label =
     state === "thinking" ? "ခဏစဉ်းစားနေတယ်…" :
@@ -32,45 +37,74 @@ export default function A1RobotWidget({
     "A1 နဲ့ပြောမယ် 💙";
 
   function handleRobotPointerDown(event: PointerEvent<HTMLButtonElement>) {
-    turnStartX.current = event.clientX;
-    turnStart.current = robotTurn;
+    gestureStart.current = {
+      x: event.clientX,
+      y: event.clientY,
+      bodyYaw,
+      bodyPitch,
+      headYaw,
+      headPitch,
+    };
     event.currentTarget.setPointerCapture?.(event.pointerId);
   }
 
-  function handleRobotPointerLostCapture() {
-    if (turnStartX.current === null) return;
-    setRobotTurn(turnStart.current);
-    turnStartX.current = null;
+  function handleRobotPointerMove(event: PointerEvent<HTMLButtonElement>) {
+    const start = gestureStart.current;
+    if (!start) return;
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+
+    // Horizontal drag = body left/right turn.
+    const nextBodyYaw = clamp(start.bodyYaw + dx * 0.55, -55, 55);
+    // Vertical drag = body lean forward/back + independent head look up/down.
+    const nextBodyPitch = clamp(start.bodyPitch - dy * 0.20, -18, 18);
+    const nextHeadYaw = clamp(start.headYaw + dx * 0.72, -45, 45);
+    const nextHeadPitch = clamp(start.headPitch - dy * 0.34, -26, 26);
+
+    setBodyYaw(nextBodyYaw);
+    setBodyPitch(nextBodyPitch);
+    setHeadYaw(nextHeadYaw);
+    setHeadPitch(nextHeadPitch);
   }
 
-  function handleRobotPointerMove(event: PointerEvent<HTMLButtonElement>) {
-    if (turnStartX.current === null) return;
-    const delta = event.clientX - turnStartX.current;
-    setRobotTurn(Math.max(-24, Math.min(24, turnStart.current + delta * 0.22)));
+  function finishRobotGesture(event: PointerEvent<HTMLButtonElement>, cancelled = false) {
+    const start = gestureStart.current;
+    if (!start) return;
+
+    const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y);
+
+    if (cancelled) {
+      setBodyYaw(start.bodyYaw);
+      setBodyPitch(start.bodyPitch);
+      setHeadYaw(start.headYaw);
+      setHeadPitch(start.headPitch);
+    } else if (moved < 8) {
+      onOpen();
+    } else {
+      // Small release offsets settle naturally toward neutral.
+      setBodyYaw(value => Math.abs(value) < 4 ? 0 : value);
+      setBodyPitch(value => Math.abs(value) < 3 ? 0 : value);
+      setHeadYaw(value => Math.abs(value) < 4 ? 0 : value);
+      setHeadPitch(value => Math.abs(value) < 3 ? 0 : value);
+    }
+
+    gestureStart.current = null;
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   }
 
   function handleRobotPointerUp(event: PointerEvent<HTMLButtonElement>) {
-    if (turnStartX.current === null) return;
-    const delta = event.clientX - turnStartX.current;
-    turnStartX.current = null;
-    if (Math.abs(delta) < 8) {
-      onOpen();
-    } else {
-      const nextTurn = Math.max(-18, Math.min(18, turnStart.current + delta * 0.18));
-      const snappedTurn = Math.abs(nextTurn) < 3 ? 0 : nextTurn;
-      setRobotTurn(snappedTurn);
-    }
-    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
+    finishRobotGesture(event);
   }
 
   function handleRobotPointerCancel(event: PointerEvent<HTMLButtonElement>) {
-    setRobotTurn(turnStart.current);
-    turnStartX.current = null;
-    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
+    finishRobotGesture(event, true);
+  }
+
+  function handleRobotPointerLostCapture() {
+    gestureStart.current = null;
   }
 
   function choose(next: WidgetVariant) {
@@ -79,7 +113,7 @@ export default function A1RobotWidget({
   }
 
   if (variant === "glass") {
-  return (
+    return (
       <div className="a1-widget-shell">
         <div className={`widget-picker ${pickerOpen ? "open" : ""}`}>
           <button className="widget-settings" onClick={() => setPickerOpen(v => !v)} aria-label="Widget style ရွေးရန်" aria-expanded={pickerOpen}>⚙</button>
@@ -101,7 +135,19 @@ export default function A1RobotWidget({
     );
   }
 
-  const turnSide = robotTurn > 5 ? "right" : robotTurn < -5 ? "left" : "center";
+  const bodyStyle = {
+    "--robot-body-yaw": `${bodyYaw}deg`,
+    "--robot-body-pitch": `${bodyPitch}deg`,
+    "--robot-body-shadow-x": `${bodyYaw * -0.16}px`,
+    "--robot-body-shadow-x-soft": `${bodyYaw * 0.11}px`,
+  } as CSSProperties;
+
+  const headStyle = {
+    "--robot-head-yaw": `${headYaw}deg`,
+    "--robot-head-pitch": `${headPitch}deg`,
+    "--robot-shadow-x": `${headYaw * -0.12}px`,
+    "--robot-shadow-x-soft": `${headYaw * 0.12}px`,
+  } as CSSProperties;
 
   return (
     <div className="a1-widget-shell robot-shell">
@@ -120,28 +166,29 @@ export default function A1RobotWidget({
       </div>
 
       <button
-        className={`robot-launcher robot-${state} robot-turn-${turnSide}`}
-        style={{
-          "--robot-turn": `${robotTurn}deg`,
-          "--robot-shadow-x": `${robotTurn * -0.12}px`,
-          "--robot-shadow-x-soft": `${robotTurn * 0.12}px`,
-          "--robot-body-shadow-x": `${robotTurn * -0.16}px`,
-          "--robot-body-shadow-x-soft": `${robotTurn * 0.11}px`,
-          transform: "perspective(360px) rotateY(var(--robot-turn))",
-        } as CSSProperties}
+        className={`robot-launcher robot-${state}`}
         onPointerDown={handleRobotPointerDown}
         onPointerMove={handleRobotPointerMove}
         onPointerUp={handleRobotPointerUp}
         onPointerCancel={handleRobotPointerCancel}
         onLostPointerCapture={handleRobotPointerLostCapture}
-        aria-label="A1 Assistant ဖွင့်ရန် — ဘယ်ညာ swipe လုပ်၍ လှည့်ရန်"
+        aria-label="A1 Assistant ဖွင့်ရန် — ဘယ်ညာလှည့်၊ ရှေ့နောက်စောင်း၊ ခေါင်းငုံ့မော့ရန် drag လုပ်ပါ"
       >
         <span className="robot-aura" />
         <span className="robot-aura-ring" />
         <span className="robot-antenna left"><i /></span>
         <span className="robot-antenna right"><i /></span>
 
-        <span className="robot-head">
+        <span className="robot-body" style={bodyStyle}>
+          <span className="robot-neck" />
+          <span className="robot-badge">A1</span>
+          <span className="robot-core" aria-hidden="true" />
+          <span className="robot-heart">♥</span>
+          <span className="robot-arm left" />
+          <span className="robot-arm right" />
+        </span>
+
+        <span className="robot-head" style={headStyle}>
           <span className="robot-ear left" />
           <span className="robot-ear right" />
           <span className="robot-face">
@@ -158,15 +205,6 @@ export default function A1RobotWidget({
           <span className="robot-cheek right" />
           <span className="robot-blush left" />
           <span className="robot-blush right" />
-        </span>
-
-        <span className="robot-body">
-          <span className="robot-neck" />
-          <span className="robot-badge">A1</span>
-          <span className="robot-core" aria-hidden="true" />
-          <span className="robot-heart">♥</span>
-          <span className="robot-arm left" />
-          <span className="robot-arm right" />
         </span>
       </button>
 
