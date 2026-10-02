@@ -355,11 +355,6 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 .robot-shell .robot-turn-right .robot-arm.left{
   opacity:.48;
 }
-@media(max-width:699px){
-  .robot-shell .robot-launcher{
-    transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .22s ease;
-  }
-}
 @media(prefers-reduced-motion:reduce){
   .robot-shell .robot-launcher{transition:none!important}
 }
