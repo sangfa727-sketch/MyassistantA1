@@ -57,6 +57,7 @@ export default function A1RobotWidget({
   }
 
   function handleRobotPointerCancel(event: PointerEvent<HTMLButtonElement>) {
+    setRobotTurn(turnStart.current);
     turnStartX.current = null;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
   }
