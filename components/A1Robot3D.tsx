@@ -174,7 +174,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const head = new THREE.Group();
     headRef.current = head;
     head.position.set(0, 1.3, 0.03);
-    root.add(head);
+    body.add(head);
 
     const headShell = new THREE.Mesh(new THREE.SphereGeometry(0.92, 40, 28), torsoMat);
     headShell.scale.set(1.0, 0.94, 0.82);
@@ -298,6 +298,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       bodyRef.current.rotation.x = THREE.MathUtils.degToRad(bodyPitch * 0.65);
     }
     if (headRef.current) {
+      // Head rotation is local to the body, so the whole character turns
+      // together and the back of the head remains visible from behind.
       headRef.current.rotation.y = THREE.MathUtils.degToRad(headYaw);
       headRef.current.rotation.x = THREE.MathUtils.degToRad(headPitch);
     }
