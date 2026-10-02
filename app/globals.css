@@ -166,3 +166,39 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 @keyframes robotSignalSide{50%{transform:scale(1.35);box-shadow:0 0 16px rgba(124,140,255,1),0 0 25px rgba(101,117,245,.55)}}
 @keyframes robotListenSide{50%{transform:scale(1.18);filter:brightness(1.18)}}
 @media(prefers-reduced-motion:reduce){.robot-shell .robot-antenna i{animation:none!important}}
+
+
+/* A1 lovable character polish — soft expressions, status halo, and friendly motion */
+.robot-shell .robot-launcher{will-change:transform}
+.robot-shell .robot-aura-ring{position:absolute;left:5px;top:12px;width:72px;height:72px;border:1px solid rgba(137,151,255,.18);border-radius:50%;box-shadow:0 0 24px rgba(101,117,245,.08);pointer-events:none;animation:robotRingFloat 4.5s ease-in-out infinite}
+.robot-shell .robot-head{overflow:visible}
+.robot-shell .robot-head::before{content:"";position:absolute;left:13px;right:13px;top:3px;height:7px;border-radius:50%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);opacity:.7;filter:blur(.4px)}
+.robot-shell .robot-face{z-index:2}
+.robot-shell .robot-mouth{z-index:3;min-width:14px}
+.robot-shell .robot-cheek{z-index:2}
+.robot-shell .robot-blush{position:absolute;top:30px;width:9px;height:4px;border-radius:50%;background:rgba(255,130,171,.28);filter:blur(2px);opacity:0;transition:opacity .2s ease}
+.robot-shell .robot-blush.left{left:5px}.robot-shell .robot-blush.right{right:5px}
+.robot-shell .robot-listening .robot-blush,.robot-shell .robot-speaking .robot-blush{opacity:1}
+.robot-shell .robot-thinking .robot-blush{opacity:.45}
+.robot-shell .robot-neck{position:absolute;left:17px;top:-4px;width:15px;height:7px;border-radius:5px 5px 2px 2px;background:linear-gradient(#6676df,#34439d);box-shadow:inset 0 1px 2px rgba(255,255,255,.2)}
+.robot-shell .robot-body::before{content:"";position:absolute;left:8px;right:8px;bottom:4px;height:7px;border-radius:50%;background:rgba(19,28,88,.22);filter:blur(3px)}
+.robot-shell .robot-badge{z-index:2}
+.robot-shell .robot-core{z-index:2}
+.robot-shell .robot-hint{display:flex;align-items:center;gap:5px}
+.robot-shell .robot-hint-dot{width:5px;height:5px;flex:0 0 5px;border-radius:50%;background:#7f8cff;box-shadow:0 0 7px rgba(127,140,255,.8)}
+.robot-shell .robot-hint-listening .robot-hint-dot{background:#71d8ff;box-shadow:0 0 8px rgba(113,216,255,.85)}
+.robot-shell .robot-hint-speaking .robot-hint-dot{background:#d5a0ff;box-shadow:0 0 8px rgba(213,160,255,.8)}
+.robot-shell .robot-hint-thinking .robot-hint-dot{animation:robotHintDot .75s ease-in-out infinite}
+.robot-shell .robot-listening .robot-eye::after{transform:scale(1.25)}
+.robot-shell .robot-speaking .robot-mouth{transform:scale(1.16)}
+.robot-shell .robot-thinking .robot-mouth{transform:translateY(1px)}
+.robot-shell .robot-listening .robot-arm.left{animation:robotWaveLeft .7s ease-in-out infinite}
+.robot-shell .robot-listening .robot-arm.right{animation:robotWaveRight .7s ease-in-out infinite}
+.robot-shell .robot-speaking .robot-arm.left{animation:robotTalkLeft .55s ease-in-out infinite}
+.robot-shell .robot-speaking .robot-arm.right{animation:robotTalkRight .55s ease-in-out infinite}
+@keyframes robotRingFloat{50%{transform:scale(1.06);opacity:.72}}
+@keyframes robotHintDot{50%{transform:scale(1.45);opacity:.55}}
+@media(prefers-reduced-motion:reduce){
+  .robot-shell .robot-aura-ring,.robot-shell .robot-hint-dot{animation:none!important}
+  .robot-shell .robot-blush{transition:none}
+}
