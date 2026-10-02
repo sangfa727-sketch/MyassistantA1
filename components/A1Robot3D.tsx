@@ -559,7 +559,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           leftArmRef.current?.rotation.set(-0.03, -0.10, -0.22);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
           leftElbowRef.current?.rotation.set(0, 0, Math.PI / 4);
-          leftWristRef.current?.rotation.set(0, 0, wave * 0.42);
+          leftWristRef.current?.rotation.set(0, 0, wave * (Math.PI / 4));
           rightWristRef.current?.rotation.set(0, 0, 0);
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + pointerLookPitch;
           head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
@@ -579,7 +579,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           leftArmRef.current?.rotation.set(-0.03, -0.08, -0.22);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
           leftElbowRef.current?.rotation.set(0, 0, Math.PI / 4);
-          leftWristRef.current?.rotation.set(0, 0, wave * 0.36);
+          leftWristRef.current?.rotation.set(0, 0, wave * (Math.PI / 4));
           rightWristRef.current?.rotation.set(0, 0, 0);
         } else {
           const relax = Math.sin(elapsed * 1.5) * 0.025;
