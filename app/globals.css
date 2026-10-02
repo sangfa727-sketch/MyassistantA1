@@ -152,3 +152,17 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 @media(prefers-reduced-motion:reduce){
   .robot-shell .robot-launcher,.robot-shell .robot-core{animation:none!important}
 }
+
+/* A1 side-ear antenna redesign */
+.robot-shell .robot-antenna{top:26px;width:5px;height:13px;border-radius:6px;background:linear-gradient(#dfe4ff,#8795ee);box-shadow:0 0 7px rgba(128,143,255,.22);z-index:2}
+.robot-shell .robot-antenna.left{left:0;transform:rotate(-18deg);transform-origin:right center}
+.robot-shell .robot-antenna.right{left:auto;right:0;transform:rotate(18deg);transform-origin:left center}
+.robot-shell .robot-antenna i{top:-6px;left:-4px;width:13px;height:13px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#9aa7ff 42%,#6575f5 75%);box-shadow:0 0 10px rgba(112,132,255,.9),0 0 22px rgba(101,117,245,.38)}
+.robot-shell .robot-ear{top:12px;width:12px;height:24px;border-radius:50%;background:linear-gradient(145deg,#b7c2ff,#6e7cda);border:1px solid rgba(225,230,255,.55);box-shadow:inset 0 2px 3px rgba(255,255,255,.45),0 3px 8px rgba(20,30,90,.22);z-index:1}
+.robot-shell .robot-ear::after{content:"";position:absolute;inset:3px;border-radius:50%;border:2px solid rgba(224,229,255,.48);box-shadow:inset 0 0 5px rgba(53,70,170,.32)}
+.robot-shell .robot-ear.left{left:-11px}.robot-shell .robot-ear.right{right:-11px}
+.robot-shell .robot-thinking .robot-antenna i{animation:robotSignalSide .7s ease-in-out infinite}
+.robot-shell .robot-listening .robot-antenna i{animation:robotListenSide .55s ease-in-out infinite}
+@keyframes robotSignalSide{50%{transform:scale(1.35);box-shadow:0 0 16px rgba(124,140,255,1),0 0 25px rgba(101,117,245,.55)}}
+@keyframes robotListenSide{50%{transform:scale(1.18);filter:brightness(1.18)}}
+@media(prefers-reduced-motion:reduce){.robot-shell .robot-antenna i{animation:none!important}}
