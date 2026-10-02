@@ -29,6 +29,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const rightArmRef = useRef<THREE.Group>(null);
   const leftElbowRef = useRef<THREE.Group>(null);
   const rightElbowRef = useRef<THREE.Group>(null);
+  const leftWristRef = useRef<THREE.Group>(null);
+  const rightWristRef = useRef<THREE.Group>(null);
   const leftLegRef = useRef<THREE.Group>(null);
   const rightLegRef = useRef<THREE.Group>(null);
   const eyeLRef = useRef<any>(null);
@@ -237,9 +239,23 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       forearm.castShadow = true;
       elbow.add(forearm);
 
+      const wrist = new THREE.Group();
+      wrist.position.y = -0.46;
+      if (side < 0) leftWristRef.current = wrist;
+      else rightWristRef.current = wrist;
+      elbow.add(wrist);
+
+      const wristRing = new THREE.Mesh(
+        new THREE.TorusGeometry(0.105, 0.022, 10, 24),
+        trimMat
+      );
+      wristRing.rotation.x = Math.PI / 2;
+      wrist.add(wristRing);
+
       const hand = new THREE.Mesh(handGeo, whiteMat);
-      hand.position.y = -0.46;
-      elbow.add(hand);
+      hand.position.y = -0.10;
+      hand.scale.set(1.05, 0.72, 0.82);
+      wrist.add(hand);
     }
     addArm(-1, leftArmRef);
     addArm(1, rightArmRef);
@@ -536,7 +552,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           // side-to-side "ta-ta" motion, like a servo-driven mascot arm.
           leftArmRef.current?.rotation.set(-0.03, -0.10, -1.08);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          leftElbowRef.current?.rotation.set(0, 0, Math.PI + wave * 0.24);
+          leftElbowRef.current?.rotation.set(0, 0, Math.PI);
+          leftWristRef.current?.rotation.set(0, 0, wave * 0.28);
+          rightWristRef.current?.rotation.set(0, 0, 0);
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + pointerLookPitch;
           head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
           head.rotation.z = Math.sin(waveTime * 2.2) * 0.025;
@@ -546,13 +564,17 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           rightArmRef.current?.rotation.set(-0.08 - keyTap * 0.10, 0.10, -0.32);
           leftElbowRef.current?.rotation.set(0, 0, 0);
           rightElbowRef.current?.rotation.set(0, 0, 0);
+          leftWristRef.current?.rotation.set(0, 0, 0);
+          rightWristRef.current?.rotation.set(0, 0, 0);
           core.scale.setScalar(1 + Math.abs(keyTap) * 0.045);
         } else if (wavePhase) {
           // A short friendly wave, then return to neutral.
           const wave = Math.sin((cycle - 11.5) * 7.5);
           leftArmRef.current?.rotation.set(-0.03, -0.08, -1.05);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          leftElbowRef.current?.rotation.set(0, 0, Math.PI + wave * 0.22);
+          leftElbowRef.current?.rotation.set(0, 0, Math.PI);
+          leftWristRef.current?.rotation.set(0, 0, wave * 0.24);
+          rightWristRef.current?.rotation.set(0, 0, 0);
         } else {
           const relax = Math.sin(elapsed * 1.5) * 0.025;
           leftArmRef.current?.rotation.set(0, 0, -relax);
@@ -601,6 +623,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         if (rightArmRef.current) rightArmRef.current.rotation.z = -Math.sin(elapsed * 1.8) * 0.018;
         if (leftElbowRef.current) leftElbowRef.current.rotation.set(0, 0, 0);
         if (rightElbowRef.current) rightElbowRef.current.rotation.set(0, 0, 0);
+        if (leftWristRef.current) leftWristRef.current.rotation.set(0, 0, 0);
+        if (rightWristRef.current) rightWristRef.current.rotation.set(0, 0, 0);
       }
 
       // Feet/legs stay planted. There is deliberately no leg bob or vertical sway.
