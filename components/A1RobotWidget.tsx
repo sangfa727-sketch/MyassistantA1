@@ -58,8 +58,6 @@ export default function A1RobotWidget({
   }
 
   if (variant === "glass") {
-    const turnSide = robotTurn > 5 ? "right" : robotTurn < -5 ? "left" : "center";
-
   return (
       <div className="a1-widget-shell">
         <div className={`widget-picker ${pickerOpen ? "open" : ""}`}>
@@ -81,6 +79,8 @@ export default function A1RobotWidget({
       </div>
     );
   }
+
+  const turnSide = robotTurn > 5 ? "right" : robotTurn < -5 ? "left" : "center";
 
   return (
     <div className="a1-widget-shell robot-shell">
