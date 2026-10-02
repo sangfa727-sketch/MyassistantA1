@@ -331,7 +331,7 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
   border-radius:inherit;
   pointer-events:none;
   border:1px solid rgba(255,255,255,.16);
-  box-shadow:inset calc(var(--robot-turn) * -0.12) 0 9px rgba(38,50,125,.16),inset calc(var(--robot-turn) * 0.12) 0 7px rgba(255,255,255,.18);
+  box-shadow:inset var(--robot-shadow-x) 0 9px rgba(38,50,125,.16),inset var(--robot-shadow-x-soft) 0 7px rgba(255,255,255,.18);
   opacity:.9;
 }
 .robot-shell .robot-body::after{
@@ -340,7 +340,7 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
   inset:1px;
   border-radius:inherit;
   pointer-events:none;
-  box-shadow:inset calc(var(--robot-turn) * -0.16) 0 10px rgba(19,28,88,.22),inset calc(var(--robot-turn) * 0.11) 0 8px rgba(173,185,255,.10);
+  box-shadow:inset var(--robot-body-shadow-x) 0 10px rgba(19,28,88,.22),inset var(--robot-body-shadow-x-soft) 0 8px rgba(173,185,255,.10);
 }
 .robot-shell .robot-turn-left .robot-ear.right,
 .robot-shell .robot-turn-right .robot-ear.left{
