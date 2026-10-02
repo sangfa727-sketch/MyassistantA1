@@ -312,22 +312,28 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       last = elapsed;
       const s = stateRef.current;
 
-      // Autonomous companion loop: even without touch, A1 breathes, looks around,
-      // focuses briefly, then performs a short two-hand typing gesture.
-      const cycle = elapsed % 14;
-      const focusPhase = cycle > 4 && cycle < 7;
-      const typingPhase = cycle >= 7 && cycle < 11;
-      const settlePhase = cycle >= 11;
+      // Grounded companion loop: A1 stays planted on its feet.
+      // No breathing bob and no whole-body vertical movement. Instead it
+      // shows small character actions: looking around, blinking, typing,
+      // settling, and an occasional friendly wave.
+      const cycle = elapsed % 16;
+      const focusPhase = cycle > 3 && cycle < 5.5;
+      const typingPhase = cycle >= 6 && cycle < 10;
+      const wavePhase = cycle >= 11.5 && cycle < 13.5;
+      const settlePhase = cycle >= 13.5;
 
-      root.position.y = -0.18 + Math.sin(elapsed * 1.7) * (typingPhase ? 0.024 : 0.035);
-      body.rotation.z = Math.sin(elapsed * 1.2) * 0.012;
-      body.position.y = Math.sin(elapsed * 1.7) * 0.025;
+      root.position.y = -0.18;
+      body.position.y = 0;
+      body.rotation.z = Math.sin(elapsed * 0.85) * 0.006;
 
       if (s === "idle") {
-        const attention = focusPhase ? 1 : typingPhase ? 0.72 : settlePhase ? 0.45 : 0;
-        const look = Math.sin(elapsed * 0.9) * 0.055 * attention;
-        head.position.y = 1.3 + Math.sin(elapsed * 1.6) * 0.018;
-        head.rotation.z = Math.sin(elapsed * 1.1) * 0.018 * attention;
+        const attention = focusPhase ? 1 : typingPhase ? 0.72 : settlePhase ? 0.4 : 0.15;
+        const look = Math.sin(elapsed * 0.82) * 0.06 * attention;
+        const lookTilt = Math.sin(elapsed * 0.67) * 0.012 * attention;
+
+        // Head stays at a fixed height; only tiny natural turns/tilts remain.
+        head.position.y = 1.3;
+        head.rotation.z = lookTilt;
         head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
         eyeL.scale.y = eyeR.scale.y = 1.12 - attention * 0.08;
 
@@ -336,6 +342,11 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           leftArmRef.current?.rotation.set(-0.08 + keyTap * 0.10, -0.10, 0.32);
           rightArmRef.current?.rotation.set(-0.08 - keyTap * 0.10, 0.10, -0.32);
           core.scale.setScalar(1 + Math.abs(keyTap) * 0.045);
+        } else if (wavePhase) {
+          // A short friendly wave, then return to neutral.
+          const wave = Math.sin((cycle - 11.5) * 7.5);
+          leftArmRef.current?.rotation.set(-0.18, -0.08, 0.34 + wave * 0.24);
+          rightArmRef.current?.rotation.set(0, 0.08, -0.03);
         } else {
           const relax = Math.sin(elapsed * 1.5) * 0.025;
           leftArmRef.current?.rotation.set(0, 0, relax);
@@ -371,14 +382,16 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       eyeR.scale.y *= blinkOpen;
 
       if (s !== "listening") head.rotation.z *= 0.9;
-      if (s !== "thinking") head.position.y += (1.3 - head.position.y) * Math.min(1, dt * 8);
+      if (s !== "thinking") head.position.y += (1.3 - head.position.y) * Math.min(1, dt * 10);
 
-      if (s !== "idle" || !typingPhase) {
-        if (leftArmRef.current) leftArmRef.current.rotation.z = Math.sin(elapsed * 1.8) * 0.025;
-        if (rightArmRef.current) rightArmRef.current.rotation.z = -Math.sin(elapsed * 1.8) * 0.025;
+      if (s !== "idle" || (!typingPhase && !wavePhase)) {
+        if (leftArmRef.current) leftArmRef.current.rotation.z = Math.sin(elapsed * 1.8) * 0.018;
+        if (rightArmRef.current) rightArmRef.current.rotation.z = -Math.sin(elapsed * 1.8) * 0.018;
       }
-      if (leftLegRef.current) leftLegRef.current.rotation.z = Math.sin(elapsed * 1.6) * 0.01;
-      if (rightLegRef.current) rightLegRef.current.rotation.z = -Math.sin(elapsed * 1.6) * 0.01;
+
+      // Feet/legs stay planted. There is deliberately no leg bob or vertical sway.
+      if (leftLegRef.current) leftLegRef.current.rotation.z = 0;
+      if (rightLegRef.current) rightLegRef.current.rotation.z = 0;
 
       renderer.render(scene, camera);
       animationId = requestAnimationFrame(animate);
