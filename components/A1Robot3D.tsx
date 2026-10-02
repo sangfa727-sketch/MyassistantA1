@@ -34,6 +34,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const mouthRef = useRef<any>(null);
   const stateRef = useRef(state);
   const headYawRef = useRef(headYaw);
+  const hoverRef = useRef(false);
   stateRef.current = state;
   headYawRef.current = headYaw;
 
@@ -292,6 +293,20 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     let animationId = 0;
     const clock = new THREE.Clock();
     let last = 0;
+    let hoverUntil = 0;
+    let waveStartedAt = -1;
+
+    const onHover = () => {
+      hoverRef.current = true;
+      hoverUntil = clock.getElapsedTime() + 1.9;
+      waveStartedAt = clock.getElapsedTime();
+    };
+    const onLeave = () => {
+      hoverRef.current = false;
+      hoverUntil = clock.getElapsedTime() + 0.35;
+    };
+    host.addEventListener("a1:hover", onHover);
+    host.addEventListener("a1:leave", onLeave);
     let nextBlinkAt = 2.5;
     let blinkUntil = 0;
 
@@ -321,6 +336,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       const typingPhase = cycle >= 6 && cycle < 10;
       const wavePhase = cycle >= 11.5 && cycle < 13.5;
       const settlePhase = cycle >= 13.5;
+      const hiPhase = hoverRef.current || elapsed < hoverUntil;
 
       root.position.y = -0.18;
       body.position.y = 0;
@@ -337,7 +353,13 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
         eyeL.scale.y = eyeR.scale.y = 1.12 - attention * 0.08;
 
-        if (typingPhase) {
+        if (hiPhase) {
+          const waveTime = Math.max(0, elapsed - Math.max(0, waveStartedAt));
+          const wave = Math.sin(waveTime * 10.5);
+          leftArmRef.current?.rotation.set(-0.22, -0.12, 0.38 + wave * 0.30);
+          rightArmRef.current?.rotation.set(0, 0.08, -0.03);
+          head.rotation.z = Math.sin(waveTime * 2.2) * 0.025;
+        } else if (typingPhase) {
           const keyTap = Math.sin(elapsed * 9.5);
           leftArmRef.current?.rotation.set(-0.08 + keyTap * 0.10, -0.10, 0.32);
           rightArmRef.current?.rotation.set(-0.08 - keyTap * 0.10, 0.10, -0.32);
@@ -401,6 +423,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     return () => {
       cancelAnimationFrame(animationId);
       observer.disconnect();
+      host.removeEventListener("a1:hover", onHover);
+      host.removeEventListener("a1:leave", onLeave);
       renderer.dispose();
       scene.traverse((object: any) => {
         if (object instanceof THREE.Mesh) {
