@@ -29,6 +29,7 @@ export default function A1RobotWidget({
   const [bodyPitch, setBodyPitch] = useState(0);
   const [headYaw, setHeadYaw] = useState(0);
   const [headPitch, setHeadPitch] = useState(0);
+  const [robotReaction, setRobotReaction] = useState<"" | "?" | "!">("");
   const gestureStart = useRef<{ x: number; y: number; bodyYaw: number; bodyPitch: number; headYaw: number; headPitch: number } | null>(null);
   const settleFrameRef = useRef<number | null>(null);
 
@@ -83,6 +84,7 @@ export default function A1RobotWidget({
 
   function handleRobotPointerDown(event: PointerEvent<HTMLButtonElement>) {
     stopSettleAnimation();
+    setRobotReaction("?");
     gestureStart.current = {
       x: event.clientX,
       y: event.clientY,
@@ -101,6 +103,8 @@ export default function A1RobotWidget({
 
     const dx = event.clientX - start.x;
     const dy = event.clientY - start.y;
+    const moved = Math.hypot(dx, dy);
+    if (moved > 72) setRobotReaction("!");
 
     // Horizontal drag = the character looks first; the body follows gently instead of feeling like a 3D model viewer.
     const nextBodyYaw = clamp(start.bodyYaw + dx * 0.58, -180, 180);
@@ -137,6 +141,7 @@ export default function A1RobotWidget({
     }
 
     gestureStart.current = null;
+    setRobotReaction("");
     event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:dragend"));
     if (!cancelled && moved >= 8) settleBackToAutonomous();
     if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
@@ -155,6 +160,7 @@ export default function A1RobotWidget({
   function handleRobotPointerLostCapture(event: PointerEvent<HTMLButtonElement>) {
     if (!gestureStart.current) return;
     gestureStart.current = null;
+    setRobotReaction("");
     event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:dragend"));
     settleBackToAutonomous();
   }
@@ -218,7 +224,7 @@ export default function A1RobotWidget({
       >
         <span className="robot-aura" />
         <span className="robot-aura-ring" />
-        <span className="robot-reaction" aria-hidden="true">?</span>
+        <span className={`robot-reaction ${robotReaction ? "show" : ""}`} aria-hidden="true">{robotReaction}</span>
         <A1Robot3D
           state={state}
           bodyYaw={bodyYaw}
