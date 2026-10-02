@@ -35,6 +35,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const stateRef = useRef(state);
   const headYawRef = useRef(headYaw);
   const hoverRef = useRef(false);
+  const draggingRef = useRef(false);
   stateRef.current = state;
   headYawRef.current = headYaw;
 
@@ -305,8 +306,19 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       hoverRef.current = false;
       hoverUntil = clock.getElapsedTime() + 0.35;
     };
+    const onDragStart = () => {
+      draggingRef.current = true;
+      hoverRef.current = true;
+      hoverUntil = clock.getElapsedTime() + 10;
+    };
+    const onDragEnd = () => {
+      draggingRef.current = false;
+      hoverUntil = clock.getElapsedTime() + 0.55;
+    };
     host.addEventListener("a1:hover", onHover);
     host.addEventListener("a1:leave", onLeave);
+    host.addEventListener("a1:dragstart", onDragStart);
+    host.addEventListener("a1:dragend", onDragEnd);
     let nextBlinkAt = 2.5;
     let blinkUntil = 0;
 
@@ -337,6 +349,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       const wavePhase = cycle >= 11.5 && cycle < 13.5;
       const settlePhase = cycle >= 13.5;
       const hiPhase = hoverRef.current || elapsed < hoverUntil;
+      const dragPhase = draggingRef.current;
 
       root.position.y = -0.18;
       body.position.y = 0;
@@ -353,7 +366,14 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
         eyeL.scale.y = eyeR.scale.y = 1.12 - attention * 0.08;
 
-        if (hiPhase) {
+        if (dragPhase) {
+          // While the user is physically moving A1, show a curious reaction.
+          const reaction = Math.sin(elapsed * 7.5);
+          leftArmRef.current?.rotation.set(-0.12, -0.08, 0.18 + reaction * 0.10);
+          rightArmRef.current?.rotation.set(-0.12, 0.08, -0.18 - reaction * 0.10);
+          head.rotation.z = Math.sin(elapsed * 4.2) * 0.045;
+          head.position.y = 1.3;
+        } else if (hiPhase) {
           const waveTime = Math.max(0, elapsed - Math.max(0, waveStartedAt));
           const wave = Math.sin(waveTime * 10.5);
           leftArmRef.current?.rotation.set(-0.22, -0.12, 0.38 + wave * 0.30);
@@ -425,6 +445,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       observer.disconnect();
       host.removeEventListener("a1:hover", onHover);
       host.removeEventListener("a1:leave", onLeave);
+      host.removeEventListener("a1:dragstart", onDragStart);
+      host.removeEventListener("a1:dragend", onDragEnd);
       renderer.dispose();
       scene.traverse((object: any) => {
         if (object instanceof THREE.Mesh) {
