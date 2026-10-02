@@ -57,7 +57,8 @@ export default function A1RobotWidget({
       onOpen();
     } else {
       const nextTurn = Math.max(-18, Math.min(18, turnStart.current + delta * 0.18));
-      setRobotTurn(nextTurn);
+      const snappedTurn = Math.abs(nextTurn) < 3 ? 0 : nextTurn;
+      setRobotTurn(snappedTurn);
     }
     event.currentTarget.releasePointerCapture?.(event.pointerId);
   }
