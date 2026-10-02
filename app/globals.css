@@ -302,3 +302,4 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 /* A1 antenna tip simplification */
 .robot-shell .robot-antenna i{display:none!important}
 .robot-shell .robot-antenna{width:4px;height:28px;border-radius:3px;box-shadow:0 0 6px rgba(128,143,255,.18)}
+\n\n/* A1 mobile 3D turn interaction */\n.robot-shell .robot-launcher{touch-action:pan-y;transform-style:preserve-3d;will-change:transform;}\n.robot-shell .robot-launcher .robot-head,.robot-shell .robot-launcher .robot-body,.robot-shell .robot-launcher .robot-antenna,.robot-shell .robot-launcher .robot-ear{transform-style:preserve-3d;}\n@media(max-width:699px){\n  .robot-shell .robot-launcher{transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .22s ease;}\n}\n
