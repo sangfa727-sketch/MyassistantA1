@@ -1,5 +1,6 @@
-const CACHE_NAME = "a1-shell-v1";
-const APP_SHELL = ["/", "/manifest.webmanifest", "/icon.svg"];
+const BASE_PATH = "/MyassistantA1";
+const CACHE_NAME = "a1-shell-v2";
+const APP_SHELL = [`${BASE_PATH}/`, `${BASE_PATH}/manifest.webmanifest`, `${BASE_PATH}/icon.svg`];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -20,24 +21,27 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  if (!url.pathname.startsWith(BASE_PATH)) return;
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() => caches.match("/"))
+      fetch(request).catch(() => caches.match(`${BASE_PATH}/`))
     );
     return;
   }
 
-  if (url.pathname.startsWith("/api/")) return;
+  if (url.pathname.startsWith(`${BASE_PATH}/api/`)) return;
 
   event.respondWith(
     caches.match(request).then((cached) =>
       cached ||
       fetch(request).then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
         return response;
-      }).catch(() => caches.match("/"))
+      }).catch(() => caches.match(`${BASE_PATH}/`))
     )
   );
 });
