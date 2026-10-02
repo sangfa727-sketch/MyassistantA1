@@ -120,3 +120,18 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 @keyframes robotListenAura{50%{transform:scale(1.08);opacity:.78}}
 @media(max-width:380px){.robot-shell{right:8px;transform:scale(.94);transform-origin:bottom right}}
 @media(prefers-reduced-motion:reduce){.robot-shell .robot-launcher{transition:none}.robot-shell .robot-aura{animation:none!important}}
+
+
+/* Expressive A1 eyes — character identity */
+.robot-shell .robot-face{display:flex;align-items:center;justify-content:center;gap:18px;top:14px;height:15px;letter-spacing:0}
+.robot-shell .robot-eye{display:block;position:relative;width:8px;height:10px;border-radius:50%;background:radial-gradient(circle at 38% 28%,#fff 0 18%,#9eafff 20% 42%,#26378f 44% 100%);box-shadow:0 0 7px rgba(104,125,255,.72);transition:height .18s ease,transform .18s ease,box-shadow .18s ease}
+.robot-shell .robot-eye.left{left:auto}.robot-shell .robot-eye.right{right:auto}
+.robot-shell .robot-eye::after{content:"";position:absolute;left:2px;top:1px;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.9}
+.robot-shell .robot-eye-glow{position:absolute;width:34px;height:12px;border-radius:50%;background:rgba(100,121,255,.12);filter:blur(5px);pointer-events:none}
+.robot-shell .robot-thinking .robot-eye{height:5px;transform:translateY(2px);box-shadow:0 0 5px rgba(104,125,255,.55)}
+.robot-shell .robot-listening .robot-eye{height:12px;transform:scaleX(1.04);box-shadow:0 0 11px rgba(104,135,255,.9)}
+.robot-shell .robot-speaking .robot-eye{animation:robotEyeTalk .55s ease-in-out infinite alternate}
+.robot-shell .robot-mouth{transition:transform .18s ease}
+.robot-shell .robot-listening .robot-mouth{transform:scale(1.15)}
+@keyframes robotEyeTalk{to{transform:translateY(-1px) scale(1.06)}}
+@media(prefers-reduced-motion:reduce){.robot-shell .robot-eye{animation:none!important}}
