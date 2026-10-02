@@ -103,11 +103,11 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     body.position.y = 0;
     root.add(body);
 
-    const torsoMat = new THREE.MeshStandardMaterial({ color: 0x173b69, metalness: 0.72, roughness: 0.24 });
-    const trimMat = new THREE.MeshStandardMaterial({ color: 0x4ca8ff, metalness: 0.58, roughness: 0.2 });
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x071522, metalness: 0.82, roughness: 0.2 });
+    const torsoMat = new THREE.MeshStandardMaterial({ color: 0x9aa4ad, metalness: 0.86, roughness: 0.26 });
+    const trimMat = new THREE.MeshStandardMaterial({ color: 0xd7dde2, metalness: 0.82, roughness: 0.2 });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x20262b, metalness: 0.9, roughness: 0.18 });
     const whiteMat = new THREE.MeshStandardMaterial({ color: 0xe9f7ff, metalness: 0.15, roughness: 0.18 });
-    const cyanMat = new THREE.MeshStandardMaterial({ color: 0x62e7ff, emissive: 0x1ab9ff, emissiveIntensity: 2.4, metalness: 0.2, roughness: 0.14 });
+    const cyanMat = new THREE.MeshStandardMaterial({ color: 0xc9f5ff, emissive: 0x54d9ff, emissiveIntensity: 1.8, metalness: 0.25, roughness: 0.12 });
     const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8fcf, emissive: 0xff3f9f, emissiveIntensity: 1.2, metalness: 0.1, roughness: 0.25 });
 
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.72, 0.72, 10, 32), torsoMat);
@@ -166,7 +166,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       // Compact servo housing: a rounded side shell with a real circular motor
       // face/axle, rather than a block crossing the arm at an unnatural angle.
       const shoulderHousing = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.18, 0.18, 0.22, 32),
+        new THREE.CylinderGeometry(0.22, 0.22, 0.16, 40),
         darkMat
       );
       shoulderHousing.rotation.z = Math.PI / 2;
@@ -175,7 +175,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       g.add(shoulderHousing);
 
       const shoulderCap = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.13, 0.13, 0.035, 32),
+        new THREE.CylinderGeometry(0.16, 0.16, 0.045, 40),
         trimMat
       );
       shoulderCap.rotation.z = Math.PI / 2;
@@ -183,7 +183,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       g.add(shoulderCap);
 
       const shoulderAxle = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.045, 0.045, 0.045, 24),
+        new THREE.CylinderGeometry(0.052, 0.052, 0.05, 28),
         cyanMat
       );
       shoulderAxle.rotation.z = Math.PI / 2;
@@ -317,13 +317,13 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     head.add(rearHeadCore);
 
     // Deep, curved face visor: keep real thickness so side/back turns reveal volume.
-    const facePlate = new THREE.Mesh(new THREE.SphereGeometry(0.67, 40, 28), darkMat);
+    const facePlate = new THREE.Mesh(new THREE.SphereGeometry(0.67, 40, 28), new THREE.MeshStandardMaterial({ color: 0x090d11, metalness: 0.38, roughness: 0.12, emissive: 0x05080b, emissiveIntensity: 0.35 }));
     facePlate.scale.set(1.0, 0.70, 0.34);
     facePlate.position.set(0, -0.01, 0.61);
     facePlate.castShadow = true;
     head.add(facePlate);
 
-    const faceInner = new THREE.Mesh(new THREE.SphereGeometry(0.51, 32, 22), darkMat);
+    const faceInner = new THREE.Mesh(new THREE.SphereGeometry(0.51, 32, 22), new THREE.MeshStandardMaterial({ color: 0x111820, metalness: 0.3, roughness: 0.1, emissive: 0x07121a, emissiveIntensity: 0.55 }));
     faceInner.scale.set(1.0, 0.72, 0.26);
     faceInner.position.set(0, -0.01, 0.82);
     head.add(faceInner);
