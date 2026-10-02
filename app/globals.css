@@ -537,6 +537,13 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
   padding:0;
   background:transparent;
   border:0;
+  /* The visible WebGL mascot extends beyond the old 74x92 button.
+     Make the invisible interaction field follow the whole character,
+     so proximity/hover works when the pointer is over the robot body. */
+  left:-24px;
+  bottom:-20px;
+  width:140px;
+  height:150px;
 }
 .robot-shell .robot-launcher:hover{
   transform:translateY(-3px) scale(1.025);
