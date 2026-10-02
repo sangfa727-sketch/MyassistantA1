@@ -308,9 +308,36 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       last = elapsed;
       const s = stateRef.current;
 
-      root.position.y = -0.18 + Math.sin(elapsed * 1.7) * 0.035;
+      // Autonomous companion loop: even without touch, A1 breathes, looks around,
+      // focuses briefly, then performs a short two-hand typing gesture.
+      const cycle = elapsed % 14;
+      const focusPhase = cycle > 4 && cycle < 7;
+      const typingPhase = cycle >= 7 && cycle < 11;
+      const settlePhase = cycle >= 11;
+
+      root.position.y = -0.18 + Math.sin(elapsed * 1.7) * (typingPhase ? 0.024 : 0.035);
       body.rotation.z = Math.sin(elapsed * 1.2) * 0.012;
       body.position.y = Math.sin(elapsed * 1.7) * 0.025;
+
+      if (s === "idle") {
+        const attention = focusPhase ? 1 : typingPhase ? 0.72 : settlePhase ? 0.45 : 0;
+        const look = Math.sin(elapsed * 0.9) * 0.055 * attention;
+        head.position.y = 1.3 + Math.sin(elapsed * 1.6) * 0.018;
+        head.rotation.z = Math.sin(elapsed * 1.1) * 0.018 * attention;
+        head.rotation.y += look;
+        eyeL.scale.y = eyeR.scale.y = 1.12 - attention * 0.08;
+
+        if (typingPhase) {
+          const keyTap = Math.sin(elapsed * 9.5);
+          leftArmRef.current?.rotation.set(-0.08 + keyTap * 0.10, -0.10, 0.32);
+          rightArmRef.current?.rotation.set(-0.08 - keyTap * 0.10, 0.10, -0.32);
+          core.scale.setScalar(1 + Math.abs(keyTap) * 0.045);
+        } else {
+          const relax = Math.sin(elapsed * 1.5) * 0.025;
+          leftArmRef.current?.rotation.set(0, 0, relax);
+          rightArmRef.current?.rotation.set(0, 0, -relax);
+        }
+      }
 
       if (s === "thinking") {
         head.position.y = 1.3 + Math.sin(elapsed * 2.8) * 0.025;
