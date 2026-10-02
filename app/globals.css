@@ -233,3 +233,67 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
   .robot-shell .robot-idle .robot-eye,.robot-shell .robot-idle .robot-mouth{animation:none!important}
   .robot-shell .robot-listening .robot-head{animation:none!important}
 }
+
+
+/* A1 antenna + headset silhouette refinement */
+.robot-shell .robot-head{
+  border-radius:28px 28px 20px 20px;
+  height:50px;
+}
+.robot-shell .robot-ear{
+  top:14px;
+  width:16px;
+  height:24px;
+  border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,#dce3ff 0 18%,#a7b4f4 32%,#6978d5 76%,#4e5db5 100%);
+  border:1px solid rgba(235,239,255,.7);
+  box-shadow:inset 0 2px 4px rgba(255,255,255,.5),inset 0 -3px 5px rgba(46,58,132,.28),0 4px 9px rgba(20,30,90,.25);
+}
+.robot-shell .robot-ear::before{
+  content:"";
+  position:absolute;
+  inset:4px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(48,61,145,.55) 0 25%,rgba(148,162,242,.32) 27% 48%,transparent 52%);
+  box-shadow:inset 0 0 4px rgba(30,43,116,.4);
+}
+.robot-shell .robot-ear::after{
+  inset:2px;
+  border:1px solid rgba(241,244,255,.42);
+  box-shadow:none;
+}
+.robot-shell .robot-ear.left{left:-13px}
+.robot-shell .robot-ear.right{right:-13px}
+.robot-shell .robot-antenna{
+  top:1px;
+  width:4px;
+  height:28px;
+  border-radius:5px;
+  background:linear-gradient(180deg,#e8ebff 0%,#a6b2f5 48%,#6878d8 100%);
+  box-shadow:0 0 7px rgba(128,143,255,.28);
+  z-index:3;
+}
+.robot-shell .robot-antenna.left{
+  left:2px;
+  right:auto;
+  transform:rotate(-12deg);
+  transform-origin:center bottom;
+}
+.robot-shell .robot-antenna.right{
+  left:auto;
+  right:2px;
+  transform:rotate(12deg);
+  transform-origin:center bottom;
+}
+.robot-shell .robot-antenna i{
+  top:-6px;
+  left:-4px;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff 0 14%,#b8c3ff 32%,#6575f5 72%,#4554bd 100%);
+  box-shadow:0 0 10px rgba(112,132,255,.9),0 0 22px rgba(101,117,245,.38);
+}
+@media(max-width:380px){
+  .robot-shell .robot-head{border-radius:26px 26px 19px 19px}
+}
