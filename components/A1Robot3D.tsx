@@ -383,8 +383,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         const pointerX = pointerLookRef.current.x;
         const pointerY = pointerLookRef.current.y;
         const pointerWeight = hiPhase || dragPhase ? 1 : 0.35;
-        const pointerLookYaw = THREE.MathUtils.degToRad(pointerX * 8.5) * pointerWeight;
-        const pointerLookPitch = THREE.MathUtils.degToRad(pointerY * 5.5) * pointerWeight;
+        const pointerLookYaw = THREE.MathUtils.degToRad(pointerX * 16) * pointerWeight;
+        const pointerLookPitch = THREE.MathUtils.degToRad(pointerY * 14) * pointerWeight;
         const look = Math.sin(elapsed * 0.82) * 0.06 * attention + pointerLookYaw;
         const lookTilt = Math.sin(elapsed * 0.67) * 0.012 * attention;
 
@@ -406,7 +406,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         } else if (hiPhase) {
           const waveTime = Math.max(0, elapsed - Math.max(0, waveStartedAt));
           const wave = Math.sin(waveTime * 10.5);
-          leftArmRef.current?.rotation.set(-0.22, -0.12, 0.38 + wave * 0.30);
+          leftArmRef.current?.rotation.set(-0.30, -0.20, 0.42 + wave * 0.42);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current);
           head.rotation.z = Math.sin(waveTime * 2.2) * 0.025;
