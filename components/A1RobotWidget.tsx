@@ -37,6 +37,12 @@ export default function A1RobotWidget({
     event.currentTarget.setPointerCapture?.(event.pointerId);
   }
 
+  function handleRobotPointerLostCapture() {
+    if (turnStartX.current === null) return;
+    setRobotTurn(turnStart.current);
+    turnStartX.current = null;
+  }
+
   function handleRobotPointerMove(event: PointerEvent<HTMLButtonElement>) {
     if (turnStartX.current === null) return;
     const delta = event.clientX - turnStartX.current;
@@ -122,6 +128,7 @@ export default function A1RobotWidget({
         onPointerMove={handleRobotPointerMove}
         onPointerUp={handleRobotPointerUp}
         onPointerCancel={handleRobotPointerCancel}
+        onLostPointerCapture={handleRobotPointerLostCapture}
         aria-label="A1 Assistant ဖွင့်ရန် — ဘယ်ညာ swipe လုပ်၍ လှည့်ရန်"
       >
         <span className="robot-aura" />
