@@ -155,7 +155,6 @@ export default function A1RobotWidget({
   function handleRobotPointerLostCapture(event: PointerEvent<HTMLButtonElement>) {
     if (!gestureStart.current) return;
     gestureStart.current = null;
-    isInteractingRef.current = false;
     event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:dragend"));
     settleBackToAutonomous();
   }
