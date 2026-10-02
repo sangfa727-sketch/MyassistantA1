@@ -37,7 +37,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const headPitchRef = useRef(headPitch);
   const hoverRef = useRef(false);
   const draggingRef = useRef(false);
-  const pointerGazeRef = useRef({ x: 0, y: 0, active: false });
   const pointerLookRef = useRef({ x: 0, y: 0 });
   stateRef.current = state;
   headYawRef.current = headYaw;
@@ -305,16 +304,16 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       const detail = (event as CustomEvent<{ clientX: number; clientY: number }>).detail;
       if (detail) {
         const rect = host.getBoundingClientRect();
-        pointerGazeRef.current.active = true;
-        pointerGazeRef.current.x = THREE.MathUtils.clamp((detail.clientX - rect.left) / Math.max(1, rect.width) * 2 - 1, -1, 1);
-        pointerGazeRef.current.y = THREE.MathUtils.clamp((detail.clientY - rect.top) / Math.max(1, rect.height) * 2 - 1, -1, 1);
+        pointerLookRef.current.x = THREE.MathUtils.clamp((detail.clientX - rect.left) / Math.max(1, rect.width) * 2 - 1, -1, 1);
+        pointerLookRef.current.y = THREE.MathUtils.clamp((detail.clientY - rect.top) / Math.max(1, rect.height) * 2 - 1, -1, 1);
       }
       hoverRef.current = true;
       hoverUntil = clock.getElapsedTime() + 1.9;
       waveStartedAt = clock.getElapsedTime();
     };
     const onLeave = () => {
-      pointerGazeRef.current.active = false;
+      pointerLookRef.current.x = 0;
+      pointerLookRef.current.y = 0;
       hoverRef.current = false;
       hoverUntil = clock.getElapsedTime() + 0.35;
     };
@@ -322,9 +321,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       const detail = (event as CustomEvent<{ clientX: number; clientY: number }>).detail;
       if (!detail) return;
       const rect = host.getBoundingClientRect();
-      pointerGazeRef.current.active = true;
-      pointerGazeRef.current.x = THREE.MathUtils.clamp((detail.clientX - rect.left) / Math.max(1, rect.width) * 2 - 1, -1, 1);
-      pointerGazeRef.current.y = THREE.MathUtils.clamp((detail.clientY - rect.top) / Math.max(1, rect.height) * 2 - 1, -1, 1);
+      pointerLookRef.current.x = THREE.MathUtils.clamp((detail.clientX - rect.left) / Math.max(1, rect.width) * 2 - 1, -1, 1);
+      pointerLookRef.current.y = THREE.MathUtils.clamp((detail.clientY - rect.top) / Math.max(1, rect.height) * 2 - 1, -1, 1);
     };
     const onDragStart = () => {
       draggingRef.current = true;
@@ -333,7 +331,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     };
     const onDragEnd = () => {
       draggingRef.current = false;
-      pointerGazeRef.current.active = false;
+      pointerLookRef.current.x = 0;
+      pointerLookRef.current.y = 0;
       hoverRef.current = false;
       hoverUntil = clock.getElapsedTime() + 0.42;
       waveStartedAt = clock.getElapsedTime();
@@ -390,10 +389,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       root.position.y = -0.18;
       body.position.y = 0;
       body.rotation.z = Math.sin(elapsed * 0.85) * 0.006;
-
-      const gaze = pointerGazeRef.current;
-      const gazeYaw = gaze.active ? gaze.x * 0.13 : 0;
-      const gazePitch = gaze.active ? -gaze.y * 0.10 : 0;
 
       if (s === "idle") {
         const attention = focusPhase ? 1 : typingPhase ? 0.72 : settlePhase ? 0.4 : 0.15;
