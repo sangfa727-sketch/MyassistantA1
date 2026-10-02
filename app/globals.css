@@ -531,24 +531,22 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 
 /* A1 true volumetric 3D character stage */
 .robot-shell .robot-launcher{
-  transform:none;
+  transform:none!important;
   transform-style:flat;
   overflow:visible;
   padding:0;
   background:transparent;
   border:0;
-  /* Wide invisible interaction field follows the complete WebGL mascot,
-     including its head/body overflow, for natural proximity tracking. */
+  /* Keep the interaction field large, but never visually scale the mascot
+     when pointer proximity crosses the hit area. */
   left:-48px;
   bottom:-42px;
   width:188px;
   height:196px;
 }
-.robot-shell .robot-launcher:hover{
-  transform:translateY(-3px) scale(1.025);
-}
+.robot-shell .robot-launcher:hover,
 .robot-shell .robot-launcher:active{
-  transform:translateY(-1px) scale(1.01);
+  transform:none!important;
 }
 .robot-shell .robot-aura,
 .robot-shell .robot-aura-ring{pointer-events:none;}
