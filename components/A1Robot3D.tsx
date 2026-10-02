@@ -27,6 +27,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const headRef = useRef<THREE.Group>(null);
   const leftArmRef = useRef<THREE.Group>(null);
   const rightArmRef = useRef<THREE.Group>(null);
+  const leftElbowRef = useRef<THREE.Group>(null);
+  const rightElbowRef = useRef<THREE.Group>(null);
   const leftLegRef = useRef<THREE.Group>(null);
   const rightLegRef = useRef<THREE.Group>(null);
   const eyeLRef = useRef<any>(null);
@@ -38,6 +40,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const hoverRef = useRef(false);
   const draggingRef = useRef(false);
   const pointerLookRef = useRef({ x: 0, y: 0 });
+  const pointerLookSmoothRef = useRef({ x: 0, y: 0 });
   stateRef.current = state;
   headYawRef.current = headYaw;
   headPitchRef.current = headPitch;
@@ -155,6 +158,22 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       shoulder.castShadow = true;
       g.add(shoulder);
 
+      const shoulderCover = new THREE.Mesh(
+        roundedBox(0.32, 0.30, 0.28, 0.08),
+        darkMat
+      );
+      shoulderCover.position.set(0, -0.02, 0.035);
+      shoulderCover.castShadow = true;
+      g.add(shoulderCover);
+
+      const shoulderServo = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.075, 0.075, 0.30, 20),
+        cyanMat
+      );
+      shoulderServo.rotation.z = Math.PI / 2;
+      shoulderServo.position.set(0, -0.02, 0.18);
+      g.add(shoulderServo);
+
       // Real two-segment arm: the elbow is an actual joint, so A1 can
       // lift the hand above shoulder height instead of only swinging one
       // rigid capsule from the shoulder.
@@ -165,7 +184,25 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
       const elbow = new THREE.Group();
       elbow.position.y = -0.49;
+      if (side < 0) leftElbowRef.current = elbow;
+      else rightElbowRef.current = elbow;
       g.add(elbow);
+
+      const elbowCover = new THREE.Mesh(
+        roundedBox(0.26, 0.22, 0.24, 0.07),
+        darkMat
+      );
+      elbowCover.position.set(0, 0, 0.025);
+      elbowCover.castShadow = true;
+      elbow.add(elbowCover);
+
+      const elbowServo = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.065, 0.065, 0.26, 20),
+        cyanMat
+      );
+      elbowServo.rotation.z = Math.PI / 2;
+      elbowServo.position.set(0, 0, 0.15);
+      elbow.add(elbowServo);
 
       const elbowJoint = new THREE.Mesh(elbowGeo, trimMat);
       elbowJoint.castShadow = true;
@@ -357,8 +394,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       const target = event.target as Element | null;
       if (target?.closest(".robot-mic, .widget-picker, .widget-settings")) return;
       const rect = host.getBoundingClientRect();
-      const padX = Math.max(42, rect.width * 0.12);
-      const padY = Math.max(42, rect.height * 0.12);
+      const padX = Math.max(12, rect.width * 0.035);
+      const padY = Math.max(12, rect.height * 0.035);
       const inside =
         event.clientX >= rect.left - padX &&
         event.clientX <= rect.right + padX &&
@@ -439,8 +476,13 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
       if (s === "idle") {
         const attention = focusPhase ? 1 : typingPhase ? 0.72 : settlePhase ? 0.4 : 0.15;
-        const pointerX = pointerLookRef.current.x;
-        const pointerY = pointerLookRef.current.y;
+        const pointerTarget = pointerLookRef.current;
+        const pointerSmooth = pointerLookSmoothRef.current;
+        const pointerEase = 1 - Math.exp(-dt * 8.5);
+        pointerSmooth.x += (pointerTarget.x - pointerSmooth.x) * pointerEase;
+        pointerSmooth.y += (pointerTarget.y - pointerSmooth.y) * pointerEase;
+        const pointerX = pointerSmooth.x;
+        const pointerY = pointerSmooth.y;
         const pointerWeight = hiPhase || dragPhase ? 1 : 0.35;
         const pointerLookYaw = THREE.MathUtils.degToRad(pointerX * 16) * pointerWeight;
         const pointerLookPitch = THREE.MathUtils.degToRad(pointerY * 14) * pointerWeight;
@@ -465,11 +507,12 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         } else if (hiPhase) {
           const waveTime = Math.max(0, elapsed - Math.max(0, waveStartedAt));
           const wave = Math.sin(waveTime * 10.5);
-          // Lift from the shoulder first, then let the real elbow/forearm
-          // create the wave arc. The hand now rises above the shoulder
-          // instead of staying at a low 45° angle.
-          leftArmRef.current?.rotation.set(-0.05, -0.10, -1.12 + wave * 0.22);
+          // Hi wave: the shoulder/upper arm holds the hand high while the
+          // elbow stays lowered. Only the forearm + palm perform the small
+          // side-to-side "ta-ta" motion, like a servo-driven mascot arm.
+          leftArmRef.current?.rotation.set(-0.03, -0.10, -1.08);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
+          leftElbowRef.current?.rotation.set(0, 0, 0.72 + wave * 0.34);
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + pointerLookPitch;
           head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
           head.rotation.z = Math.sin(waveTime * 2.2) * 0.025;
@@ -477,16 +520,21 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           const keyTap = Math.sin(elapsed * 9.5);
           leftArmRef.current?.rotation.set(-0.08 + keyTap * 0.10, -0.10, 0.32);
           rightArmRef.current?.rotation.set(-0.08 - keyTap * 0.10, 0.10, -0.32);
+          leftElbowRef.current?.rotation.set(0, 0, 0);
+          rightElbowRef.current?.rotation.set(0, 0, 0);
           core.scale.setScalar(1 + Math.abs(keyTap) * 0.045);
         } else if (wavePhase) {
           // A short friendly wave, then return to neutral.
           const wave = Math.sin((cycle - 11.5) * 7.5);
-          leftArmRef.current?.rotation.set(-0.05, -0.08, -1.02 + wave * 0.28);
+          leftArmRef.current?.rotation.set(-0.03, -0.08, -1.05);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
+          leftElbowRef.current?.rotation.set(0, 0, 0.68 + wave * 0.30);
         } else {
           const relax = Math.sin(elapsed * 1.5) * 0.025;
           leftArmRef.current?.rotation.set(0, 0, -relax);
           rightArmRef.current?.rotation.set(0, 0, relax);
+          leftElbowRef.current?.rotation.set(0, 0, 0);
+          rightElbowRef.current?.rotation.set(0, 0, 0);
         }
       }
 
@@ -527,6 +575,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       if (s === "idle" && !dragPhase && !hiPhase && !typingPhase && !wavePhase) {
         if (leftArmRef.current) leftArmRef.current.rotation.z = Math.sin(elapsed * 1.8) * 0.018;
         if (rightArmRef.current) rightArmRef.current.rotation.z = -Math.sin(elapsed * 1.8) * 0.018;
+        if (leftElbowRef.current) leftElbowRef.current.rotation.set(0, 0, 0);
+        if (rightElbowRef.current) rightElbowRef.current.rotation.set(0, 0, 0);
       }
 
       // Feet/legs stay planted. There is deliberately no leg bob or vertical sway.
