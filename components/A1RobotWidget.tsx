@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import A1Robot3D from "./A1Robot3D";
 
 type RobotState = "idle" | "thinking" | "listening" | "speaking";
@@ -31,7 +31,6 @@ export default function A1RobotWidget({
   const [headPitch, setHeadPitch] = useState(0);
   const gestureStart = useRef<{ x: number; y: number; bodyYaw: number; bodyPitch: number; headYaw: number; headPitch: number } | null>(null);
   const settleFrameRef = useRef<number | null>(null);
-  const isInteractingRef = useRef(false);
 
   function stopSettleAnimation() {
     if (settleFrameRef.current !== null) {
@@ -84,7 +83,6 @@ export default function A1RobotWidget({
 
   function handleRobotPointerDown(event: PointerEvent<HTMLButtonElement>) {
     stopSettleAnimation();
-    isInteractingRef.current = true;
     gestureStart.current = {
       x: event.clientX,
       y: event.clientY,
@@ -139,7 +137,6 @@ export default function A1RobotWidget({
     }
 
     gestureStart.current = null;
-    isInteractingRef.current = false;
     event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:dragend"));
     if (!cancelled && moved >= 8) settleBackToAutonomous();
     if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
