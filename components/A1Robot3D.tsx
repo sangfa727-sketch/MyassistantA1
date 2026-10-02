@@ -317,12 +317,49 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       hoverRef.current = false;
       hoverUntil = clock.getElapsedTime() + 0.35;
     };
+    const updatePointerLook = (clientX: number, clientY: number) => {
+      const rect = host.getBoundingClientRect();
+      pointerLookRef.current.x = THREE.MathUtils.clamp((clientX - rect.left) / Math.max(1, rect.width) * 2 - 1, -1, 1);
+      pointerLookRef.current.y = THREE.MathUtils.clamp((clientY - rect.top) / Math.max(1, rect.height) * 2 - 1, -1, 1);
+    };
+
     const onPointerMove = (event: Event) => {
       const detail = (event as CustomEvent<{ clientX: number; clientY: number }>).detail;
       if (!detail) return;
+      updatePointerLook(detail.clientX, detail.clientY);
+    };
+
+    // Track the pointer around the mascot, not only when the pointer is
+    // physically over the launcher button. This gives A1 a natural
+    // "I noticed you" radius while leaving the mic/settings controls usable.
+    const onWindowPointerMove = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (target?.closest(".robot-mic, .widget-picker, .widget-settings")) return;
       const rect = host.getBoundingClientRect();
-      pointerLookRef.current.x = THREE.MathUtils.clamp((detail.clientX - rect.left) / Math.max(1, rect.width) * 2 - 1, -1, 1);
-      pointerLookRef.current.y = THREE.MathUtils.clamp((detail.clientY - rect.top) / Math.max(1, rect.height) * 2 - 1, -1, 1);
+      const padX = Math.max(42, rect.width * 0.12);
+      const padY = Math.max(42, rect.height * 0.12);
+      const inside =
+        event.clientX >= rect.left - padX &&
+        event.clientX <= rect.right + padX &&
+        event.clientY >= rect.top - padY &&
+        event.clientY <= rect.bottom + padY;
+
+      if (!inside) {
+        if (hoverRef.current) {
+          pointerLookRef.current.x = 0;
+          pointerLookRef.current.y = 0;
+          hoverRef.current = false;
+          hoverUntil = clock.getElapsedTime() + 0.25;
+        }
+        return;
+      }
+
+      updatePointerLook(event.clientX, event.clientY);
+      if (!hoverRef.current) {
+        waveStartedAt = clock.getElapsedTime();
+      }
+      hoverRef.current = true;
+      hoverUntil = clock.getElapsedTime() + 1.9;
     };
     const onDragStart = () => {
       draggingRef.current = true;
@@ -342,6 +379,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     host.addEventListener("a1:pointermove", onPointerMove);
     host.addEventListener("a1:dragstart", onDragStart);
     host.addEventListener("a1:dragend", onDragEnd);
+    window.addEventListener("pointermove", onWindowPointerMove, { passive: true });
     let nextBlinkAt = 2.5;
     let blinkUntil = 0;
 
@@ -406,9 +444,12 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         } else if (hiPhase) {
           const waveTime = Math.max(0, elapsed - Math.max(0, waveStartedAt));
           const wave = Math.sin(waveTime * 10.5);
-          leftArmRef.current?.rotation.set(-0.30, -0.20, 0.42 + wave * 0.42);
+          // The left arm stays outside the torso; its shoulder is the pivot.
+          // Wave by changing the elbow/hand arc, not by swinging through the chest.
+          leftArmRef.current?.rotation.set(-0.18, -0.12, -0.58 + wave * 0.22);
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current);
+          head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + pointerLookPitch;
+          head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
           head.rotation.z = Math.sin(waveTime * 2.2) * 0.025;
         } else if (typingPhase) {
           const keyTap = Math.sin(elapsed * 9.5);
@@ -422,8 +463,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           rightArmRef.current?.rotation.set(0, 0.08, -0.03);
         } else {
           const relax = Math.sin(elapsed * 1.5) * 0.025;
-          leftArmRef.current?.rotation.set(0, 0, relax);
-          rightArmRef.current?.rotation.set(0, 0, -relax);
+          leftArmRef.current?.rotation.set(0, 0, -relax);
+          rightArmRef.current?.rotation.set(0, 0, relax);
         }
       }
 
@@ -483,6 +524,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       host.removeEventListener("a1:leave", onLeave);
       host.removeEventListener("a1:dragstart", onDragStart);
       host.removeEventListener("a1:dragend", onDragEnd);
+      window.removeEventListener("pointermove", onWindowPointerMove);
       renderer.dispose();
       scene.traverse((object: any) => {
         if (object instanceof THREE.Mesh) {
