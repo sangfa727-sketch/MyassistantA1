@@ -313,7 +313,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     };
     const onDragEnd = () => {
       draggingRef.current = false;
-      hoverUntil = clock.getElapsedTime() + 0.55;
+      hoverRef.current = false;
+      hoverUntil = clock.getElapsedTime() + 0.42;
+      waveStartedAt = clock.getElapsedTime();
     };
     host.addEventListener("a1:hover", onHover);
     host.addEventListener("a1:leave", onLeave);
@@ -426,7 +428,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       if (s !== "listening") head.rotation.z *= 0.9;
       if (s !== "thinking") head.position.y += (1.3 - head.position.y) * Math.min(1, dt * 10);
 
-      if (s !== "idle" || (!typingPhase && !wavePhase)) {
+      // Only add the tiny idle hand motion when no interaction gesture owns the arms.
+      // This prevents the normal idle loop from overwriting the touch/drag reaction.
+      if (s === "idle" && !dragPhase && !hiPhase && !typingPhase && !wavePhase) {
         if (leftArmRef.current) leftArmRef.current.rotation.z = Math.sin(elapsed * 1.8) * 0.018;
         if (rightArmRef.current) rightArmRef.current.rotation.z = -Math.sin(elapsed * 1.8) * 0.018;
       }
