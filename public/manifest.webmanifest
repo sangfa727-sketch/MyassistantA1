@@ -2,14 +2,15 @@
   "name": "My Assistant A1",
   "short_name": "A1 Assistant",
   "description": "Your mobile-first AI assistant.",
-  "start_url": "/",
+  "start_url": "/MyassistantA1/",
+  "scope": "/MyassistantA1/",
   "display": "standalone",
   "background_color": "#070b16",
   "theme_color": "#0b1020",
   "lang": "my",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/MyassistantA1/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
