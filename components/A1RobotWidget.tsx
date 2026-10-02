@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type PointerEvent } from "react";
+import { useRef, useState, type CSSProperties, type PointerEvent } from "react";
 
 type RobotState = "idle" | "thinking" | "listening" | "speaking";
 export type WidgetVariant = "glass" | "robot";
@@ -37,13 +37,13 @@ export default function A1RobotWidget({
     event.currentTarget.setPointerCapture?.(event.pointerId);
   }
 
-  function handleRobotPointerMove(event: React.PointerEvent<HTMLButtonElement>) {
+  function handleRobotPointerMove(event: PointerEvent<HTMLButtonElement>) {
     if (turnStartX.current === null) return;
     const delta = event.clientX - turnStartX.current;
     setRobotTurn(Math.max(-24, Math.min(24, turnStart.current + delta * 0.22)));
   }
 
-  function handleRobotPointerUp(event: React.PointerEvent<HTMLButtonElement>) {
+  function handleRobotPointerUp(event: PointerEvent<HTMLButtonElement>) {
     if (turnStartX.current === null) return;
     const delta = event.clientX - turnStartX.current;
     turnStartX.current = null;
