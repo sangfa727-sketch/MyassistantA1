@@ -109,13 +109,6 @@ export default function A1RobotWidget({
     const dx = event.clientX - start.x;
     const dy = event.clientY - start.y;
     const moved = Math.hypot(dx, dy);
-    const stage = event.currentTarget.querySelector(".a1-robot-3d-stage");
-    if (stage) {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const nx = clamp((event.clientX - (rect.left + rect.width / 2)) / Math.max(1, rect.width / 2), -1, 1);
-      const ny = clamp((event.clientY - (rect.top + rect.height / 2)) / Math.max(1, rect.height / 2), -1, 1);
-      stage.dispatchEvent(new CustomEvent("a1:pointerlook", { detail: { x: nx, y: ny } }));
-    }
     if (moved > 72) setRobotReaction("!");
 
     // Horizontal drag = the character looks first; the body follows gently instead of feeling like a 3D model viewer.
