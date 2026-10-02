@@ -75,7 +75,9 @@ export default function A1RobotWidget({
     "A1 နဲ့ပြောမယ် 💙";
 
   function handleRobotHover(event: PointerEvent<HTMLButtonElement>) {
-    event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:hover"));
+    event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:hover", {
+      detail: { clientX: event.clientX, clientY: event.clientY },
+    }));
   }
 
   function handleRobotLeave(event: PointerEvent<HTMLButtonElement>) {
@@ -98,6 +100,9 @@ export default function A1RobotWidget({
   }
 
   function handleRobotPointerMove(event: PointerEvent<HTMLButtonElement>) {
+    event.currentTarget.querySelector(".a1-robot-3d-stage")?.dispatchEvent(new CustomEvent("a1:pointermove", {
+      detail: { clientX: event.clientX, clientY: event.clientY },
+    }));
     const start = gestureStart.current;
     if (!start) return;
 
