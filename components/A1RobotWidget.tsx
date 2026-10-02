@@ -47,8 +47,17 @@ export default function A1RobotWidget({
     if (turnStartX.current === null) return;
     const delta = event.clientX - turnStartX.current;
     turnStartX.current = null;
-    if (Math.abs(delta) < 8) onOpen();
-    else setRobotTurn(Math.max(-18, Math.min(18, turnStart.current + delta * 0.18)));
+    if (Math.abs(delta) < 8) {
+      onOpen();
+    } else {
+      const nextTurn = Math.max(-18, Math.min(18, turnStart.current + delta * 0.18));
+      setRobotTurn(nextTurn);
+    }
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+  }
+
+  function handleRobotPointerCancel(event: PointerEvent<HTMLButtonElement>) {
+    turnStartX.current = null;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
   }
 
@@ -111,7 +120,7 @@ export default function A1RobotWidget({
         onPointerDown={handleRobotPointerDown}
         onPointerMove={handleRobotPointerMove}
         onPointerUp={handleRobotPointerUp}
-        onPointerCancel={() => { turnStartX.current = null; }}
+        onPointerCancel={handleRobotPointerCancel}
         aria-label="A1 Assistant ဖွင့်ရန် — ဘယ်ညာ swipe လုပ်၍ လှည့်ရန်"
       >
         <span className="robot-aura" />
