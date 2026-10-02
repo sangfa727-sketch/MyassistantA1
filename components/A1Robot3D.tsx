@@ -290,6 +290,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     let animationId = 0;
     const clock = new THREE.Clock();
     let last = 0;
+    let nextBlinkAt = 2.5;
+    let blinkUntil = 0;
 
     const resize = () => {
       const width = Math.max(160, host.clientWidth || 220);
@@ -324,7 +326,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         const look = Math.sin(elapsed * 0.9) * 0.055 * attention;
         head.position.y = 1.3 + Math.sin(elapsed * 1.6) * 0.018;
         head.rotation.z = Math.sin(elapsed * 1.1) * 0.018 * attention;
-        head.rotation.y += look;
+        head.rotation.y = THREE.MathUtils.degToRad(headYaw) + look;
         eyeL.scale.y = eyeR.scale.y = 1.12 - attention * 0.08;
 
         if (typingPhase) {
@@ -348,16 +350,31 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         const talk = 0.92 + (Math.sin(elapsed * 10) * 0.5 + 0.5) * 0.28;
         mouth.scale.y = talk;
         core.scale.setScalar(1 + Math.sin(elapsed * 8) * 0.08);
-      } else {
+      } else if (s !== "idle") {
         mouth.scale.y = 1;
         core.scale.setScalar(1);
+      } else {
+        mouth.scale.y = 1;
+        if (!typingPhase) core.scale.setScalar(1);
       }
+
+      // Soft autonomous blink. The blink timing is irregular enough to avoid a mechanical loop.
+      if (elapsed >= nextBlinkAt) {
+        blinkUntil = elapsed + 0.14;
+        nextBlinkAt = elapsed + 2.8 + Math.random() * 3.8;
+      }
+      const blinking = elapsed < blinkUntil;
+      const blinkOpen = blinking ? 0.12 : 1;
+      eyeL.scale.y *= blinkOpen;
+      eyeR.scale.y *= blinkOpen;
 
       if (s !== "listening") head.rotation.z *= 0.9;
       if (s !== "thinking") head.position.y += (1.3 - head.position.y) * Math.min(1, dt * 8);
 
-      if (leftArmRef.current) leftArmRef.current.rotation.z = Math.sin(elapsed * 1.8) * 0.025;
-      if (rightArmRef.current) rightArmRef.current.rotation.z = -Math.sin(elapsed * 1.8) * 0.025;
+      if (s !== "idle" || !typingPhase) {
+        if (leftArmRef.current) leftArmRef.current.rotation.z = Math.sin(elapsed * 1.8) * 0.025;
+        if (rightArmRef.current) rightArmRef.current.rotation.z = -Math.sin(elapsed * 1.8) * 0.025;
+      }
       if (leftLegRef.current) leftLegRef.current.rotation.z = Math.sin(elapsed * 1.6) * 0.01;
       if (rightLegRef.current) rightLegRef.current.rotation.z = -Math.sin(elapsed * 1.6) * 0.01;
 
