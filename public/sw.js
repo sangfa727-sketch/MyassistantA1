@@ -1,5 +1,5 @@
 const BASE_PATH = "/MyassistantA1";
-const CACHE_NAME = "a1-shell-v2";
+const CACHE_NAME = "a1-shell-v3";
 const APP_SHELL = [`${BASE_PATH}/`, `${BASE_PATH}/manifest.webmanifest`, `${BASE_PATH}/icon.svg`];
 
 self.addEventListener("install", (event) => {
