@@ -509,9 +509,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       const cycle = elapsed % 16;
       const focusPhase = cycle > 3 && cycle < 5.5;
       const typingPhase = cycle >= 6 && cycle < 10;
-      const wavePhase = cycle >= 11.5 && cycle < 13.5;
+      const wavePhase = false;
       const settlePhase = cycle >= 13.5;
-      const hiPhase = hoverRef.current || elapsed < hoverUntil;
+      const hiPhase = false;
       const dragPhase = draggingRef.current;
 
       root.position.y = -0.18;
