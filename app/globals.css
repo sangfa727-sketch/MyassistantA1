@@ -302,4 +302,59 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 /* A1 antenna tip simplification */
 .robot-shell .robot-antenna i{display:none!important}
 .robot-shell .robot-antenna{width:4px;height:28px;border-radius:3px;box-shadow:0 0 6px rgba(128,143,255,.18)}
-\n\n/* A1 mobile 3D turn interaction */\n.robot-shell .robot-launcher{touch-action:pan-y;transform-style:preserve-3d;will-change:transform;}\n.robot-shell .robot-launcher .robot-head,.robot-shell .robot-launcher .robot-body,.robot-shell .robot-launcher .robot-antenna,.robot-shell .robot-launcher .robot-ear{transform-style:preserve-3d;}\n@media(max-width:699px){\n  .robot-shell .robot-launcher{transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .22s ease;}\n}\n
+
+
+/* A1 mobile 3D turn interaction */
+.robot-shell .robot-launcher{touch-action:pan-y;transform-style:preserve-3d;will-change:transform;}\n.robot-shell .robot-launcher .robot-head,.robot-shell .robot-launcher .robot-body,.robot-shell .robot-launcher .robot-antenna,.robot-shell .robot-launcher .robot-ear{transform-style:preserve-3d;}\n@media(max-width:699px){\n  .robot-shell .robot-launcher{transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .22s ease;}\n}\n
+
+/* A1 mobile turn depth cues */
+.robot-shell .robot-launcher{
+  --robot-turn:0deg;
+  transform-style:preserve-3d;
+  touch-action:pan-y;
+}
+.robot-shell .robot-launcher .robot-head,
+.robot-shell .robot-launcher .robot-body,
+.robot-shell .robot-launcher .robot-antenna,
+.robot-shell .robot-launcher .robot-ear{
+  transform-style:preserve-3d;
+}
+.robot-shell .robot-head::after{
+  content:"";
+  position:absolute;
+  inset:2px;
+  border-radius:inherit;
+  pointer-events:none;
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset calc(var(--robot-turn) * -0.12) 0 9px rgba(38,50,125,.16),inset calc(var(--robot-turn) * 0.12) 0 7px rgba(255,255,255,.18);
+  opacity:.9;
+}
+.robot-shell .robot-body::after{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  pointer-events:none;
+  box-shadow:inset calc(var(--robot-turn) * -0.16) 0 10px rgba(19,28,88,.22),inset calc(var(--robot-turn) * 0.11) 0 8px rgba(173,185,255,.10);
+}
+.robot-shell .robot-turn-left .robot-ear.right,
+.robot-shell .robot-turn-right .robot-ear.left{
+  opacity:.34;
+  filter:saturate(.72) brightness(.88);
+}
+.robot-shell .robot-turn-left .robot-ear.left,
+.robot-shell .robot-turn-right .robot-ear.right{
+  filter:brightness(1.06);
+}
+.robot-shell .robot-turn-left .robot-arm.right,
+.robot-shell .robot-turn-right .robot-arm.left{
+  opacity:.48;
+}
+@media(max-width:699px){
+  .robot-shell .robot-launcher{
+    transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .22s ease;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .robot-shell .robot-launcher{transition:none!important}
+}
