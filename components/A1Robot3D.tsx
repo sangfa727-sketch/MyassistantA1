@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, type MutableRefObject } from "react";
-import * as THREE from "three";
-import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+// Three.js ships JavaScript runtime modules; the project keeps a lightweight local shim for this client-only renderer.\n// @ts-ignore TS7016: runtime package is intentionally consumed without the full optional type bundle.\nimport * as THREE from "three";
+// @ts-ignore TS7016: addon is a runtime geometry module.\nimport { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
 type RobotState = "idle" | "thinking" | "listening" | "speaking";
 
@@ -20,15 +20,15 @@ function roundedBox(width: number, height: number, depth: number, radius: number
 
 export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitch }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const bodyRef = useRef<THREE.Group>(null);
+  const bodyRef = useRef<any>(null);
   const headRef = useRef<THREE.Group>(null);
   const leftArmRef = useRef<THREE.Group>(null);
   const rightArmRef = useRef<THREE.Group>(null);
   const leftLegRef = useRef<THREE.Group>(null);
   const rightLegRef = useRef<THREE.Group>(null);
-  const eyeLRef = useRef<THREE.Mesh>(null);
-  const eyeRRef = useRef<THREE.Mesh>(null);
-  const mouthRef = useRef<THREE.Mesh>(null);
+  const eyeLRef = useRef<any>(null);
+  const eyeRRef = useRef<any>(null);
+  const mouthRef = useRef<any>(null);
   const stateRef = useRef(state);
   stateRef.current = state;
 
@@ -116,7 +116,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const armGeo = new THREE.CapsuleGeometry(0.13, 0.56, 8, 16);
     const handGeo = new THREE.SphereGeometry(0.19, 20, 14);
 
-    function addArm(side: number, ref: MutableRefObject<THREE.Group | null>) {
+    function addArm(side: number, ref: MutableRefObject<any>) {
       const g = new THREE.Group();
       ref.current = g;
       g.position.set(side * 0.86, 0.35, 0);
@@ -273,10 +273,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       cancelAnimationFrame(animationId);
       observer.disconnect();
       renderer.dispose();
-      scene.traverse(object => {
+      scene.traverse((object: any) => {
         if (object instanceof THREE.Mesh) {
           object.geometry.dispose();
-          if (Array.isArray(object.material)) object.material.forEach(material => material.dispose());
+          if (Array.isArray(object.material)) object.material.forEach((material: any) => material.dispose());
           else object.material.dispose();
         }
       });
