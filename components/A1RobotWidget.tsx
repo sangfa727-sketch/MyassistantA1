@@ -118,6 +118,7 @@ export default function A1RobotWidget({
         </span>
         <span className="robot-body">
           <span className="robot-badge">A1</span>
+          <span className="robot-core" aria-hidden="true" />
           <span className="robot-heart">♥</span>
           <span className="robot-arm left" />
           <span className="robot-arm right" />
