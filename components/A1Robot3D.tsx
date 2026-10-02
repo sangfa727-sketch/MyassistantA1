@@ -226,16 +226,16 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const eyeR = new THREE.Mesh(eyeGeo, cyanMat);
     eyeLRef.current = eyeL;
     eyeRRef.current = eyeR;
-    eyeL.position.set(-0.29, 0.12, 0.82);
-    eyeR.position.set(0.29, 0.12, 0.82);
-    eyeL.scale.set(1, 1.18, 0.48);
-    eyeR.scale.set(1, 1.18, 0.48);
+    eyeL.position.set(-0.29, 0.04, 0.82);
+    eyeR.position.set(0.29, 0.04, 0.82);
+    eyeL.scale.set(1.08, 1.22, 0.48);
+    eyeR.scale.set(1.08, 1.22, 0.48);
     head.add(eyeL, eyeR);
 
     const cheekL = new THREE.Mesh(new THREE.SphereGeometry(0.09, 18, 12), pinkMat);
     const cheekR = cheekL.clone();
-    cheekL.position.set(-0.5, -0.18, 0.78);
-    cheekR.position.set(0.5, -0.18, 0.78);
+    cheekL.position.set(-0.5, -0.23, 0.78);
+    cheekR.position.set(0.5, -0.23, 0.78);
     head.add(cheekL, cheekR);
 
     const mouth = new THREE.Mesh(roundedBox(0.34, 0.11, 0.05, 0.05), whiteMat);
