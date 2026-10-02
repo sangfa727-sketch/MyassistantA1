@@ -127,7 +127,7 @@ export default function A1RobotWidget({
           "--robot-shadow-x-soft": `${robotTurn * 0.12}px`,
           "--robot-body-shadow-x": `${robotTurn * -0.16}px`,
           "--robot-body-shadow-x-soft": `${robotTurn * 0.11}px`,
-          transform: "perspective(260px) rotateY(var(--robot-turn))",
+          transform: "perspective(360px) rotateY(var(--robot-turn))",
         } as CSSProperties}
         onPointerDown={handleRobotPointerDown}
         onPointerMove={handleRobotPointerMove}
