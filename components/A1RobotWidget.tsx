@@ -60,13 +60,17 @@ export default function A1RobotWidget({
       const snappedTurn = Math.abs(nextTurn) < 3 ? 0 : nextTurn;
       setRobotTurn(snappedTurn);
     }
-    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   }
 
   function handleRobotPointerCancel(event: PointerEvent<HTMLButtonElement>) {
     setRobotTurn(turnStart.current);
     turnStartX.current = null;
-    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   }
 
   function choose(next: WidgetVariant) {
