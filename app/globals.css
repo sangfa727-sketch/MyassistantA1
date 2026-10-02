@@ -305,7 +305,12 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 
 
 /* A1 mobile 3D turn interaction */
-.robot-shell .robot-launcher{touch-action:pan-y;transform-style:preserve-3d;will-change:transform;}\n.robot-shell .robot-launcher .robot-head,.robot-shell .robot-launcher .robot-body,.robot-shell .robot-launcher .robot-antenna,.robot-shell .robot-launcher .robot-ear{transform-style:preserve-3d;}\n@media(max-width:699px){\n  .robot-shell .robot-launcher{transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .22s ease;}\n}\n
+.robot-shell .robot-launcher{touch-action:pan-y;transform-style:preserve-3d;will-change:transform;}
+.robot-shell .robot-launcher .robot-head,.robot-shell .robot-launcher .robot-body,.robot-shell .robot-launcher .robot-antenna,.robot-shell .robot-launcher .robot-ear{transform-style:preserve-3d;}
+@media(max-width:699px){
+  .robot-shell .robot-launcher{transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .22s ease;}
+}
+
 
 /* A1 mobile turn depth cues */
 .robot-shell .robot-launcher{
