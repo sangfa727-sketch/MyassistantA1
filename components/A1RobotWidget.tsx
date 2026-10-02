@@ -58,10 +58,10 @@ export default function A1RobotWidget({
 
     // Horizontal drag = the character looks first; the body follows gently instead of feeling like a 3D model viewer.
     const nextBodyYaw = clamp(start.bodyYaw + dx * 0.58, -180, 180);
-    // Vertical drag = mostly head nod/look-up, with only a subtle body response.
-    const nextBodyPitch = clamp(start.bodyPitch - dy * 0.08, -12, 12);
+    // Vertical drag follows natural hand direction: mouse up = look up, mouse down = look down.
+    const nextBodyPitch = clamp(start.bodyPitch + dy * 0.08, -12, 12);
     const nextHeadYaw = clamp(start.headYaw + dx * 0.78, -55, 55);
-    const nextHeadPitch = clamp(start.headPitch - dy * 0.48, -30, 30);
+    const nextHeadPitch = clamp(start.headPitch + dy * 0.48, -30, 30);
 
     setBodyYaw(nextBodyYaw);
     setBodyPitch(nextBodyPitch);
