@@ -33,7 +33,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const eyeRRef = useRef<any>(null);
   const mouthRef = useRef<any>(null);
   const stateRef = useRef(state);
+  const headYawRef = useRef(headYaw);
   stateRef.current = state;
+  headYawRef.current = headYaw;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -326,7 +328,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         const look = Math.sin(elapsed * 0.9) * 0.055 * attention;
         head.position.y = 1.3 + Math.sin(elapsed * 1.6) * 0.018;
         head.rotation.z = Math.sin(elapsed * 1.1) * 0.018 * attention;
-        head.rotation.y = THREE.MathUtils.degToRad(headYaw) + look;
+        head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
         eyeL.scale.y = eyeR.scale.y = 1.12 - attention * 0.08;
 
         if (typingPhase) {
