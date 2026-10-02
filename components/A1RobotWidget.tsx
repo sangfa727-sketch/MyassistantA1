@@ -56,12 +56,12 @@ export default function A1RobotWidget({
     const dx = event.clientX - start.x;
     const dy = event.clientY - start.y;
 
-    // Horizontal drag = full-body 360° turn; head remains independently limited.
-    const nextBodyYaw = clamp(start.bodyYaw + dx * 1.15, -180, 180);
-    // Vertical drag = body lean forward/back + independent head look up/down.
-    const nextBodyPitch = clamp(start.bodyPitch - dy * 0.20, -18, 18);
-    const nextHeadYaw = clamp(start.headYaw + dx * 0.42, -45, 45);
-    const nextHeadPitch = clamp(start.headPitch - dy * 0.34, -26, 26);
+    // Horizontal drag = the character looks first; the body follows gently instead of feeling like a 3D model viewer.
+    const nextBodyYaw = clamp(start.bodyYaw + dx * 0.58, -180, 180);
+    // Vertical drag = mostly head nod/look-up, with only a subtle body response.
+    const nextBodyPitch = clamp(start.bodyPitch - dy * 0.08, -12, 12);
+    const nextHeadYaw = clamp(start.headYaw + dx * 0.78, -55, 55);
+    const nextHeadPitch = clamp(start.headPitch - dy * 0.48, -30, 30);
 
     setBodyYaw(nextBodyYaw);
     setBodyPitch(nextBodyPitch);
@@ -159,7 +159,7 @@ export default function A1RobotWidget({
         onPointerUp={handleRobotPointerUp}
         onPointerCancel={handleRobotPointerCancel}
         onLostPointerCapture={handleRobotPointerLostCapture}
-        aria-label="A1 Assistant ဖွင့်ရန် — ဘယ်ညာလှည့်၊ ရှေ့နောက်စောင်း၊ ခေါင်းငုံ့မော့ရန် drag လုပ်ပါ"
+        aria-label="A1 Assistant ဖွင့်ရန် — robot ကို သဘာဝကျကျ လှည့်ကြည့်ရန် drag လုပ်ပါ"
       >
         <span className="robot-aura" />
         <span className="robot-aura-ring" />
