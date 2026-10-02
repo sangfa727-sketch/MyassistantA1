@@ -91,3 +91,32 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 
 .task-row{display:grid;grid-template-columns:36px 1fr 32px;align-items:center;gap:10px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);margin-bottom:10px}.task-row.done strong{text-decoration:line-through;opacity:.55}.task-toggle,.task-delete{border:0;background:transparent;color:var(--muted);font-size:20px;cursor:pointer}.task-toggle{width:32px;height:32px;border-radius:10px;background:var(--surface-2)}.task-row.done .task-toggle{color:var(--accent)}.task-delete{font-size:24px}.message-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .task-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.secondary-action{margin-top:22px;border:1px solid var(--line);border-radius:14px;padding:10px 13px;background:var(--surface);color:var(--text);font-size:12px;font-weight:800;cursor:pointer}.secondary-action:disabled{opacity:.45;cursor:not-allowed}
+
+
+/* A1 Robot visual refinement — premium companion treatment */
+.robot-shell{width:104px;height:122px}
+.robot-shell .robot-launcher{right:2px;bottom:1px;width:82px;height:101px;filter:drop-shadow(0 18px 28px rgba(0,0,0,.42));transition:transform .22s cubic-bezier(.2,.8,.2,1),filter .22s ease}
+.robot-shell .robot-launcher:hover{transform:translateY(-3px) scale(1.025);filter:drop-shadow(0 22px 32px rgba(39,59,170,.42))}
+.robot-shell .robot-aura{inset:12px 0 0;border-radius:38px;background:radial-gradient(circle at 50% 42%,rgba(101,117,245,.30),rgba(80,91,210,.10) 38%,transparent 72%);filter:blur(1px)}
+.robot-shell .robot-antenna{left:38px;top:0;width:6px;height:20px;background:linear-gradient(#dfe4ff,#8795ee);box-shadow:0 0 8px rgba(128,143,255,.22)}
+.robot-shell .robot-antenna i{width:13px;height:13px;left:-3.5px;top:-4px;background:radial-gradient(circle at 35% 30%,#fff,#9aa7ff 42%,#6575f5 75%);box-shadow:0 0 12px rgba(112,132,255,.9),0 0 28px rgba(101,117,245,.38)}
+.robot-shell .robot-head{left:9px;top:15px;width:64px;height:49px;border-radius:21px 21px 19px 19px;background:linear-gradient(145deg,#ffffff 0%,#e8ecff 48%,#b6c1f2 100%);border:1.5px solid rgba(255,255,255,.88);box-shadow:inset 0 2px 4px rgba(255,255,255,.85),inset 0 -7px 12px rgba(75,91,174,.18),0 5px 13px rgba(22,31,72,.24)}
+.robot-shell .robot-ear{top:15px;width:9px;height:19px;background:linear-gradient(#aab6f4,#6e7cda);box-shadow:inset 0 1px 2px rgba(255,255,255,.55)}
+.robot-shell .robot-ear.left{left:-8px}.robot-shell .robot-ear.right{right:-8px}
+.robot-shell .robot-face{top:15px;color:#17224d;font-size:10px;letter-spacing:8px;text-shadow:0 0 8px rgba(92,112,255,.18)}
+.robot-shell .robot-mouth{bottom:7px;color:#52609b;font-weight:800}
+.robot-shell .robot-cheek{top:29px;width:8px;height:5px;background:radial-gradient(ellipse,rgba(241,111,157,.58),transparent 72%);filter:blur(.2px)}
+.robot-shell .robot-body{left:18px;bottom:0;width:49px;height:42px;border-radius:16px 16px 14px 14px;background:linear-gradient(145deg,#7787ff 0%,#5969df 42%,#303f9f 100%);border:1px solid rgba(176,187,255,.3);box-shadow:inset 0 2px 4px rgba(255,255,255,.2),inset 0 -7px 10px rgba(12,20,72,.28),0 7px 14px rgba(25,34,94,.26)}
+.robot-shell .robot-badge{left:15px;top:8px;width:19px;height:19px;border-radius:7px;background:linear-gradient(145deg,#fff,#dce2ff);color:#3f50c0;font-size:7px;box-shadow:0 2px 5px rgba(16,25,78,.18)}
+.robot-shell .robot-heart{right:7px;bottom:7px;color:#ffe1ec;text-shadow:0 0 8px rgba(255,153,190,.65)}
+.robot-shell .robot-arm{top:8px;width:8px;height:23px;background:linear-gradient(#aab6ff,#7180df);box-shadow:inset 0 1px 2px rgba(255,255,255,.35)}
+.robot-shell .robot-arm.left{left:-9px}.robot-shell .robot-arm.right{right:-9px}
+.robot-shell .robot-mic{right:0;bottom:0;width:33px;height:33px;border:1px solid rgba(255,255,255,.72);background:linear-gradient(145deg,#fff,#e8ecff);color:#35437f;box-shadow:0 8px 20px rgba(0,0,0,.34),0 0 0 3px rgba(101,117,245,.10);font-size:13px}
+.robot-shell .robot-hint{right:76px;bottom:76px;background:rgba(9,14,28,.94);border-color:rgba(132,145,255,.18);box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.robot-shell .widget-settings{border-color:rgba(132,145,255,.18);box-shadow:0 7px 22px rgba(0,0,0,.28)}
+.robot-shell .robot-thinking .robot-aura{animation:robotAuraPremium 1.8s ease-in-out infinite}
+.robot-shell .robot-listening .robot-aura{animation:robotListenAura .8s ease-in-out infinite}
+@keyframes robotAuraPremium{50%{transform:scale(1.12);opacity:.58}}
+@keyframes robotListenAura{50%{transform:scale(1.08);opacity:.78}}
+@media(max-width:380px){.robot-shell{right:8px;transform:scale(.94);transform-origin:bottom right}}
+@media(prefers-reduced-motion:reduce){.robot-shell .robot-launcher{transition:none}.robot-shell .robot-aura{animation:none!important}}
