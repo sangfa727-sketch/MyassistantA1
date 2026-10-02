@@ -226,8 +226,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const eyeR = new THREE.Mesh(eyeGeo, cyanMat);
     eyeLRef.current = eyeL;
     eyeRRef.current = eyeR;
-    eyeL.position.set(-0.29, 0.04, 0.82);
-    eyeR.position.set(0.29, 0.04, 0.82);
+    eyeL.position.set(-0.29, 0.04, 0.96);
+    eyeR.position.set(0.29, 0.04, 0.96);
     eyeL.scale.set(1.08, 1.22, 0.48);
     eyeR.scale.set(1.08, 1.22, 0.48);
     head.add(eyeL, eyeR);
