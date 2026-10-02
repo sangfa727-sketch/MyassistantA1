@@ -337,23 +337,11 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       hoverUntil = clock.getElapsedTime() + 0.42;
       waveStartedAt = clock.getElapsedTime();
     };
-    const onPointerLook = (event: Event) => {
-      const detail = (event as CustomEvent<{ x: number; y: number }>).detail;
-      if (!detail) return;
-      pointerLookRef.current.x = THREE.MathUtils.clamp(detail.x, -1, 1);
-      pointerLookRef.current.y = THREE.MathUtils.clamp(detail.y, -1, 1);
-    };
-    const onPointerLeave = () => {
-      pointerLookRef.current.x = 0;
-      pointerLookRef.current.y = 0;
-    };
     host.addEventListener("a1:hover", onHover);
     host.addEventListener("a1:leave", onLeave);
     host.addEventListener("a1:pointermove", onPointerMove);
     host.addEventListener("a1:dragstart", onDragStart);
     host.addEventListener("a1:dragend", onDragEnd);
-    host.addEventListener("a1:pointerlook", onPointerLook);
-    host.addEventListener("a1:leave", onPointerLeave);
     let nextBlinkAt = 2.5;
     let blinkUntil = 0;
 
@@ -495,8 +483,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       host.removeEventListener("a1:leave", onLeave);
       host.removeEventListener("a1:dragstart", onDragStart);
       host.removeEventListener("a1:dragend", onDragEnd);
-      host.removeEventListener("a1:pointerlook", onPointerLook);
-      host.removeEventListener("a1:leave", onPointerLeave);
       renderer.dispose();
       scene.traverse((object: any) => {
         if (object instanceof THREE.Mesh) {
