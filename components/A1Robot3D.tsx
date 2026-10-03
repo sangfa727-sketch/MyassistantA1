@@ -85,14 +85,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     warm.position.set(-2.5, 0.8, 2.8);
     scene.add(warm);
 
-    const floor = new THREE.Mesh(
-      new THREE.CircleGeometry(1.55, 48),
-      new THREE.MeshBasicMaterial({ color: 0x2b8cff, transparent: true, opacity: 0.12, depthWrite: false })
-    );
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -1.48;
-    scene.add(floor);
-
     const root = new THREE.Group();
     root.position.y = -0.18;
     root.rotation.y = THREE.MathUtils.degToRad(-8);
@@ -453,8 +445,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     // follows the head rotation as one rigid assembly instead of leaving a piece behind.
     const antennaMat = new THREE.MeshStandardMaterial({
       color: 0x5bdcff,
-      emissive: 0x168dff,
-      emissiveIntensity: 1.6,
+      emissive: 0x0b6fa8,
+      emissiveIntensity: 0.75,
       metalness: 0.55,
       roughness: 0.2,
     });
