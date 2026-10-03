@@ -490,7 +490,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const clock = new THREE.Clock();
     let last = 0;
     let hoverUntil = 0;
-    let waveStartedAt = -1;
 
     const onHover = (event: Event) => {
       const detail = (event as CustomEvent<{ clientX: number; clientY: number }>).detail;
@@ -501,7 +500,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       }
       hoverRef.current = true;
       hoverUntil = clock.getElapsedTime() + 1.9;
-      waveStartedAt = clock.getElapsedTime();
     };
     const onLeave = () => {
       pointerLookRef.current.x = 0;
@@ -548,8 +546,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
       updatePointerLook(event.clientX, event.clientY);
       if (!hoverRef.current) {
-        waveStartedAt = clock.getElapsedTime();
-      }
+        }
       hoverRef.current = true;
       hoverUntil = clock.getElapsedTime() + 1.9;
     };
@@ -564,7 +561,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       pointerLookRef.current.y = 0;
       hoverRef.current = false;
       hoverUntil = clock.getElapsedTime() + 0.42;
-      waveStartedAt = clock.getElapsedTime();
     };
     host.addEventListener("a1:hover", onHover);
     host.addEventListener("a1:leave", onLeave);
@@ -595,13 +591,11 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       // Grounded companion loop: A1 stays planted on its feet.
       // No breathing bob and no whole-body vertical movement. Instead it
       // shows small character actions: looking around, blinking, typing,
-      // and settling. The former Hi-wave behavior remains disabled.
+      // and settling. Greeting-wave animation is intentionally removed.
       const cycle = elapsed % 16;
       const focusPhase = cycle > 3 && cycle < 5.5;
       const typingPhase = cycle >= 6 && cycle < 10;
-      const wavePhase = false;
       const settlePhase = cycle >= 13.5;
-      const hiPhase = false;
       const dragPhase = draggingRef.current;
 
       root.position.y = -0.18;
@@ -617,7 +611,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
         pointerSmooth.y += (pointerTarget.y - pointerSmooth.y) * pointerEase;
         const pointerX = pointerSmooth.x;
         const pointerY = pointerSmooth.y;
-        const pointerWeight = hiPhase || dragPhase ? 1 : 0.35;
+        const pointerWeight = dragPhase ? 1 : 0.35;
         const pointerLookYaw = THREE.MathUtils.degToRad(pointerX * 16) * pointerWeight;
         const pointerLookPitch = THREE.MathUtils.degToRad(pointerY * 14) * pointerWeight;
         const look = Math.sin(elapsed * 0.82) * 0.06 * attention + pointerLookYaw;
@@ -642,20 +636,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + Math.sin(elapsed * 3.8) * 0.025;
           head.rotation.z = Math.sin(elapsed * 4.2) * 0.045;
           head.position.y = 1.3;
-        } else if (hiPhase) {
-          const waveTime = Math.max(0, elapsed - Math.max(0, waveStartedAt));
-          const wave = Math.sin(waveTime * 9.5);
-          // Hi wave: the shoulder/upper arm holds the hand high while the
-          // elbow stays lowered. Only the forearm + palm perform the small
-          // side-to-side "ta-ta" motion, like a servo-driven mascot arm.
-          leftArmRef.current?.rotation.set(-0.03, -0.10, -0.22);
-          rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          leftElbowRef.current?.rotation.set(0, 0, Math.PI / 4);
-          leftWristRef.current?.rotation.set(0, 0, wave * (Math.PI / 4));
-          rightWristRef.current?.rotation.set(0, 0, 0);
-          head.rotation.x = THREE.MathUtils.degToRad(headPitchRef.current) + pointerLookPitch;
-          head.rotation.y = THREE.MathUtils.degToRad(headYawRef.current) + look;
-          head.rotation.z = Math.sin(waveTime * 2.2) * 0.025;
         } else if (typingPhase) {
           const keyTap = Math.sin(elapsed * 9.5);
           leftArmRef.current?.rotation.set(-0.08 + keyTap * 0.10, -0.10, 0.32);
@@ -665,14 +645,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           leftWristRef.current?.rotation.set(0, 0, 0);
           rightWristRef.current?.rotation.set(0, 0, 0);
           core.scale.setScalar(1 + Math.abs(keyTap) * 0.045);
-        } else if (wavePhase) {
-          // A short friendly wave, then return to neutral.
-          const wave = Math.sin((cycle - 11.5) * 7.5);
-          leftArmRef.current?.rotation.set(-0.03, -0.08, -0.22);
-          rightArmRef.current?.rotation.set(0, 0.08, -0.03);
-          leftElbowRef.current?.rotation.set(0, 0, Math.PI / 4);
-          leftWristRef.current?.rotation.set(0, 0, wave * (Math.PI / 4));
-          rightWristRef.current?.rotation.set(0, 0, 0);
         } else {
           const relax = Math.sin(elapsed * 1.5) * 0.025;
           leftArmRef.current?.rotation.set(0, 0, -relax);
@@ -716,7 +688,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
       // Only add the tiny idle hand motion when no interaction gesture owns the arms.
       // This prevents the normal idle loop from overwriting the touch/drag reaction.
-      if (s === "idle" && !dragPhase && !hiPhase && !typingPhase && !wavePhase) {
+      if (s === "idle" && !dragPhase && !typingPhase) {
         if (leftArmRef.current) leftArmRef.current.rotation.z = Math.sin(elapsed * 1.8) * 0.018;
         if (rightArmRef.current) rightArmRef.current.rotation.z = -Math.sin(elapsed * 1.8) * 0.018;
         if (leftElbowRef.current) leftElbowRef.current.rotation.set(0, 0, 0);
