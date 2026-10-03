@@ -227,8 +227,6 @@ export default function A1RobotWidget({
         onLostPointerCapture={handleRobotPointerLostCapture}
         aria-label="A1 Assistant ဖွင့်ရန် — robot ကို သဘာဝကျကျ လှည့်ကြည့်ရန် drag လုပ်ပါ"
       >
-        <span className="robot-aura" />
-        <span className="robot-aura-ring" />
         <span className={`robot-reaction ${robotReaction ? "show" : ""}`} aria-hidden="true">{robotReaction}</span>
         <A1Robot3D
           state={state}
