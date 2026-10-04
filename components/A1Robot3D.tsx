@@ -90,12 +90,12 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     body.position.y = 0;
     root.add(body);
 
-    const torsoMat = new THREE.MeshStandardMaterial({ color: 0x9aa4ad, metalness: 0.86, roughness: 0.26, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.DoubleSide });
-    const trimMat = new THREE.MeshStandardMaterial({ color: 0xd7dde2, metalness: 0.82, roughness: 0.2, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.DoubleSide });
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x20262b, metalness: 0.9, roughness: 0.18, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.DoubleSide });
-    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xe9f7ff, metalness: 0.15, roughness: 0.18, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.DoubleSide });
-    const cyanMat = new THREE.MeshStandardMaterial({ color: 0xc9f5ff, emissive: 0x54d9ff, emissiveIntensity: 1.8, metalness: 0.25, roughness: 0.12, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.DoubleSide });
-    const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8fcf, emissive: 0xff3f9f, emissiveIntensity: 1.2, metalness: 0.1, roughness: 0.25, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.DoubleSide });
+    const torsoMat = new THREE.MeshStandardMaterial({ color: 0x9aa4ad, metalness: 0.86, roughness: 0.26, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.FrontSide });
+    const trimMat = new THREE.MeshStandardMaterial({ color: 0xd7dde2, metalness: 0.82, roughness: 0.2, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.FrontSide });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x20262b, metalness: 0.9, roughness: 0.18, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.FrontSide });
+    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xe9f7ff, metalness: 0.15, roughness: 0.18, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.FrontSide });
+    const cyanMat = new THREE.MeshStandardMaterial({ color: 0xc9f5ff, emissive: 0x54d9ff, emissiveIntensity: 1.8, metalness: 0.25, roughness: 0.12, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.FrontSide });
+    const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8fcf, emissive: 0xff3f9f, emissiveIntensity: 1.2, metalness: 0.1, roughness: 0.25, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.FrontSide });
 
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.72, 0.72, 10, 32), torsoMat);
     torso.scale.set(0.98, 1.02, 0.96);
@@ -103,24 +103,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     torso.castShadow = true;
     torso.receiveShadow = true;
     body.add(torso);
-
-    // Front-shell depth prepass: write the exact visible shell depth first,
-    // using only front faces. This blocks rear/internal parts at every yaw
-    // without changing the visible geometry or introducing coplanar shimmer.
-    const torsoDepthOccluder = new THREE.Mesh(
-      new THREE.CapsuleGeometry(0.72, 0.72, 10, 32),
-      new THREE.MeshBasicMaterial({
-        colorWrite: false,
-        depthTest: true,
-        depthWrite: true,
-        transparent: false,
-        side: THREE.DoubleSide,
-      })
-    );
-    torsoDepthOccluder.scale.copy(torso.scale);
-    torsoDepthOccluder.position.copy(torso.position);
-    torsoDepthOccluder.renderOrder = -10;
-    body.add(torsoDepthOccluder);
 
     // Rear hardware makes the back a real modeled surface, not an empty reverse side.
     const backPanel = new THREE.Mesh(roundedBox(0.70, 0.68, 0.10, 0.13), darkMat);
@@ -366,23 +348,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     headShell.scale.set(1.0, 0.94, 0.82);
     headShell.castShadow = true;
     head.add(headShell);
-
-    // Front-shell depth prepass: write the exact visible head-shell depth
-    // first, using only front faces so rear hardware can never show through.
-    const headDepthOccluder = new THREE.Mesh(
-      new THREE.SphereGeometry(0.92, 40, 28),
-      new THREE.MeshBasicMaterial({
-        colorWrite: false,
-        depthTest: true,
-        depthWrite: true,
-        transparent: false,
-        side: THREE.DoubleSide,
-      })
-    );
-    headDepthOccluder.scale.copy(headShell.scale);
-    headDepthOccluder.position.copy(headShell.position);
-    headDepthOccluder.renderOrder = -10;
-    head.add(headDepthOccluder);
 
     // Premium rear head design: a layered curved shell, central service
     // ring, twin vent details and a small lower neck cover make the 180° view
