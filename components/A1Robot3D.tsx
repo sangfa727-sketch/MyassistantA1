@@ -104,19 +104,20 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     torso.receiveShadow = true;
     body.add(torso);
 
-    // Inset depth prepass: keep internal/rear parts from showing through the
-    // opaque shell without using coplanar geometry (which can shimmer).
+    // Front-shell depth prepass: write the exact visible shell depth first,
+    // using only front faces. This blocks rear/internal parts at every yaw
+    // without changing the visible geometry or introducing coplanar shimmer.
     const torsoDepthOccluder = new THREE.Mesh(
       new THREE.CapsuleGeometry(0.72, 0.72, 10, 32),
       new THREE.MeshBasicMaterial({
         colorWrite: false,
-        depthTest: true,
+        depthTest: false,
         depthWrite: true,
         transparent: false,
-        side: THREE.DoubleSide,
+        side: THREE.FrontSide,
       })
     );
-    torsoDepthOccluder.scale.set(0.965, 1.005, 0.94);
+    torsoDepthOccluder.scale.copy(torso.scale);
     torsoDepthOccluder.position.copy(torso.position);
     torsoDepthOccluder.renderOrder = -10;
     body.add(torsoDepthOccluder);
@@ -366,19 +367,19 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     headShell.castShadow = true;
     head.add(headShell);
 
-    // Inset depth prepass for the head shell. It is deliberately smaller than
-    // the visible shell so it cannot z-fight with the rendered surface.
+    // Front-shell depth prepass: write the exact visible head-shell depth
+    // first, using only front faces so rear hardware can never show through.
     const headDepthOccluder = new THREE.Mesh(
       new THREE.SphereGeometry(0.92, 40, 28),
       new THREE.MeshBasicMaterial({
         colorWrite: false,
-        depthTest: true,
+        depthTest: false,
         depthWrite: true,
         transparent: false,
-        side: THREE.DoubleSide,
+        side: THREE.FrontSide,
       })
     );
-    headDepthOccluder.scale.set(0.985, 0.925, 0.79);
+    headDepthOccluder.scale.copy(headShell.scale);
     headDepthOccluder.position.copy(headShell.position);
     headDepthOccluder.renderOrder = -10;
     head.add(headDepthOccluder);
