@@ -2,7 +2,6 @@ package com.myassistanta1.android
 
 import android.app.Activity
 import android.content.Intent
-import androidx.core.content.ContextCompat
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -35,7 +34,7 @@ class MainActivity : Activity() {
         super.onResume()
         if (pendingOverlayStart && Settings.canDrawOverlays(this)) {
             pendingOverlayStart = false
-            ContextCompat.startForegroundService(this, Intent(this, A1OverlayService::class.java))
+            startForegroundService(Intent(this, A1OverlayService::class.java))
         }
     }
 
@@ -57,7 +56,7 @@ class MainActivity : Activity() {
                     ).show()
                     return@runOnUiThread
                 }
-                ContextCompat.startForegroundService(this@MainActivity, Intent(this@MainActivity, A1OverlayService::class.java))
+                startForegroundService(Intent(this@MainActivity, A1OverlayService::class.java))
             }
         }
 
