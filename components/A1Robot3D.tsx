@@ -123,14 +123,15 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     torso.material.depthTest = true;
     body.add(torso);
 
-    // Invisible central depth barrier: preserves the exact visible torso silhouette
-    // while blocking side-angle rays from reaching the opposite arm/rear hardware.
+    // Invisible torso-depth shell: same silhouette as the locked torso, rendered
+    // first so rear hardware and opposite-side limbs are depth-tested behind it.
     const bodyOcclusionBarrier = new THREE.Mesh(
-      roundedBox(1.10, 1.42, 0.08, 0.22),
+      new THREE.CapsuleGeometry(0.72, 0.72, 12, 40),
       new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, depthTest: true })
     );
-    bodyOcclusionBarrier.position.set(0, 0.02, -0.02);
-    bodyOcclusionBarrier.renderOrder = 1;
+    bodyOcclusionBarrier.scale.set(1.03, 1.04, 1.12);
+    bodyOcclusionBarrier.position.set(0, 0.02, 0);
+    bodyOcclusionBarrier.renderOrder = -1;
     body.add(bodyOcclusionBarrier);
 
     // Rear hardware makes the back a real modeled surface, not an empty reverse side.
@@ -176,7 +177,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       );
       armOcclusion.position.set(0, -0.48, 0.05);
       armOcclusion.scale.set(0.95, 1.0, 1.15);
-      armOcclusion.renderOrder = 1;
+      armOcclusion.renderOrder = -1;
       armOcclusion.material.depthWrite = true;
       armOcclusion.material.depthTest = true;
       g.add(armOcclusion);
@@ -401,7 +402,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     );
     headOcclusionShell.scale.set(1.0, 0.93, 0.80);
     headOcclusionShell.position.set(0, 0, 0.01);
-    headOcclusionShell.renderOrder = 1;
+    headOcclusionShell.renderOrder = -1;
     headOcclusionShell.material.depthWrite = true;
     headOcclusionShell.material.depthTest = true;
     head.add(headOcclusionShell);
