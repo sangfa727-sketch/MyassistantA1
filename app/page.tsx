@@ -19,6 +19,7 @@ export default function Home(){
  const [a1SettingsOpen,setA1SettingsOpen]=useState(false);
  const [a1Personality,setA1Personality]=useState<"calm"|"friendly"|"pro">("friendly");
  const [a1AutoAttention,setA1AutoAttention]=useState(true);
+ const [a1FloatingEnabled,setA1FloatingEnabled]=useState(false);
  const [memory,setMemory]=useState<A1Memory>({});
  const bottomRef=useRef<HTMLDivElement>(null),recognitionRef=useRef<any>(null),inputRef=useRef<HTMLTextAreaElement>(null);
 
@@ -79,7 +80,20 @@ export default function Home(){
   }catch(e){alert(e instanceof Error?e.message:"Task planning failed.")}
   finally{setBusy(false)}
  }
- function quickTask(){setTab("tasks");setTimeout(()=>addTask(),40)}
+ function toggleA1FloatingCompanion(){
+  const native=(window as any).A1Native;
+  if(!native){
+   alert("Phone screen companion is available in the My Assistant A1 Android app.");
+   return;
+  }
+  if(a1FloatingEnabled){
+   native.disableFloatingCompanion();
+   setA1FloatingEnabled(false);
+  }else{
+   native.enableFloatingCompanion();
+   setA1FloatingEnabled(true);
+  }
+ } function quickTask(){setTab("tasks");setTimeout(()=>addTask(),40)}
 
  return <main className="app-shell">
   <header className="topbar">
@@ -106,7 +120,7 @@ export default function Home(){
   {tab==="me"&&<section className="simple-page"><div className="profile-card"><div className="profile-avatar">A1</div><div><span className="eyebrow">YOUR ASSISTANT</span><h1>My Assistant A1</h1><p>Personal • Private • Helpful</p></div></div><div className="settings-card"><button onClick={()=>setA1SettingsOpen(true)}><span>🤖</span><div><strong>A1 Companion</strong><small>Visible in the app • tap to customize</small></div><b>SET</b></button><button onClick={()=>setDark(v=>!v)}><span>◐</span><div><strong>Appearance</strong><small>{dark?"Dark premium":"Light clean"}</small></div><b>{dark?"ON":"OFF"}</b></button><button onClick={()=>setUiMode(v=>v==="current"?"glass":"current")}><span>◈</span><div><strong>UI Mode</strong><small>{uiMode==="glass"?"Glassmorphism":"Current UI"}</small></div><b>{uiMode==="glass"?"GLASS":"CURRENT"}</b></button><button onClick={()=>setWidgetVariant(v=>{const n=v==="robot"?"glass":"robot";localStorage.setItem("a1-widget-variant",n);return n})}><span>◇</span><div><strong>Assistant style</strong><small>{widgetVariant==="robot"?"Cute Robot":"Glassmorphism"}</small></div><b>›</b></button><button onClick={()=>{const name=prompt("A1 က သင့်ကို ဘယ်လိုခေါ်ရမလဲ?",memory.userName||"");if(name!==null)updateMemory({userName:name.trim().slice(0,80)||undefined})}}><span>◎</span><div><strong>Your name</strong><small>{memory.userName||"Not set"}</small></div><b>›</b></button><button onClick={()=>updateMemory({responseStyle:memory.responseStyle==="detailed"?"concise":"detailed"})}><span>≡</span><div><strong>Response style</strong><small>{memory.responseStyle==="detailed"?"Detailed":"Concise"}</small></div><b>›</b></button><button onClick={clearAllMemory}><span>⌫</span><div><strong>Clear A1 memory</strong><small>Remove saved preferences</small></div><b>›</b></button><button onClick={clearChat}><span>⌫</span><div><strong>Clear conversation</strong><small>Remove local chat history</small></div><b>›</b></button></div><div className="privacy-note">A1 ရဲ့ conversation history နဲ့ optional preferences တွေကို ဒီ browser ရဲ့ local storage မှာ သိမ်းထားပါတယ်။ Server ကို ပို့တဲ့ memory ကလည်း user preference အနည်းငယ်ပဲ ဖြစ်ပါတယ်။</div></section>}
 
   {a1Visible&&<A1RobotWidget embedded={tab==="home"} state={busy?"thinking":listening?"listening":speakingId?"speaking":"idle"} variant={widgetVariant} onVariantChange={v=>{setWidgetVariant(v);localStorage.setItem("a1-widget-variant",v)}} onOpen={focusAssistant} onVoice={startVoice} onSettings={()=>setA1SettingsOpen(true)}/>}
-{a1SettingsOpen&&<div className="a1-settings-backdrop" role="presentation" onClick={()=>setA1SettingsOpen(false)}><section className="a1-settings-sheet" role="dialog" aria-modal="true" aria-label="A1 Settings" onClick={e=>e.stopPropagation()}><div className="a1-settings-head"><div><span className="eyebrow">A1 COMPANION</span><h2>A1 Settings</h2></div><button onClick={()=>setA1SettingsOpen(false)} aria-label="Close A1 settings">×</button></div><p className="a1-settings-intro">A1 ကို မြင်နေရတဲ့နေရာကနေ တိုက်ရိုက်ပြင်ဆင်နိုင်ပါတယ်။</p><div className="a1-setting-group"><strong>Personality</strong><div className="a1-setting-chips">{[["calm","Calm"],["friendly","Friendly"],["pro","Professional"]].map(([id,label])=><button key={id} className={a1Personality===id?"active":""} onClick={()=>setA1Personality(id as typeof a1Personality)}>{label}</button>)}</div></div><button className="a1-setting-row" onClick={()=>setA1AutoAttention(v=>!v)}><span>👀</span><div><strong>Natural attention</strong><small>A1 က screen ပေါ်က interaction ကို သဘာဝကျကျ အာရုံစိုက်မယ်</small></div><b>{a1AutoAttention?"ON":"OFF"}</b></button><button className="a1-setting-row" onClick={()=>{setWidgetVariant(v=>{const n=v==="robot"?"glass":"robot";localStorage.setItem("a1-widget-variant",n);return n})}}><span>✨</span><div><strong>Companion style</strong><small>{widgetVariant==="robot"?"Cute Robot":"Glassmorphism"}</small></div><b>CHANGE</b></button><button className="a1-setting-row" onClick={()=>setDark(v=>!v)}><span>◐</span><div><strong>App appearance</strong><small>{dark?"Dark premium":"Light clean"}</small></div><b>{dark?"DARK":"LIGHT"}</b></button></section></div>}
+{a1SettingsOpen&&<div className="a1-settings-backdrop" role="presentation" onClick={()=>setA1SettingsOpen(false)}><section className="a1-settings-sheet" role="dialog" aria-modal="true" aria-label="A1 Settings" onClick={e=>e.stopPropagation()}><div className="a1-settings-head"><div><span className="eyebrow">A1 COMPANION</span><h2>A1 Settings</h2></div><button onClick={()=>setA1SettingsOpen(false)} aria-label="Close A1 settings">×</button></div><p className="a1-settings-intro">A1 ကို မြင်နေရတဲ့နေရာကနေ တိုက်ရိုက်ပြင်ဆင်နိုင်ပါတယ်။</p><div className="a1-setting-group"><strong>Personality</strong><div className="a1-setting-chips">{[["calm","Calm"],["friendly","Friendly"],["pro","Professional"]].map(([id,label])=><button key={id} className={a1Personality===id?"active":""} onClick={()=>setA1Personality(id as typeof a1Personality)}>{label}</button>)}</div></div><button className="a1-setting-row" onClick={toggleA1FloatingCompanion}><span>📱</span><div><strong>Phone screen companion</strong><small>{a1FloatingEnabled?"A1 is floating on your screen":"Keep A1 on your phone screen"}</small></div><b>{a1FloatingEnabled?"ON":"SET"}</b></button><button className="a1-setting-row" onClick={()=>setA1AutoAttention(v=>!v)}><span>👀</span><div><strong>Natural attention</strong><small>A1 က screen ပေါ်က interaction ကို သဘာဝကျကျ အာရုံစိုက်မယ်</small></div><b>{a1AutoAttention?"ON":"OFF"}</b></button><button className="a1-setting-row" onClick={()=>{setWidgetVariant(v=>{const n=v==="robot"?"glass":"robot";localStorage.setItem("a1-widget-variant",n);return n})}}><span>✨</span><div><strong>Companion style</strong><small>{widgetVariant==="robot"?"Cute Robot":"Glassmorphism"}</small></div><b>CHANGE</b></button><button className="a1-setting-row" onClick={()=>setDark(v=>!v)}><span>◐</span><div><strong>App appearance</strong><small>{dark?"Dark premium":"Light clean"}</small></div><b>{dark?"DARK":"LIGHT"}</b></button></section></div>}
 
   <section className="composer-wrap">
    {tab==="chat"&&messages.length<=2&&<div className="suggestions">{suggestions.map(x=><button key={x} onClick={()=>sendMessage(x)}>{x}</button>)}</div>}
@@ -119,4 +133,4 @@ export default function Home(){
  </main>
 }
 
-declare global { interface Window { SpeechRecognition?:any; webkitSpeechRecognition?:any } }
+declare global { interface Window { SpeechRecognition?:any; webkitSpeechRecognition?:any; A1Native?:{enableFloatingCompanion:()=>void;disableFloatingCompanion:()=>void;isFloatingCompanionAllowed:()=>boolean} } }
