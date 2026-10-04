@@ -6,7 +6,7 @@ import { clearMemory, loadMemory, memorySummary, saveMemory, type A1Memory } fro
 
 type Message = { id:string; role:"user"|"assistant"; content:string; createdAt:number };
 type Task = { id:string; title:string; done:boolean; createdAt:number };
-type Tab = "home" | "chat" | "tasks" | "me";
+type Tab = "home" | "a1" | "chat" | "tasks" | "me";
 type UiMode = "current" | "glass";
 
 const starter:Message[]=[{id:"welcome",role:"assistant",content:"မင်္ဂလာပါ 👋 ကျွန်တော် A1 ပါ။ မေးခွန်းဖြေခြင်း၊ စာရေးခြင်း၊ ဘာသာပြန်ခြင်း၊ အစီအစဉ်ဆွဲခြင်း၊ coding နဲ့ နေ့စဉ်လုပ်ငန်းတွေမှာ ကူညီပေးနိုင်ပါတယ်။ ဘာလုပ်ပေးရမလဲ?",createdAt:Date.now()}];
@@ -103,11 +103,21 @@ export default function Home(){
 
   {tab==="home"&&<section className="home-page">
    <div className="home-greeting"><span className="eyebrow">PERSONAL AI ASSISTANT</span><h1>မင်္ဂလာပါ 👋<br/><em>ဒီနေ့ ဘာလုပ်ပေးရမလဲ?</em></h1><p>A1 ကို ရိုးရိုးရှင်းရှင်း ပြောလိုက်ပါ။</p></div>
-   <div className="home-companion-card"><div className="home-companion-copy"><span className="eyebrow">YOUR AI COMPANION</span><h2>A1 နဲ့ အတူတူနေပါ</h2><p>ဒီနေရာက A1 ရဲ့ ကိုယ်ပိုင် companion page ပါ။ Tap လုပ်ပြီး စကားပြောပါ၊ Drag လုပ်ပြီး A1 ကို လှည့်ကြည့်နိုင်ပါတယ်။</p><div className="home-companion-actions"><button onClick={focusAssistant}>💬 Chat with A1</button><button onClick={()=>setA1SettingsOpen(true)}>⚙ A1 Settings</button></div></div><A1RobotWidget embedded state={busy?"thinking":listening?"listening":speakingId?"speaking":"idle"} variant={widgetVariant} onVariantChange={v=>{setWidgetVariant(v);localStorage.setItem("a1-widget-variant",v)}} onOpen={focusAssistant} onVoice={startVoice} onSettings={()=>setA1SettingsOpen(true)}/></div>
+   <div className="home-companion-card"><div className="home-companion-copy"><span className="eyebrow">YOUR AI COMPANION</span><h2>A1 နဲ့ အတူတူနေပါ</h2><p>ဒီနေရာက A1 ရဲ့ ကိုယ်ပိုင် companion page ပါ။ Tap လုပ်ပြီး စကားပြောပါ၊ Drag လုပ်ပြီး A1 ကို လှည့်ကြည့်နိုင်ပါတယ်။</p><div className="home-companion-actions"><button onClick={()=>setTab("a1")}>🤖 Open A1</button><button onClick={()=>setA1SettingsOpen(true)}>⚙ A1 Settings</button></div></div><A1RobotWidget embedded state={busy?"thinking":listening?"listening":speakingId?"speaking":"idle"} variant={widgetVariant} onVariantChange={v=>{setWidgetVariant(v);localStorage.setItem("a1-widget-variant",v)}} onOpen={focusAssistant} onVoice={startVoice} onSettings={()=>setA1SettingsOpen(true)}/></div>
    <div className="section-heading"><h2>Quick actions</h2><span>အမြန်စတင်ရန်</span></div>
    <div className="action-grid">{[["✍️","Write","စာရေးခြင်း"],["🌐","Translate","ဘာသာပြန်"],["💡","Ideas","အကြံဉာဏ်"],["📚","Learn","လေ့လာခြင်း"],["💻","Code","Coding"],["📊","Plan","စီမံကိန်း"]].map(([icon,title,sub])=><button className="action-card" key={title} onClick={()=>sendMessage(title==="Write"?"စာတစ်ပုဒ်ရေးပေးပါ":title==="Translate"?"ဒီစာကို ဘာသာပြန်ပေးပါ":title==="Ideas"?"business idea ၅ ခု ပေးပါ":title==="Learn"?"ဒီအကြောင်းကို ရှင်းပြပေးပါ":title==="Code"?"ဒီ code ကို စစ်ပေးပါ":"ဒီအတွက် အစီအစဉ်ဆွဲပေးပါ")}><b>{icon}</b><strong>{title}</strong><span>{sub}</span></button>)}</div>
    <div className="section-heading recent-heading"><h2>Recent</h2><span>{`${messages.length-1} messages`}</span></div>
    <div className="recent-list">{messages.filter(m=>m.id!=="welcome").slice(-3).reverse().map(m=><button key={m.id} onClick={focusAssistant}><span>◦</span><div><strong>{m.content.slice(0,48)}{m.content.length>48?"…":""}</strong><small>A1 conversation</small></div><b>›</b></button>)}{messages.length<=1&&<div className="empty-state">သင်စကားပြောပြီးတဲ့ conversation တွေ ဒီနေရာမှာ ပေါ်လာပါမယ်။</div>}</div>
+  </section>}
+
+  {tab==="a1"&&<section className="a1-page">
+   <div className="a1-page-intro"><span className="eyebrow">MYASSISTANTA1 COMPANION</span><h1>A1 နဲ့ အတူတူနေပါ</h1><p>ဒီစာမျက်နှာက A1 ရဲ့ ကိုယ်ပိုင်နေရာပါ။ A1 ကို လှည့်ကြည့်၊ ထိတွေ့ပြီး စကားပြောနိုင်ပါတယ်။</p></div>
+   <div className="a1-dedicated-stage">
+    <div className="a1-dedicated-stage-head"><div><span className="eyebrow">A1 COMPANION</span><h2>Your AI companion</h2></div><button onClick={()=>setA1SettingsOpen(true)}>⚙ Settings</button></div>
+    <div className="a1-dedicated-robot"><A1RobotWidget embedded state={busy?"thinking":listening?"listening":speakingId?"speaking":"idle"} variant={widgetVariant} onVariantChange={v=>{setWidgetVariant(v);localStorage.setItem("a1-widget-variant",v)}} onOpen={focusAssistant} onVoice={startVoice} onSettings={()=>setA1SettingsOpen(true)}/></div>
+    <div className="a1-dedicated-actions"><button onClick={focusAssistant}>💬 Chat with A1</button><button onClick={startVoice}>🎙 Voice</button><button onClick={()=>setA1SettingsOpen(true)}>✨ Customize</button></div>
+   </div>
+   <div className="a1-status-card"><span>●</span><div><strong>A1 is here</strong><small>In-app companion • independent from the phone-screen floating companion</small></div></div>
   </section>}
 
   {tab==="chat"&&<section className="chat-page">
@@ -127,7 +137,7 @@ export default function Home(){
   </section>
 
   <nav className="bottom-nav" aria-label="Main navigation">
-   {[["home","⌂","Home"],["chat","✦","Chat"],["tasks","✓","Tasks"],["me","•••","Me"]].map(([id,icon,label])=><button key={id} className={tab===id?"active":""} onClick={()=>setTab(id as Tab)}><span>{icon}</span><small>{label}</small></button>)}
+   {[["home","⌂","Home"],["a1","🤖","A1"],["chat","✦","Chat"],["tasks","✓","Tasks"],["me","•••","Me"]].map(([id,icon,label])=><button key={id} className={tab===id?"active":""} onClick={()=>setTab(id as Tab)}><span>{icon}</span><small>{label}</small></button>)}
   </nav>
  </main>
 }
