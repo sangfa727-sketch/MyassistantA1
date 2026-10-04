@@ -111,10 +111,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       new THREE.CapsuleGeometry(0.72, 0.72, 10, 32),
       new THREE.MeshBasicMaterial({
         colorWrite: false,
-        depthTest: false,
+        depthTest: true,
         depthWrite: true,
         transparent: false,
-        side: THREE.FrontSide,
+        side: THREE.DoubleSide,
       })
     );
     torsoDepthOccluder.scale.copy(torso.scale);
