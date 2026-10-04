@@ -31,6 +31,7 @@ export default function A1RobotWidget({
   const [headPitch, setHeadPitch] = useState(0);
   const [robotReaction, setRobotReaction] = useState<"" | "?" | "!">("");
   const gestureStart = useRef<{ x: number; y: number; bodyYaw: number; bodyPitch: number; headYaw: number; headPitch: number } | null>(null);
+  const suppressClickRef = useRef(false);
   const settleFrameRef = useRef<number | null>(null);
 
   function stopSettleAnimation() {
@@ -136,8 +137,13 @@ export default function A1RobotWidget({
       setHeadYaw(start.headYaw);
       setHeadPitch(start.headPitch);
     } else if (moved < 8) {
-      onOpen();
+      // Let the native click event handle taps so keyboard activation and
+      // pointer taps share the same open path without double-firing.
+      suppressClickRef.current = false;
     } else {
+      // A drag may still produce a synthetic click on some touch browsers.
+      // Suppress that one click so a rotation gesture never opens the chat.
+      suppressClickRef.current = true;
       // Small release offsets settle naturally toward neutral.
       setBodyYaw(value => Math.abs(value) < 4 ? 0 : value);
       setBodyPitch(value => Math.abs(value) < 3 ? 0 : value);
@@ -225,6 +231,13 @@ export default function A1RobotWidget({
         onPointerUp={handleRobotPointerUp}
         onPointerCancel={handleRobotPointerCancel}
         onLostPointerCapture={handleRobotPointerLostCapture}
+        onClick={() => {
+          if (suppressClickRef.current) {
+            suppressClickRef.current = false;
+            return;
+          }
+          onOpen();
+        }}
         aria-label="A1 Assistant ဖွင့်ရန် — robot ကို သဘာဝကျကျ လှည့်ကြည့်ရန် drag လုပ်ပါ"
       >
         <span className={`robot-reaction ${robotReaction ? "show" : ""}`} aria-hidden="true">{robotReaction}</span>
