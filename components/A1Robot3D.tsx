@@ -419,32 +419,32 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     faceInner.position.set(0, -0.01, 0.82);
     head.add(faceInner);
 
-    // Screen-native facial UI: eyes, cheeks and mouth are thin emissive layers
-    // seated on the curved inner display, not protruding 3D balls. This keeps
-    // the face readable as one monitor surface from every front/side angle.
-    const eyeGeo = roundedBox(0.22, 0.27, 0.025, 0.055, 6);
+    // Screen-native facial UI: preserve the original round eyes/cheeks, but make
+    // them extremely thin and place each feature on the curved inner display
+    // surface. They must read as pixels/emissive UI, never as physical balls.
+    const eyeGeo = new THREE.SphereGeometry(0.14, 32, 20);
     const eyeL = new THREE.Mesh(eyeGeo, cyanMat);
     const eyeR = new THREE.Mesh(eyeGeo, cyanMat);
     eyeLRef.current = eyeL;
     eyeRRef.current = eyeR;
-    eyeL.position.set(-0.29, 0.04, 1.075);
-    eyeR.position.set(0.29, 0.04, 1.075);
-    eyeL.scale.set(1.0, 1.0, 1.0);
-    eyeR.scale.set(1.0, 1.0, 1.0);
+    eyeL.position.set(-0.29, 0.04, 0.931);
+    eyeR.position.set(0.29, 0.04, 0.931);
+    eyeL.scale.set(1.0, 1.0, 0.025);
+    eyeR.scale.set(1.0, 1.0, 0.025);
     head.add(eyeL, eyeR);
 
-    const cheekGeo = new THREE.SphereGeometry(0.075, 20, 14);
+    const cheekGeo = new THREE.SphereGeometry(0.078, 28, 18);
     const cheekL = new THREE.Mesh(cheekGeo, pinkMat);
     const cheekR = new THREE.Mesh(cheekGeo, pinkMat);
-    cheekL.position.set(-0.48, -0.20, 1.075);
-    cheekR.position.set(0.48, -0.20, 1.075);
-    cheekL.scale.set(1.0, 0.72, 0.10);
-    cheekR.scale.set(1.0, 0.72, 0.10);
+    cheekL.position.set(-0.48, -0.20, 0.868);
+    cheekR.position.set(0.48, -0.20, 0.868);
+    cheekL.scale.set(1.0, 0.72, 0.025);
+    cheekR.scale.set(1.0, 0.72, 0.025);
     head.add(cheekL, cheekR);
 
-    const mouth = new THREE.Mesh(roundedBox(0.30, 0.09, 0.018, 0.04), whiteMat);
+    const mouth = new THREE.Mesh(roundedBox(0.30, 0.09, 0.012, 0.04), whiteMat);
     mouthRef.current = mouth;
-    mouth.position.set(0, -0.28, 0.84);
+    mouth.position.set(0, -0.28, 0.944);
     head.add(mouth);
 
     const earGeo = new THREE.SphereGeometry(0.27, 20, 14);
