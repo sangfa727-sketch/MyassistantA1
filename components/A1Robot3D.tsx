@@ -168,19 +168,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     function addArm(side: number, ref: MutableRefObject<any>) {
       const g = new THREE.Group();
       ref.current = g;
-      // Solid arm envelope: this invisible depth-only shell prevents internal
-      // arm parts and the opposite-side assembly from becoming visible through
-      // the articulated arm at oblique angles. Visible meshes remain unchanged.
-      const armOcclusion = new THREE.Mesh(
-        new THREE.CapsuleGeometry(0.30, 0.92, 10, 24),
-        new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, depthTest: true })
-      );
-      armOcclusion.position.set(0, -0.48, 0.05);
-      armOcclusion.scale.set(0.95, 1.0, 1.15);
-      armOcclusion.renderOrder = -1;
-      armOcclusion.material.depthWrite = true;
-      armOcclusion.material.depthTest = true;
-      g.add(armOcclusion);
+      // Do not add an occlusion volume inside the articulated arm.
+      // The previous invisible shell depth-tested the visible arm parts
+      // themselves and made hands/forearms disappear. The torso depth barrier
+      // is responsible for hiding only the portions that pass behind the body.
       // Keep the shoulder mount slightly outside the torso shell. This gives
       // the arm a real clearance envelope so rotations cannot visually sink
       // the forearm/hand into the chest.
@@ -397,10 +388,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     // the head turns left or right, while the face pixels still render above
     // it through their intentional screen-layer depth override.
     const headOcclusionShell = new THREE.Mesh(
-      new THREE.SphereGeometry(0.90, 40, 28),
+      new THREE.SphereGeometry(0.92, 40, 28),
       new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, depthTest: true })
     );
-    headOcclusionShell.scale.set(1.0, 0.93, 0.80);
+    headOcclusionShell.scale.set(1.0, 0.94, 0.82);
     headOcclusionShell.position.set(0, 0, 0.01);
     headOcclusionShell.renderOrder = -1;
     headOcclusionShell.material.depthWrite = true;
