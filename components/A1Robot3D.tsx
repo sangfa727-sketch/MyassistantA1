@@ -58,7 +58,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     camera.lookAt(0, 0.28, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-    // Keep the 3D canvas sharp on desktop displays even when CSS scales the mascot.\n    const getPixelRatio = () => Math.min(Math.max(window.devicePixelRatio || 1, 1), 3);\n    renderer.setPixelRatio(getPixelRatio());
+    // Keep the 3D canvas sharp on desktop displays even when CSS scales the mascot.
+    const getPixelRatio = () => Math.min(Math.max(window.devicePixelRatio || 1, 1), 3);
+    renderer.setPixelRatio(getPixelRatio());
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(220, 260, false);
     renderer.shadowMap.enabled = true;
@@ -568,7 +570,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       const height = Math.max(190, host.clientHeight || 260);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setPixelRatio(getPixelRatio());\n      renderer.setSize(width, height, false);
+      renderer.setPixelRatio(getPixelRatio());
+      renderer.setSize(width, height, false);
     };
     resize();
     const observer = new ResizeObserver(resize);
