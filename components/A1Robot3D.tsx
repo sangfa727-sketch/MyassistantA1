@@ -123,6 +123,16 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     torso.material.depthTest = true;
     body.add(torso);
 
+    // Invisible central depth barrier: preserves the exact visible torso silhouette
+    // while blocking side-angle rays from reaching the opposite arm/rear hardware.
+    const bodyOcclusionBarrier = new THREE.Mesh(
+      roundedBox(1.10, 1.42, 0.08, 0.22),
+      new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, depthTest: true })
+    );
+    bodyOcclusionBarrier.position.set(0, 0.02, -0.02);
+    bodyOcclusionBarrier.renderOrder = 1;
+    body.add(bodyOcclusionBarrier);
+
     // Rear hardware makes the back a real modeled surface, not an empty reverse side.
     const backPanel = new THREE.Mesh(roundedBox(0.70, 0.68, 0.10, 0.13), darkMat);
     backPanel.position.set(0, 0.08, -0.57);
@@ -144,7 +154,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
     // The round chest core is intentional and interactive. Keep it intact;
     // only the unwanted rectangular badge below it is removed.
-    const core = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 20), cyanMat);
+    const core = new THREE.Mesh(new THREE.SphereGeometry(0.125, 32, 20), whiteMat);
     core.position.set(0, 0.08, 0.52);
     core.castShadow = true;
     body.add(core);
@@ -387,7 +397,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     // it through their intentional screen-layer depth override.
     const headOcclusionShell = new THREE.Mesh(
       new THREE.SphereGeometry(0.90, 40, 28),
-      torsoMat
+      new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, depthTest: true })
     );
     headOcclusionShell.scale.set(1.0, 0.93, 0.80);
     headOcclusionShell.position.set(0, 0, 0.01);
