@@ -419,32 +419,44 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     faceInner.position.set(0, -0.01, 0.82);
     head.add(faceInner);
 
-    // Screen-native facial UI: preserve the original round eyes/cheeks, but make
-    // them extremely thin and place each feature on the curved inner display
-    // surface. They must read as pixels/emissive UI, never as physical balls.
-    const eyeGeo = new THREE.SphereGeometry(0.14, 32, 20);
+    // Screen-native facial UI: flat display layers placed just above the
+    // curved inner visor. CircleGeometry keeps the eyes/cheeks genuinely round
+    // without giving them physical 3D volume that can protrude from the screen.
+    const eyeGeo = new THREE.CircleGeometry(0.125, 48);
     const eyeL = new THREE.Mesh(eyeGeo, cyanMat);
     const eyeR = new THREE.Mesh(eyeGeo, cyanMat);
+    // Facial pixels must win the depth test against the curved visor. Without
+    // this, small head rotations can make the lower half of a circular eye
+    // disappear inside the display shell.
+    eyeL.renderOrder = 20;
+    eyeR.renderOrder = 20;
+    eyeL.material.depthTest = false;
+    eyeR.material.depthTest = false;
     eyeLRef.current = eyeL;
     eyeRRef.current = eyeR;
-    eyeL.position.set(-0.29, 0.04, 0.931);
-    eyeR.position.set(0.29, 0.04, 0.931);
-    eyeL.scale.set(1.0, 1.0, 0.025);
-    eyeR.scale.set(1.0, 1.0, 0.025);
+    eyeL.position.set(-0.27, 0.04, 0.958);
+    eyeR.position.set(0.27, 0.04, 0.958);
     head.add(eyeL, eyeR);
 
-    const cheekGeo = new THREE.SphereGeometry(0.078, 28, 18);
+    // The lower display curves away quickly, so the cheeks are brought inward
+    // and placed directly on that surface rather than at the visor edge.
+    const cheekGeo = new THREE.CircleGeometry(0.072, 40);
     const cheekL = new THREE.Mesh(cheekGeo, pinkMat);
     const cheekR = new THREE.Mesh(cheekGeo, pinkMat);
-    cheekL.position.set(-0.48, -0.20, 0.868);
-    cheekR.position.set(0.48, -0.20, 0.868);
-    cheekL.scale.set(1.0, 0.72, 0.025);
-    cheekR.scale.set(1.0, 0.72, 0.025);
+    cheekL.renderOrder = 20;
+    cheekR.renderOrder = 20;
+    cheekL.material.depthTest = false;
+    cheekR.material.depthTest = false;
+    cheekL.position.set(-0.34, -0.16, 0.925);
+    cheekR.position.set(0.34, -0.16, 0.925);
     head.add(cheekL, cheekR);
 
-    const mouth = new THREE.Mesh(roundedBox(0.30, 0.09, 0.012, 0.04), whiteMat);
+    // Ultra-thin mouth glyph: no raised block and much closer to the display.
+    const mouth = new THREE.Mesh(new THREE.PlaneGeometry(0.20, 0.026), whiteMat);
     mouthRef.current = mouth;
-    mouth.position.set(0, -0.28, 0.944);
+    mouth.renderOrder = 21;
+    mouth.material.depthTest = false;
+    mouth.position.set(0, -0.28, 0.922);
     head.add(mouth);
 
     const earGeo = new THREE.SphereGeometry(0.27, 20, 14);
