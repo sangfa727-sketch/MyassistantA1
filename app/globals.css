@@ -658,3 +658,26 @@ html[data-ui-mode="glass"] .task-toggle{
   background:rgba(255,255,255,.09);
   border:1px solid rgba(255,255,255,.10);
 }
+
+
+/* A1 companion-first home experience */
+.home-companion-card{position:relative;min-height:285px;margin:4px 0 22px;display:flex;align-items:flex-end;overflow:hidden;border:1px solid var(--line);border-radius:28px;background:radial-gradient(circle at 58% 42%,rgba(101,117,245,.18),transparent 34%),linear-gradient(145deg,rgba(18,28,52,.96),rgba(8,13,26,.98));box-shadow:0 24px 70px rgba(0,0,0,.24)}
+.home-companion-copy{position:relative;z-index:2;padding:18px;width:55%;max-width:360px;background:linear-gradient(90deg,rgba(8,13,26,.82),transparent)}
+.home-companion-copy h2{margin:7px 0 6px;font-size:23px;letter-spacing:-.03em}.home-companion-copy p{margin:0;color:var(--muted);font-size:11px;line-height:1.6}
+.home-companion-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}.home-companion-actions button{border:1px solid var(--line);border-radius:12px;padding:9px 11px;background:rgba(255,255,255,.07);color:var(--text);font-size:10px;font-weight:800;cursor:pointer}.home-companion-actions button:first-child{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent}
+.a1-widget-shell.embedded{position:absolute;right:5%;bottom:0;width:48%;height:285px;z-index:4;pointer-events:none}
+.a1-widget-shell.embedded .widget-picker{right:8px;top:10px}
+.a1-widget-shell.embedded .widget-style-settings{right:34px}
+.a1-widget-shell.embedded .robot-launcher{right:50%;bottom:8px;transform:translateX(50%) scale(2.45);transform-origin:bottom center;width:82px;height:101px}
+.a1-widget-shell.embedded .robot-launcher:hover{transform:translateX(50%) translateY(-3px) scale(2.5)}
+.a1-widget-shell.embedded .robot-mic{right:8px;bottom:14px}
+.a1-widget-shell.embedded .robot-hint{right:18px;bottom:228px;font-size:11px}
+.a1-widget-shell.embedded .glass-widget{right:50%;bottom:78px;transform:translateX(50%) scale(1.28)}
+.a1-widget-shell.embedded .glass-mic{right:14px;bottom:75px}
+.a1-widget-shell.embedded .glass-widget-hint{right:50%;bottom:154px;transform:translateX(50%);opacity:1}
+.a1-settings-backdrop{position:fixed;inset:0;z-index:80;display:flex;align-items:flex-end;justify-content:center;padding:12px;background:rgba(3,7,16,.58);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.a1-settings-sheet{width:min(620px,100%);max-height:min(82vh,720px);overflow:auto;padding:18px;border:1px solid var(--line);border-radius:24px 24px 18px 18px;background:color-mix(in srgb,var(--surface) 94%,transparent);box-shadow:0 -20px 70px rgba(0,0,0,.4)}
+.a1-settings-head{display:flex;align-items:flex-start;justify-content:space-between}.a1-settings-head h2{margin:5px 0 0;font-size:24px}.a1-settings-head>button{width:32px;height:32px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--text);font-size:20px;cursor:pointer}.a1-settings-intro{margin:9px 0 17px;color:var(--muted);font-size:11px}.a1-setting-group{padding:13px 0;border-top:1px solid var(--line)}.a1-setting-group>strong{font-size:11px}.a1-setting-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.a1-setting-chips button{border:1px solid var(--line);border-radius:11px;padding:8px 11px;background:var(--surface-2);color:var(--muted);font-size:10px;cursor:pointer}.a1-setting-chips button.active{background:rgba(101,117,245,.2);border-color:rgba(126,140,255,.45);color:var(--text)}
+.a1-setting-row{width:100%;display:flex;align-items:center;gap:10px;padding:12px 0;border:0;border-top:1px solid var(--line);background:transparent;color:var(--text);text-align:left;cursor:pointer}.a1-setting-row>span{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:var(--surface-2)}.a1-setting-row>div{display:flex;flex-direction:column;flex:1}.a1-setting-row strong{font-size:11px}.a1-setting-row small{margin-top:3px;color:var(--muted);font-size:9px;line-height:1.4}.a1-setting-row>b{font-size:9px;color:#8f9cff}
+@media(max-width:620px){.home-companion-card{min-height:330px}.home-companion-copy{width:72%;padding:15px;background:linear-gradient(90deg,rgba(8,13,26,.9),rgba(8,13,26,.3),transparent)}.a1-widget-shell.embedded{right:0;width:58%;height:330px}.a1-widget-shell.embedded .robot-launcher{transform:translateX(50%) scale(2.15)}.a1-widget-shell.embedded .robot-launcher:hover{transform:translateX(50%) translateY(-3px) scale(2.2)}.a1-widget-shell.embedded .robot-hint{right:8px;bottom:255px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.a1-widget-shell.embedded .robot-launcher{transition:none}}
