@@ -111,11 +111,16 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const cyanMat = new THREE.MeshStandardMaterial({ color: 0xc9f5ff, emissive: 0x54d9ff, emissiveIntensity: 1.8, metalness: 0.25, roughness: 0.12 });
     const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8fcf, emissive: 0xff3f9f, emissiveIntensity: 1.2, metalness: 0.1, roughness: 0.25 });
 
-    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.72, 0.72, 10, 32), torsoMat);
-    torso.scale.set(0.98, 1.02, 0.96);
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.72, 0.72, 12, 40), torsoMat);
+    torso.scale.set(1.03, 1.04, 1.12);
     torso.position.y = 0.02;
     torso.castShadow = true;
     torso.receiveShadow = true;
+    // Opaque torso shell: the body must occlude opposite-side limbs and rear
+    // hardware instead of allowing a see-through silhouette from side/front views.
+    torso.renderOrder = 2;
+    torso.material.depthWrite = true;
+    torso.material.depthTest = true;
     body.add(torso);
 
     // Rear hardware makes the back a real modeled surface, not an empty reverse side.
@@ -133,17 +138,13 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     spine.position.set(0, -0.27, -0.64);
     body.add(spine);
 
-    const chest = new THREE.Mesh(roundedBox(0.72, 0.7, 0.08, 0.14), darkMat);
-    chest.position.set(0, 0.1, 0.47);
+    const chest = new THREE.Mesh(roundedBox(0.70, 0.66, 0.075, 0.14), darkMat);
+    chest.position.set(0, 0.1, 0.45);
     body.add(chest);
 
     const core = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 20), cyanMat);
-    core.position.set(0, 0.08, 0.54);
+    core.position.set(0, 0.08, 0.52);
     body.add(core);
-
-    const badge = new THREE.Mesh(roundedBox(0.4, 0.22, 0.055, 0.08), whiteMat);
-    badge.position.set(0, -0.47, 0.49);
-    body.add(badge);
 
     const shoulderGeo = new THREE.SphereGeometry(0.24, 24, 16);
     const upperArmGeo = new THREE.CapsuleGeometry(0.13, 0.36, 8, 16);
@@ -447,8 +448,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     cheekR.renderOrder = 20;
     cheekL.material.depthTest = false;
     cheekR.material.depthTest = false;
-    cheekL.position.set(-0.34, -0.16, 0.925);
-    cheekR.position.set(0.34, -0.16, 0.925);
+    cheekL.position.set(-0.34, -0.16, 0.948);
+    cheekR.position.set(0.34, -0.16, 0.948);
     head.add(cheekL, cheekR);
 
     // Ultra-thin mouth glyph: no raised block and much closer to the display.
