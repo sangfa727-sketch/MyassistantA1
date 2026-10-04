@@ -689,3 +689,18 @@ html[data-ui-mode="glass"] .task-toggle{
 .home-companion-card{align-items:center;min-height:170px}
 .home-companion-copy{width:100%;max-width:560px;background:transparent}
 @media(max-width:620px){.home-companion-card{min-height:190px}.home-companion-copy{width:100%;background:transparent}}
+
+/* Final A1 layout override: Home has no 3D stage; dedicated page owns the robot. */
+.home-companion-card .a1-widget-shell{display:none!important}
+.a1-dedicated-robot{display:flex;align-items:center;justify-content:center}
+.a1-dedicated-robot .a1-widget-shell.embedded{position:relative!important;inset:auto!important;width:100%!important;height:100%!important;display:block!important}
+.a1-dedicated-robot .a1-widget-shell.embedded .robot-launcher{position:absolute;left:50%!important;right:auto!important;bottom:50%!important;transform:translate(-50%,50%) scale(2.55)!important;transform-origin:center center!important}
+.a1-dedicated-robot .a1-widget-shell.embedded .robot-launcher:hover{transform:translate(-50%,50%) scale(2.62)!important}
+@media(min-width:700px){
+  .a1-dedicated-robot .a1-widget-shell.embedded .robot-launcher{transform:translate(-50%,50%) scale(3.15)!important}
+  .a1-dedicated-robot .a1-widget-shell.embedded .robot-launcher:hover{transform:translate(-50%,50%) scale(3.22)!important}
+}
+@media(max-width:620px){
+  .a1-dedicated-robot .a1-widget-shell.embedded .robot-launcher{transform:translate(-50%,50%) scale(2.35)!important}
+  .a1-dedicated-robot .a1-widget-shell.embedded .robot-launcher:hover{transform:translate(-50%,50%) scale(2.42)!important}
+}
