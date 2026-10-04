@@ -142,8 +142,11 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     chest.position.set(0, 0.1, 0.45);
     body.add(chest);
 
+    // The round chest core is intentional and interactive. Keep it intact;
+    // only the unwanted rectangular badge below it is removed.
     const core = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 20), cyanMat);
     core.position.set(0, 0.08, 0.52);
+    core.castShadow = true;
     body.add(core);
 
     const shoulderGeo = new THREE.SphereGeometry(0.24, 24, 16);
