@@ -80,14 +80,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     key.shadow.mapSize.set(1024, 1024);
     scene.add(key);
 
-    const rim = new THREE.PointLight(0x38a9ff, 18, 8, 2);
-    rim.position.set(3, 1.8, -1.8);
-    scene.add(rim);
-
-    const warm = new THREE.PointLight(0x7dd3fc, 9, 6, 2);
-    warm.position.set(-2.5, 0.8, 2.8);
-    scene.add(warm);
-
     const root = new THREE.Group();
     root.position.y = -0.18;
     root.rotation.y = THREE.MathUtils.degToRad(-8);
@@ -111,18 +103,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     torso.castShadow = true;
     torso.receiveShadow = true;
     body.add(torso);
-
-    // Structural depth guards: opaque depth-only copies of the existing visible
-    // torso shell prevent rear/side geometry from being visible through the body.
-    // They do not add visible geometry or change proportions.
-    const torsoDepthGuard = new THREE.Mesh(
-      new THREE.CapsuleGeometry(0.72, 0.72, 10, 32),
-      new THREE.MeshBasicMaterial({ colorWrite: false, depthTest: true, depthWrite: true, transparent: false, side: THREE.FrontSide })
-    );
-    torsoDepthGuard.scale.set(0.98, 1.02, 0.96);
-    torsoDepthGuard.position.copy(torso.position);
-    torsoDepthGuard.renderOrder = -10;
-    body.add(torsoDepthGuard);
 
     // Rear hardware makes the back a real modeled surface, not an empty reverse side.
     const backPanel = new THREE.Mesh(roundedBox(0.70, 0.68, 0.10, 0.13), darkMat);
@@ -368,17 +348,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     headShell.scale.set(1.0, 0.94, 0.82);
     headShell.castShadow = true;
     head.add(headShell);
-
-    // Match the visible head shell exactly for depth-only occlusion. This seals
-    // rear hardware from front/side views without changing the visible shell.
-    const headDepthGuard = new THREE.Mesh(
-      new THREE.SphereGeometry(0.92, 40, 28),
-      new THREE.MeshBasicMaterial({ colorWrite: false, depthTest: true, depthWrite: true, transparent: false, side: THREE.FrontSide })
-    );
-    headDepthGuard.scale.set(1.0, 0.94, 0.82);
-    headDepthGuard.position.copy(headShell.position);
-    headDepthGuard.renderOrder = -10;
-    head.add(headDepthGuard);
 
     // Premium rear head design: a layered curved shell, central service
     // ring, twin vent details and a small lower neck cover make the 180° view
@@ -634,7 +603,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
       root.position.y = -0.18;
       body.position.y = 0;
-      body.rotation.z = Math.sin(elapsed * 0.85) * 0.006;
+      body.rotation.z = 0;
 
       if (s === "idle") {
         const attention = focusPhase ? 1 : typingPhase ? 0.72 : settlePhase ? 0.4 : 0.15;
@@ -678,7 +647,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
           rightElbowRef.current?.rotation.set(0, 0, 0);
           leftWristRef.current?.rotation.set(0, 0, 0);
           rightWristRef.current?.rotation.set(0, 0, 0);
-          core.scale.setScalar(1 + Math.abs(keyTap) * 0.045);
+          core.scale.setScalar(1);
         } else {
           const relax = Math.sin(elapsed * 1.5) * 0.025;
           leftArmRef.current?.rotation.set(0, 0, -relax);
@@ -698,7 +667,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       } else if (s === "speaking") {
         const talk = 0.92 + (Math.sin(elapsed * 10) * 0.5 + 0.5) * 0.28;
         mouth.scale.y = talk;
-        core.scale.setScalar(1 + Math.sin(elapsed * 8) * 0.08);
+        core.scale.setScalar(1);
       } else if (s !== "idle") {
         mouth.scale.y = 1;
         core.scale.setScalar(1);
