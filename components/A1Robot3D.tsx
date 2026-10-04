@@ -54,17 +54,18 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
-    camera.position.set(0, 0.62, 6.05);
+    camera.position.set(0, 0.62, 4.9);
     camera.lookAt(0, 0.28, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-    // Keep the 3D canvas sharp on desktop displays even when CSS scales the mascot.
-    const getPixelRatio = () => Math.min(Math.max(window.devicePixelRatio || 1, 1), 3);
+    // Render above CSS resolution so browser compositing has real pixels to work with.
+    // The canvas is never CSS-scaled; this is deliberate supersampling for crisp edges.
+    const getPixelRatio = () => Math.min(Math.max(window.devicePixelRatio || 1, 1), 4);
     renderer.setPixelRatio(getPixelRatio());
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(220, 260, false);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // Hard shadow filtering avoids extra softness around the mascot silhouette.\n    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
