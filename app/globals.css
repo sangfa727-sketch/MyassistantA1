@@ -574,3 +574,87 @@ body{background:var(--bg);color:var(--text);transition:background .25s ease,colo
 @media(prefers-reduced-motion:reduce){
   .robot-shell .robot-launcher:hover,.robot-shell .robot-launcher:active{transform:none}
 }
+
+
+/* Switchable application UI modes */
+html[data-ui-mode="glass"] body{
+  background:
+    radial-gradient(circle at 15% 8%,rgba(117,139,255,.20),transparent 30%),
+    radial-gradient(circle at 88% 18%,rgba(168,103,255,.14),transparent 28%),
+    var(--bg);
+}
+html[data-ui-mode="glass"] .app-shell{
+  background:
+    radial-gradient(circle at 50% -12%,rgba(123,145,255,.18),transparent 38%),
+    radial-gradient(circle at 10% 55%,rgba(88,188,255,.08),transparent 30%),
+    transparent;
+}
+html[data-ui-mode="glass"] .topbar,
+html[data-ui-mode="glass"] .bottom-nav{
+  background:rgba(16,24,43,.42);
+  backdrop-filter:blur(24px) saturate(155%);
+  -webkit-backdrop-filter:blur(24px) saturate(155%);
+  border-color:rgba(255,255,255,.16);
+  box-shadow:0 10px 35px rgba(0,0,0,.12);
+}
+html[data-theme="light"][data-ui-mode="glass"] .topbar,
+html[data-theme="light"][data-ui-mode="glass"] .bottom-nav{
+  background:rgba(255,255,255,.52);
+  border-color:rgba(15,23,42,.10);
+}
+html[data-ui-mode="glass"] .home-a1-card,
+html[data-ui-mode="glass"] .action-card,
+html[data-ui-mode="glass"] .recent-list,
+html[data-ui-mode="glass"] .settings-card,
+html[data-ui-mode="glass"] .task-list,
+html[data-ui-mode="glass"] .profile-card,
+html[data-ui-mode="glass"] .task-row,
+html[data-ui-mode="glass"] .bubble,
+html[data-ui-mode="glass"] .composer,
+html[data-ui-mode="glass"] .clear-btn,
+html[data-ui-mode="glass"] .secondary-action{
+  background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.055));
+  border-color:rgba(255,255,255,.20);
+  backdrop-filter:blur(22px) saturate(145%);
+  -webkit-backdrop-filter:blur(22px) saturate(145%);
+  box-shadow:0 18px 50px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.12);
+}
+html[data-theme="light"][data-ui-mode="glass"] .home-a1-card,
+html[data-theme="light"][data-ui-mode="glass"] .action-card,
+html[data-theme="light"][data-ui-mode="glass"] .recent-list,
+html[data-theme="light"][data-ui-mode="glass"] .settings-card,
+html[data-theme="light"][data-ui-mode="glass"] .task-list,
+html[data-theme="light"][data-ui-mode="glass"] .profile-card,
+html[data-theme="light"][data-ui-mode="glass"] .task-row,
+html[data-theme="light"][data-ui-mode="glass"] .bubble,
+html[data-theme="light"][data-ui-mode="glass"] .composer,
+html[data-theme="light"][data-ui-mode="glass"] .clear-btn,
+html[data-theme="light"][data-ui-mode="glass"] .secondary-action{
+  background:linear-gradient(135deg,rgba(255,255,255,.72),rgba(255,255,255,.38));
+  border-color:rgba(15,23,42,.11);
+  box-shadow:0 18px 45px rgba(50,62,100,.10),inset 0 1px 0 rgba(255,255,255,.72);
+}
+html[data-ui-mode="glass"] .action-card:hover{
+  background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(255,255,255,.08));
+  border-color:rgba(132,151,255,.42);
+}
+html[data-ui-mode="glass"] .home-a1-orb,
+html[data-ui-mode="glass"] .avatar,
+html[data-ui-mode="glass"] .profile-avatar{
+  box-shadow:0 12px 32px rgba(101,117,245,.32),inset 0 1px 0 rgba(255,255,255,.30);
+}
+html[data-ui-mode="glass"] .composer-wrap{
+  background:linear-gradient(transparent,rgba(7,11,22,.08) 24%);
+}
+html[data-theme="light"][data-ui-mode="glass"] .composer-wrap{
+  background:linear-gradient(transparent,rgba(246,247,251,.08) 24%);
+}
+html[data-ui-mode="glass"] .bottom-nav button.active{
+  background:rgba(126,140,255,.15);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
+}
+html[data-ui-mode="glass"] .settings-card button>span,
+html[data-ui-mode="glass"] .task-toggle{
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.10);
+}
