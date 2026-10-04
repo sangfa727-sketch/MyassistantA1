@@ -157,6 +157,19 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     function addArm(side: number, ref: MutableRefObject<any>) {
       const g = new THREE.Group();
       ref.current = g;
+      // Solid arm envelope: this invisible depth-only shell prevents internal
+      // arm parts and the opposite-side assembly from becoming visible through
+      // the articulated arm at oblique angles. Visible meshes remain unchanged.
+      const armOcclusion = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.30, 0.92, 10, 24),
+        torsoMat
+      );
+      armOcclusion.position.set(0, -0.48, 0.05);
+      armOcclusion.scale.set(0.95, 1.0, 1.15);
+      armOcclusion.renderOrder = 1;
+      armOcclusion.material.depthWrite = true;
+      armOcclusion.material.depthTest = true;
+      g.add(armOcclusion);
       // Keep the shoulder mount slightly outside the torso shell. This gives
       // the arm a real clearance envelope so rotations cannot visually sink
       // the forearm/hand into the chest.
@@ -295,6 +308,18 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     }
     addArm(-1, leftArmRef);
     addArm(1, rightArmRef);
+
+    // Solid lower-body envelope closes sightlines into the hip/leg assembly.
+    const lowerBodyOcclusion = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.62, 0.62, 10, 28),
+      torsoMat
+    );
+    lowerBodyOcclusion.scale.set(1.0, 0.9, 1.02);
+    lowerBodyOcclusion.position.set(0, -0.72, 0);
+    lowerBodyOcclusion.renderOrder = 1;
+    lowerBodyOcclusion.material.depthWrite = true;
+    lowerBodyOcclusion.material.depthTest = true;
+    body.add(lowerBodyOcclusion);
 
     const hip = new THREE.Mesh(new THREE.SphereGeometry(0.58, 28, 20), darkMat);
     hip.scale.set(1.0, 0.48, 0.72);
