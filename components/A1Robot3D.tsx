@@ -365,7 +365,23 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const headShell = new THREE.Mesh(new THREE.SphereGeometry(0.92, 40, 28), torsoMat);
     headShell.scale.set(1.0, 0.94, 0.82);
     headShell.castShadow = true;
+    headShell.material.depthWrite = true;
+    headShell.material.depthTest = true;
     head.add(headShell);
+
+    // Solid inner head envelope: closes the hollow/see-through sightline when
+    // the head turns left or right, while the face pixels still render above
+    // it through their intentional screen-layer depth override.
+    const headOcclusionShell = new THREE.Mesh(
+      new THREE.SphereGeometry(0.90, 40, 28),
+      torsoMat
+    );
+    headOcclusionShell.scale.set(1.0, 0.93, 0.80);
+    headOcclusionShell.position.set(0, 0, 0.01);
+    headOcclusionShell.renderOrder = 1;
+    headOcclusionShell.material.depthWrite = true;
+    headOcclusionShell.material.depthTest = true;
+    head.add(headOcclusionShell);
 
     // Premium rear head design: a layered curved shell, central service
     // ring, twin vent details and a small lower neck cover make the 180° view
