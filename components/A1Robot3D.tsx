@@ -54,7 +54,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
-    camera.position.set(0, 0.62, 6.05);
+    camera.position.set(0, 0.62, 4.9);
     camera.lookAt(0, 0.28, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
