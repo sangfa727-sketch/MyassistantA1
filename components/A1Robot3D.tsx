@@ -98,12 +98,12 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     body.position.y = 0;
     root.add(body);
 
-    const torsoMat = new THREE.MeshStandardMaterial({ color: 0x9aa4ad, metalness: 0.86, roughness: 0.26 });
-    const trimMat = new THREE.MeshStandardMaterial({ color: 0xd7dde2, metalness: 0.82, roughness: 0.2 });
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x20262b, metalness: 0.9, roughness: 0.18 });
-    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xe9f7ff, metalness: 0.15, roughness: 0.18 });
-    const cyanMat = new THREE.MeshStandardMaterial({ color: 0xc9f5ff, emissive: 0x54d9ff, emissiveIntensity: 1.8, metalness: 0.25, roughness: 0.12 });
-    const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8fcf, emissive: 0xff3f9f, emissiveIntensity: 1.2, metalness: 0.1, roughness: 0.25 });
+    const torsoMat = new THREE.MeshStandardMaterial({ color: 0x9aa4ad, metalness: 0.86, roughness: 0.26, transparent: false, opacity: 1, depthTest: true, depthWrite: true });
+    const trimMat = new THREE.MeshStandardMaterial({ color: 0xd7dde2, metalness: 0.82, roughness: 0.2, transparent: false, opacity: 1, depthTest: true, depthWrite: true });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x20262b, metalness: 0.9, roughness: 0.18, transparent: false, opacity: 1, depthTest: true, depthWrite: true });
+    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xe9f7ff, metalness: 0.15, roughness: 0.18, transparent: false, opacity: 1, depthTest: true, depthWrite: true });
+    const cyanMat = new THREE.MeshStandardMaterial({ color: 0xc9f5ff, emissive: 0x54d9ff, emissiveIntensity: 1.8, metalness: 0.25, roughness: 0.12, transparent: false, opacity: 1, depthTest: true, depthWrite: true });
+    const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8fcf, emissive: 0xff3f9f, emissiveIntensity: 1.2, metalness: 0.1, roughness: 0.25, transparent: false, opacity: 1, depthTest: true, depthWrite: true });
 
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.72, 0.72, 10, 32), torsoMat);
     torso.scale.set(0.98, 1.02, 0.96);
@@ -111,6 +111,18 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     torso.castShadow = true;
     torso.receiveShadow = true;
     body.add(torso);
+
+    // Structural depth guards: opaque depth-only copies of the existing visible
+    // torso shell prevent rear/side geometry from being visible through the body.
+    // They do not add visible geometry or change proportions.
+    const torsoDepthGuard = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.72, 0.72, 10, 32),
+      new THREE.MeshBasicMaterial({ colorWrite: false, depthTest: true, depthWrite: true, transparent: false, side: THREE.FrontSide })
+    );
+    torsoDepthGuard.scale.set(0.98, 1.02, 0.96);
+    torsoDepthGuard.position.copy(torso.position);
+    torsoDepthGuard.renderOrder = -10;
+    body.add(torsoDepthGuard);
 
     // Rear hardware makes the back a real modeled surface, not an empty reverse side.
     const backPanel = new THREE.Mesh(roundedBox(0.70, 0.68, 0.10, 0.13), darkMat);
@@ -356,6 +368,17 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     headShell.scale.set(1.0, 0.94, 0.82);
     headShell.castShadow = true;
     head.add(headShell);
+
+    // Match the visible head shell exactly for depth-only occlusion. This seals
+    // rear hardware from front/side views without changing the visible shell.
+    const headDepthGuard = new THREE.Mesh(
+      new THREE.SphereGeometry(0.92, 40, 28),
+      new THREE.MeshBasicMaterial({ colorWrite: false, depthTest: true, depthWrite: true, transparent: false, side: THREE.FrontSide })
+    );
+    headDepthGuard.scale.set(1.0, 0.94, 0.82);
+    headDepthGuard.position.copy(headShell.position);
+    headDepthGuard.renderOrder = -10;
+    head.add(headDepthGuard);
 
     // Premium rear head design: a layered curved shell, central service
     // ring, twin vent details and a small lower neck cover make the 180° view
