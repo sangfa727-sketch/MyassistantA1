@@ -373,10 +373,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       new THREE.SphereGeometry(0.92, 40, 28),
       new THREE.MeshBasicMaterial({
         colorWrite: false,
-        depthTest: false,
+        depthTest: true,
         depthWrite: true,
         transparent: false,
-        side: THREE.FrontSide,
+        side: THREE.DoubleSide,
       })
     );
     headDepthOccluder.scale.copy(headShell.scale);
