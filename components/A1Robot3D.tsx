@@ -58,20 +58,14 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     camera.lookAt(0, 0.28, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-    // Mobile/desktop both render at the device pixel density, with a safe upper
-    // bound to keep high-DPI phones crisp without turning the companion into a
-    // battery-heavy 4x render target.
-    const getPixelRatio = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const mobile = window.matchMedia("(max-width: 620px)").matches;
-      return Math.min(Math.max(dpr, 1), mobile ? 4 : 4);
-    };
+    // Render above CSS resolution so browser compositing has real pixels to work with.
+    // The canvas is never CSS-scaled; this is deliberate supersampling for crisp edges.
+    const getPixelRatio = () => Math.min(Math.max(window.devicePixelRatio || 1, 1), 4);
     renderer.setPixelRatio(getPixelRatio());
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(220, 260, false);
     renderer.shadowMap.enabled = true;
-    // Hard shadow filtering avoids extra softness around the mascot silhouette.
-    renderer.shadowMap.type = THREE.PCFShadowMap;
+    // Hard shadow filtering avoids extra softness around the mascot silhouette.\n    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
@@ -111,28 +105,12 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const cyanMat = new THREE.MeshStandardMaterial({ color: 0xc9f5ff, emissive: 0x54d9ff, emissiveIntensity: 1.8, metalness: 0.25, roughness: 0.12 });
     const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8fcf, emissive: 0xff3f9f, emissiveIntensity: 1.2, metalness: 0.1, roughness: 0.25 });
 
-    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.72, 0.72, 12, 40), torsoMat);
-    torso.scale.set(1.03, 1.04, 1.12);
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.72, 0.72, 10, 32), torsoMat);
+    torso.scale.set(0.98, 1.02, 0.96);
     torso.position.y = 0.02;
     torso.castShadow = true;
     torso.receiveShadow = true;
-    // Opaque torso shell: the body must occlude opposite-side limbs and rear
-    // hardware instead of allowing a see-through silhouette from side/front views.
-    torso.renderOrder = 2;
-    torso.material.depthWrite = true;
-    torso.material.depthTest = true;
     body.add(torso);
-
-    // Invisible torso-depth shell: same silhouette as the locked torso, rendered
-    // first so rear hardware and opposite-side limbs are depth-tested behind it.
-    const bodyOcclusionBarrier = new THREE.Mesh(
-      new THREE.CapsuleGeometry(0.72, 0.72, 12, 40),
-      new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, depthTest: true })
-    );
-    bodyOcclusionBarrier.scale.set(1.03, 1.04, 1.12);
-    bodyOcclusionBarrier.position.set(0, 0.02, 0);
-    bodyOcclusionBarrier.renderOrder = -1;
-    body.add(bodyOcclusionBarrier);
 
     // Rear hardware makes the back a real modeled surface, not an empty reverse side.
     const backPanel = new THREE.Mesh(roundedBox(0.70, 0.68, 0.10, 0.13), darkMat);
@@ -149,16 +127,17 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     spine.position.set(0, -0.27, -0.64);
     body.add(spine);
 
-    const chest = new THREE.Mesh(roundedBox(0.70, 0.66, 0.075, 0.14), darkMat);
-    chest.position.set(0, 0.1, 0.45);
+    const chest = new THREE.Mesh(roundedBox(0.72, 0.7, 0.08, 0.14), darkMat);
+    chest.position.set(0, 0.1, 0.47);
     body.add(chest);
 
-    // The round chest core is intentional and interactive. Keep it intact;
-    // only the unwanted rectangular badge below it is removed.
-    const core = new THREE.Mesh(new THREE.SphereGeometry(0.125, 32, 20), whiteMat);
-    core.position.set(0, 0.08, 0.52);
-    core.castShadow = true;
+    const core = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 20), cyanMat);
+    core.position.set(0, 0.08, 0.54);
     body.add(core);
+
+    const badge = new THREE.Mesh(roundedBox(0.4, 0.22, 0.055, 0.08), whiteMat);
+    badge.position.set(0, -0.47, 0.49);
+    body.add(badge);
 
     const shoulderGeo = new THREE.SphereGeometry(0.24, 24, 16);
     const upperArmGeo = new THREE.CapsuleGeometry(0.13, 0.36, 8, 16);
@@ -168,10 +147,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     function addArm(side: number, ref: MutableRefObject<any>) {
       const g = new THREE.Group();
       ref.current = g;
-      // Do not add an occlusion volume inside the articulated arm.
-      // The previous invisible shell depth-tested the visible arm parts
-      // themselves and made hands/forearms disappear. The torso depth barrier
-      // is responsible for hiding only the portions that pass behind the body.
       // Keep the shoulder mount slightly outside the torso shell. This gives
       // the arm a real clearance envelope so rotations cannot visually sink
       // the forearm/hand into the chest.
@@ -380,23 +355,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const headShell = new THREE.Mesh(new THREE.SphereGeometry(0.92, 40, 28), torsoMat);
     headShell.scale.set(1.0, 0.94, 0.82);
     headShell.castShadow = true;
-    headShell.material.depthWrite = true;
-    headShell.material.depthTest = true;
     head.add(headShell);
-
-    // Solid inner head envelope: closes the hollow/see-through sightline when
-    // the head turns left or right, while the face pixels still render above
-    // it through their intentional screen-layer depth override.
-    const headOcclusionShell = new THREE.Mesh(
-      new THREE.SphereGeometry(0.92, 40, 28),
-      new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, depthTest: true })
-    );
-    headOcclusionShell.scale.set(1.0, 0.94, 0.82);
-    headOcclusionShell.position.set(0, 0, 0.01);
-    headOcclusionShell.renderOrder = -1;
-    headOcclusionShell.material.depthWrite = true;
-    headOcclusionShell.material.depthTest = true;
-    head.add(headOcclusionShell);
 
     // Premium rear head design: a layered curved shell, central service
     // ring, twin vent details and a small lower neck cover make the 180° view
@@ -454,9 +413,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     faceInner.position.set(0, -0.01, 0.82);
     head.add(faceInner);
 
-    // Screen-native facial UI: flat display layers placed just above the
-    // curved inner visor. CircleGeometry keeps the eyes/cheeks genuinely round
-    // without giving them physical 3D volume that can protrude from the screen.
     const eyeGeo = new THREE.CircleGeometry(0.125, 48);
     const eyeL = new THREE.Mesh(eyeGeo, cyanMat);
     const eyeR = new THREE.Mesh(eyeGeo, cyanMat);
