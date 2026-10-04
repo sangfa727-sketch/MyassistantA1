@@ -162,7 +162,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       // the articulated arm at oblique angles. Visible meshes remain unchanged.
       const armOcclusion = new THREE.Mesh(
         new THREE.CapsuleGeometry(0.30, 0.92, 10, 24),
-        torsoMat
+        new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, depthTest: true })
       );
       armOcclusion.position.set(0, -0.48, 0.05);
       armOcclusion.scale.set(0.95, 1.0, 1.15);
@@ -309,18 +309,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     addArm(-1, leftArmRef);
     addArm(1, rightArmRef);
 
-    // Solid lower-body envelope closes sightlines into the hip/leg assembly.
-    const lowerBodyOcclusion = new THREE.Mesh(
-      new THREE.CapsuleGeometry(0.62, 0.62, 10, 28),
-      torsoMat
-    );
-    lowerBodyOcclusion.scale.set(1.0, 0.9, 1.02);
-    lowerBodyOcclusion.position.set(0, -0.72, 0);
-    lowerBodyOcclusion.renderOrder = 1;
-    lowerBodyOcclusion.material.depthWrite = true;
-    lowerBodyOcclusion.material.depthTest = true;
-    body.add(lowerBodyOcclusion);
-
     const hip = new THREE.Mesh(new THREE.SphereGeometry(0.58, 28, 20), darkMat);
     hip.scale.set(1.0, 0.48, 0.72);
     hip.position.y = -0.78;
@@ -399,7 +387,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     // it through their intentional screen-layer depth override.
     const headOcclusionShell = new THREE.Mesh(
       new THREE.SphereGeometry(0.90, 40, 28),
-      torsoMat
+      new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, depthTest: true })
     );
     headOcclusionShell.scale.set(1.0, 0.93, 0.80);
     headOcclusionShell.position.set(0, 0, 0.01);
