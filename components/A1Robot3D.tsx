@@ -142,8 +142,11 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     chest.position.set(0, 0.1, 0.45);
     body.add(chest);
 
+    // The round chest core is intentional and interactive. Keep it intact;
+    // only the unwanted rectangular badge below it is removed.
     const core = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 20), cyanMat);
     core.position.set(0, 0.08, 0.52);
+    core.castShadow = true;
     body.add(core);
 
     const shoulderGeo = new THREE.SphereGeometry(0.24, 24, 16);
@@ -154,6 +157,19 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     function addArm(side: number, ref: MutableRefObject<any>) {
       const g = new THREE.Group();
       ref.current = g;
+      // Solid arm envelope: this invisible depth-only shell prevents internal
+      // arm parts and the opposite-side assembly from becoming visible through
+      // the articulated arm at oblique angles. Visible meshes remain unchanged.
+      const armOcclusion = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.30, 0.92, 10, 24),
+        torsoMat
+      );
+      armOcclusion.position.set(0, -0.48, 0.05);
+      armOcclusion.scale.set(0.95, 1.0, 1.15);
+      armOcclusion.renderOrder = 1;
+      armOcclusion.material.depthWrite = true;
+      armOcclusion.material.depthTest = true;
+      g.add(armOcclusion);
       // Keep the shoulder mount slightly outside the torso shell. This gives
       // the arm a real clearance envelope so rotations cannot visually sink
       // the forearm/hand into the chest.
@@ -293,6 +309,18 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     addArm(-1, leftArmRef);
     addArm(1, rightArmRef);
 
+    // Solid lower-body envelope closes sightlines into the hip/leg assembly.
+    const lowerBodyOcclusion = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.62, 0.62, 10, 28),
+      torsoMat
+    );
+    lowerBodyOcclusion.scale.set(1.0, 0.9, 1.02);
+    lowerBodyOcclusion.position.set(0, -0.72, 0);
+    lowerBodyOcclusion.renderOrder = 1;
+    lowerBodyOcclusion.material.depthWrite = true;
+    lowerBodyOcclusion.material.depthTest = true;
+    body.add(lowerBodyOcclusion);
+
     const hip = new THREE.Mesh(new THREE.SphereGeometry(0.58, 28, 20), darkMat);
     hip.scale.set(1.0, 0.48, 0.72);
     hip.position.y = -0.78;
@@ -362,7 +390,23 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const headShell = new THREE.Mesh(new THREE.SphereGeometry(0.92, 40, 28), torsoMat);
     headShell.scale.set(1.0, 0.94, 0.82);
     headShell.castShadow = true;
+    headShell.material.depthWrite = true;
+    headShell.material.depthTest = true;
     head.add(headShell);
+
+    // Solid inner head envelope: closes the hollow/see-through sightline when
+    // the head turns left or right, while the face pixels still render above
+    // it through their intentional screen-layer depth override.
+    const headOcclusionShell = new THREE.Mesh(
+      new THREE.SphereGeometry(0.90, 40, 28),
+      torsoMat
+    );
+    headOcclusionShell.scale.set(1.0, 0.93, 0.80);
+    headOcclusionShell.position.set(0, 0, 0.01);
+    headOcclusionShell.renderOrder = 1;
+    headOcclusionShell.material.depthWrite = true;
+    headOcclusionShell.material.depthTest = true;
+    head.add(headOcclusionShell);
 
     // Premium rear head design: a layered curved shell, central service
     // ring, twin vent details and a small lower neck cover make the 180° view
