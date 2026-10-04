@@ -13,6 +13,7 @@ import android.widget.Toast
 class MainActivity : Activity() {
     private lateinit var webView: WebView
     private val appUrl = "https://sangfa727-sketch.github.io/MyassistantA1/"
+    private var pendingOverlayStart = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +30,14 @@ class MainActivity : Activity() {
         setContentView(webView)
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (pendingOverlayStart && Settings.canDrawOverlays(this)) {
+            pendingOverlayStart = false
+            startService(Intent(this, A1OverlayService::class.java))
+        }
+    }
+
     private inner class A1NativeBridge {
         @JavascriptInterface
         fun enableFloatingCompanion() {
@@ -38,6 +47,7 @@ class MainActivity : Activity() {
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:$packageName")
                     )
+                    pendingOverlayStart = true
                     startActivity(intent)
                     Toast.makeText(
                         this@MainActivity,
