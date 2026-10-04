@@ -104,6 +104,23 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     torso.receiveShadow = true;
     body.add(torso);
 
+    // Inset depth prepass: keep internal/rear parts from showing through the
+    // opaque shell without using coplanar geometry (which can shimmer).
+    const torsoDepthOccluder = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.72, 0.72, 10, 32),
+      new THREE.MeshBasicMaterial({
+        colorWrite: false,
+        depthTest: true,
+        depthWrite: true,
+        transparent: false,
+        side: THREE.DoubleSide,
+      })
+    );
+    torsoDepthOccluder.scale.set(0.965, 1.005, 0.94);
+    torsoDepthOccluder.position.copy(torso.position);
+    torsoDepthOccluder.renderOrder = -10;
+    body.add(torsoDepthOccluder);
+
     // Rear hardware makes the back a real modeled surface, not an empty reverse side.
     const backPanel = new THREE.Mesh(roundedBox(0.70, 0.68, 0.10, 0.13), darkMat);
     backPanel.position.set(0, 0.08, -0.57);
@@ -348,6 +365,23 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     headShell.scale.set(1.0, 0.94, 0.82);
     headShell.castShadow = true;
     head.add(headShell);
+
+    // Inset depth prepass for the head shell. It is deliberately smaller than
+    // the visible shell so it cannot z-fight with the rendered surface.
+    const headDepthOccluder = new THREE.Mesh(
+      new THREE.SphereGeometry(0.92, 40, 28),
+      new THREE.MeshBasicMaterial({
+        colorWrite: false,
+        depthTest: true,
+        depthWrite: true,
+        transparent: false,
+        side: THREE.DoubleSide,
+      })
+    );
+    headDepthOccluder.scale.set(0.985, 0.925, 0.79);
+    headDepthOccluder.position.copy(headShell.position);
+    headDepthOccluder.renderOrder = -10;
+    head.add(headDepthOccluder);
 
     // Premium rear head design: a layered curved shell, central service
     // ring, twin vent details and a small lower neck cover make the 180° view
