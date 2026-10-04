@@ -90,7 +90,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     body.position.y = 0;
     root.add(body);
 
-    const torsoMat = new THREE.MeshStandardMaterial({ color: 0x9aa4ad, metalness: 0.86, roughness: 0.26, transparent: false, opacity: 1, depthTest: true, depthWrite: true });
+    const torsoMat = new THREE.MeshStandardMaterial({ color: 0x9aa4ad, metalness: 0.86, roughness: 0.26, transparent: false, opacity: 1, depthTest: true, depthWrite: true, side: THREE.DoubleSide });
     const trimMat = new THREE.MeshStandardMaterial({ color: 0xd7dde2, metalness: 0.82, roughness: 0.2, transparent: false, opacity: 1, depthTest: true, depthWrite: true });
     const darkMat = new THREE.MeshStandardMaterial({ color: 0x20262b, metalness: 0.9, roughness: 0.18, transparent: false, opacity: 1, depthTest: true, depthWrite: true });
     const whiteMat = new THREE.MeshStandardMaterial({ color: 0xe9f7ff, metalness: 0.15, roughness: 0.18, transparent: false, opacity: 1, depthTest: true, depthWrite: true });
