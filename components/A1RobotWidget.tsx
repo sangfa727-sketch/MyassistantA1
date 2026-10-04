@@ -213,7 +213,7 @@ export default function A1RobotWidget({
   return (
     <div className={`a1-widget-shell robot-shell ${embedded ? "embedded" : ""}`}>
       <div className={`widget-picker ${pickerOpen ? "open" : ""}`}>
-        <button className="widget-settings" onClick={() => setPickerOpen(v => !v)} aria-label="Widget style ရွေးရန်" aria-expanded={pickerOpen}>⚙</button>
+        <button className="widget-settings" onClick={onSettings} aria-label="A1 Settings">⚙</button><button className="widget-settings widget-style-settings" onClick={() => setPickerOpen(v => !v)} aria-label="Companion style" aria-expanded={pickerOpen}>◇</button>
         {pickerOpen && (
           <div className="widget-picker-menu" role="menu">
             <button className="widget-option" onClick={() => choose("glass")} role="menuitem">◇ <span>Glassmorphism</span></button>
