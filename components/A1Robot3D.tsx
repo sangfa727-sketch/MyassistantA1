@@ -58,14 +58,20 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     camera.lookAt(0, 0.28, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-    // Render above CSS resolution so browser compositing has real pixels to work with.
-    // The canvas is never CSS-scaled; this is deliberate supersampling for crisp edges.
-    const getPixelRatio = () => Math.min(Math.max(window.devicePixelRatio || 1, 1), 4);
+    // Mobile/desktop both render at the device pixel density, with a safe upper
+    // bound to keep high-DPI phones crisp without turning the companion into a
+    // battery-heavy 4x render target.
+    const getPixelRatio = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const mobile = window.matchMedia("(max-width: 620px)").matches;
+      return Math.min(Math.max(dpr, 1), mobile ? 4 : 4);
+    };
     renderer.setPixelRatio(getPixelRatio());
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(220, 260, false);
     renderer.shadowMap.enabled = true;
-    // Hard shadow filtering avoids extra softness around the mascot silhouette.\n    renderer.shadowMap.type = THREE.PCFShadowMap;
+    // Hard shadow filtering avoids extra softness around the mascot silhouette.
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
@@ -413,24 +419,30 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     faceInner.position.set(0, -0.01, 0.82);
     head.add(faceInner);
 
-    const eyeGeo = new THREE.SphereGeometry(0.15, 24, 18);
+    // Screen-native facial UI: eyes, cheeks and mouth are thin emissive layers
+    // seated on the curved inner display, not protruding 3D balls. This keeps
+    // the face readable as one monitor surface from every front/side angle.
+    const eyeGeo = roundedBox(0.22, 0.27, 0.025, 0.055, 6);
     const eyeL = new THREE.Mesh(eyeGeo, cyanMat);
     const eyeR = new THREE.Mesh(eyeGeo, cyanMat);
     eyeLRef.current = eyeL;
     eyeRRef.current = eyeR;
-    eyeL.position.set(-0.29, 0.04, 0.96);
-    eyeR.position.set(0.29, 0.04, 0.96);
-    eyeL.scale.set(1.08, 1.22, 0.48);
-    eyeR.scale.set(1.08, 1.22, 0.48);
+    eyeL.position.set(-0.29, 0.04, 1.075);
+    eyeR.position.set(0.29, 0.04, 1.075);
+    eyeL.scale.set(1.0, 1.0, 1.0);
+    eyeR.scale.set(1.0, 1.0, 1.0);
     head.add(eyeL, eyeR);
 
-    const cheekL = new THREE.Mesh(new THREE.SphereGeometry(0.09, 18, 12), pinkMat);
-    const cheekR = cheekL.clone();
-    cheekL.position.set(-0.5, -0.23, 0.78);
-    cheekR.position.set(0.5, -0.23, 0.78);
+    const cheekGeo = new THREE.SphereGeometry(0.075, 20, 14);
+    const cheekL = new THREE.Mesh(cheekGeo, pinkMat);
+    const cheekR = new THREE.Mesh(cheekGeo, pinkMat);
+    cheekL.position.set(-0.48, -0.20, 1.075);
+    cheekR.position.set(0.48, -0.20, 1.075);
+    cheekL.scale.set(1.0, 0.72, 0.10);
+    cheekR.scale.set(1.0, 0.72, 0.10);
     head.add(cheekL, cheekR);
 
-    const mouth = new THREE.Mesh(roundedBox(0.34, 0.11, 0.05, 0.05), whiteMat);
+    const mouth = new THREE.Mesh(roundedBox(0.30, 0.09, 0.018, 0.04), whiteMat);
     mouthRef.current = mouth;
     mouth.position.set(0, -0.28, 0.84);
     head.add(mouth);
