@@ -151,9 +151,13 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     spine.position.set(0, -0.27, -0.64);
     rearBody.add(spine);
 
+    const frontBody = new THREE.Group();
+    frontBodyRef.current = frontBody;
+    body.add(frontBody);
+
     const chest = new THREE.Mesh(roundedBox(0.72, 0.7, 0.08, 0.14), darkMat);
     chest.position.set(0, 0.1, 0.47);
-    body.add(chest);
+    frontBody.add(chest);
 
     const core = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 20), cyanMat);
     core.position.set(0, 0.08, 0.54);
@@ -542,8 +546,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       assembly.add(tip);
     }
 
-    addEarAntenna(-1, leftAntennaRef);
-    addEarAntenna(1, rightAntennaRef);
+    addEarAntenna(-1, leftAntennaRef, leftAntennaTipRef);
+    addEarAntenna(1, rightAntennaRef, rightAntennaTipRef);
 
     let animationId = 0;
     const clock = new THREE.Clock();
