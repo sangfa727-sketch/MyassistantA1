@@ -37,7 +37,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const rightAntennaTipRef = useRef<THREE.Object3D>(null);
   const leftEarRef = useRef<THREE.Object3D>(null);
   const rightEarRef = useRef<THREE.Object3D>(null);
-  const frontBodyRef = useRef<THREE.Group>(null);
   const leftLegRef = useRef<THREE.Group>(null);
   const rightLegRef = useRef<THREE.Group>(null);
   const eyeLRef = useRef<any>(null);
@@ -154,7 +153,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     rearBody.add(spine);
 
     const frontBody = new THREE.Group();
-    frontBodyRef.current = frontBody;
     body.add(frontBody);
 
     const chest = new THREE.Mesh(roundedBox(0.72, 0.7, 0.08, 0.14), darkMat);
@@ -782,7 +780,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       const sideView = bodySideRatio > 0.12;
       leftArmRef.current!.visible = !(sideView && bodyCameraLocal.x > 0);
       rightArmRef.current!.visible = !(sideView && bodyCameraLocal.x < 0);
-      frontBodyRef.current!.visible = !sideView;
       rearBody.visible = bodyCameraLocal.z < -0.12;
 
       head.updateWorldMatrix(true, false);
@@ -793,7 +790,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       rightAntennaRef.current!.visible = !(headSideView && headCameraLocal.x < 0);
       leftEarRef.current!.visible = !(headSideView && headCameraLocal.x > 0);
       rightEarRef.current!.visible = !(headSideView && headCameraLocal.x < 0);
-      mouthRef.current!.visible = !headSideView;
       rearHead.visible = headCameraLocal.z < -0.12;
 
       renderer.render(scene, camera);
