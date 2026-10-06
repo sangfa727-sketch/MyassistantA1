@@ -33,6 +33,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const rightWristRef = useRef<THREE.Group>(null);
   const leftAntennaRef = useRef<THREE.Group>(null);
   const rightAntennaRef = useRef<THREE.Group>(null);
+  const leftAntennaTipRef = useRef<THREE.Object3D>(null);
+  const rightAntennaTipRef = useRef<THREE.Object3D>(null);
+  const frontBodyRef = useRef<THREE.Group>(null);
   const leftLegRef = useRef<THREE.Group>(null);
   const rightLegRef = useRef<THREE.Group>(null);
   const eyeLRef = useRef<any>(null);
@@ -154,11 +157,11 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
 
     const core = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 20), cyanMat);
     core.position.set(0, 0.08, 0.54);
-    body.add(core);
+    frontBody.add(core);
 
     const badge = new THREE.Mesh(roundedBox(0.4, 0.22, 0.055, 0.08), whiteMat);
     badge.position.set(0, -0.47, 0.49);
-    body.add(badge);
+    frontBody.add(badge);
 
     const shoulderGeo = new THREE.SphereGeometry(0.24, 24, 16);
     const upperArmGeo = new THREE.CapsuleGeometry(0.13, 0.36, 8, 16);
@@ -516,7 +519,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const antennaMastGeo = new THREE.CylinderGeometry(0.035, 0.055, 0.42, 18);
     const antennaTipGeo = new THREE.SphereGeometry(0.105, 24, 16);
 
-    function addEarAntenna(side: number, ref: MutableRefObject<any>) {
+    function addEarAntenna(side: number, ref: MutableRefObject<any>, tipRef: MutableRefObject<any>) {
       const assembly = new THREE.Group();
       ref.current = assembly;
       assembly.position.set(side * 0.82, 0.12, 0.02);
