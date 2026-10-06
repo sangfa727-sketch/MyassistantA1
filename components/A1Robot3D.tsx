@@ -112,13 +112,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       new THREE.CapsuleGeometry(0.72, 0.72, 10, 32),
       new THREE.MeshBasicMaterial({
         colorWrite: false,
-        depthTest: true,
+        depthTest: false,
         depthWrite: true,
         transparent: false,
-        side: THREE.DoubleSide,
-        polygonOffset: true,
-        polygonOffsetFactor: 1,
-        polygonOffsetUnits: 1,
+        side: THREE.FrontSide,
       })
     );
     torsoDepthPrepass.scale.copy(torso.scale);
@@ -384,13 +381,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       new THREE.SphereGeometry(0.92, 40, 28),
       new THREE.MeshBasicMaterial({
         colorWrite: false,
-        depthTest: true,
+        depthTest: false,
         depthWrite: true,
         transparent: false,
-        side: THREE.DoubleSide,
-        polygonOffset: true,
-        polygonOffsetFactor: 1,
-        polygonOffsetUnits: 1,
+        side: THREE.FrontSide,
       })
     );
     headDepthPrepass.scale.copy(headShell.scale);
