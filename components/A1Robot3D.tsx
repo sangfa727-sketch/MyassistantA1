@@ -150,9 +150,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     spine.position.set(0, -0.27, -0.64);
     rearBody.add(spine);
 
-    const frontBody = new THREE.Group();
-    body.add(frontBody);
-
     const chest = new THREE.Mesh(roundedBox(0.72, 0.7, 0.08, 0.14), darkMat);
     chest.position.set(0, 0.1, 0.47);
     body.add(chest);
