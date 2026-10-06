@@ -31,6 +31,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const rightElbowRef = useRef<THREE.Group>(null);
   const leftWristRef = useRef<THREE.Group>(null);
   const rightWristRef = useRef<THREE.Group>(null);
+  const leftAntennaRef = useRef<THREE.Group>(null);
+  const rightAntennaRef = useRef<THREE.Group>(null);
+  const leftEarRef = useRef<THREE.Object3D>(null);
+  const rightEarRef = useRef<THREE.Object3D>(null);
   const leftLegRef = useRef<THREE.Group>(null);
   const rightLegRef = useRef<THREE.Group>(null);
   const eyeLRef = useRef<any>(null);
@@ -496,6 +500,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const earGeo = new THREE.SphereGeometry(0.27, 20, 14);
     const earL = new THREE.Mesh(earGeo, trimMat);
     const earR = earL.clone();
+    leftEarRef.current = earL;
+    rightEarRef.current = earR;
     earL.position.set(-0.84, 0.02, 0.02);
     earR.position.set(0.84, 0.02, 0.02);
     earL.scale.set(0.5, 1, 0.7);
@@ -514,8 +520,9 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const antennaMastGeo = new THREE.CylinderGeometry(0.035, 0.055, 0.42, 18);
     const antennaTipGeo = new THREE.SphereGeometry(0.105, 24, 16);
 
-    function addEarAntenna(side: number) {
+    function addEarAntenna(side: number, ref: MutableRefObject<any>) {
       const assembly = new THREE.Group();
+      ref.current = assembly;
       assembly.position.set(side * 0.82, 0.12, 0.02);
       assembly.rotation.z = side * -0.24;
       head.add(assembly);
@@ -536,8 +543,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       assembly.add(tip);
     }
 
-    addEarAntenna(-1);
-    addEarAntenna(1);
+    addEarAntenna(-1, leftAntennaRef);
+    addEarAntenna(1, rightAntennaRef);
 
     let animationId = 0;
     const clock = new THREE.Clock();
@@ -755,16 +762,29 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       if (leftLegRef.current) leftLegRef.current.rotation.z = 0;
       if (rightLegRef.current) rightLegRef.current.rotation.z = 0;
 
-      // Rear assemblies are valid only from the robot's back half.
-      // This is a visibility rule, not a geometry/material change: the opaque
-      // shell remains untouched while rear hardware cannot leak through it.
+      // Far-side appendages are valid only when they are on the camera-facing
+      // half of the robot. This is a visibility rule only: no geometry, size,
+      // placement, material, lighting, animation, or interaction changes.
+      // The front view keeps both sides visible; once the camera moves into a
+      // side view, the opposite arm/antenna is hidden instead of appearing
+      // through the shell.
       const cameraWorld = camera.position.clone();
       body.updateWorldMatrix(true, false);
       const bodyCameraLocal = body.worldToLocal(cameraWorld.clone());
+      const bodySideRatio = Math.abs(bodyCameraLocal.x) / Math.max(0.001, Math.abs(bodyCameraLocal.z));
+      const sideView = bodySideRatio > 0.12;
+      leftArmRef.current!.visible = !(sideView && bodyCameraLocal.x > 0);
+      rightArmRef.current!.visible = !(sideView && bodyCameraLocal.x < 0);
       rearBody.visible = bodyCameraLocal.z < -0.12;
 
       head.updateWorldMatrix(true, false);
       const headCameraLocal = head.worldToLocal(cameraWorld.clone());
+      const headSideRatio = Math.abs(headCameraLocal.x) / Math.max(0.001, Math.abs(headCameraLocal.z));
+      const headSideView = headSideRatio > 0.12;
+      leftAntennaRef.current!.visible = !(headSideView && headCameraLocal.x > 0);
+      rightAntennaRef.current!.visible = !(headSideView && headCameraLocal.x < 0);
+      leftEarRef.current!.visible = !(headSideView && headCameraLocal.x > 0);
+      rightEarRef.current!.visible = !(headSideView && headCameraLocal.x < 0);
       rearHead.visible = headCameraLocal.z < -0.12;
 
       renderer.render(scene, camera);
