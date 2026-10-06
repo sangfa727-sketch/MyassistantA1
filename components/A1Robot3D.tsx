@@ -116,13 +116,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       new THREE.CapsuleGeometry(0.72, 0.72, 10, 32),
       new THREE.MeshBasicMaterial({
         colorWrite: false,
-        depthTest: true,
+        depthTest: false,
         depthWrite: true,
         transparent: false,
-        side: THREE.DoubleSide,
-        polygonOffset: true,
-        polygonOffsetFactor: 1,
-        polygonOffsetUnits: 1,
+        side: THREE.FrontSide,
       })
     );
     torsoDepthPrepass.scale.copy(torso.scale);
@@ -388,13 +385,10 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       new THREE.SphereGeometry(0.92, 40, 28),
       new THREE.MeshBasicMaterial({
         colorWrite: false,
-        depthTest: true,
+        depthTest: false,
         depthWrite: true,
         transparent: false,
-        side: THREE.DoubleSide,
-        polygonOffset: true,
-        polygonOffsetFactor: 1,
-        polygonOffsetUnits: 1,
+        side: THREE.FrontSide,
       })
     );
     headDepthPrepass.scale.copy(headShell.scale);
@@ -762,30 +756,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       if (leftLegRef.current) leftLegRef.current.rotation.z = 0;
       if (rightLegRef.current) rightLegRef.current.rotation.z = 0;
 
-      // Far-side appendages are valid only when they are on the camera-facing
-      // half of the robot. This is a visibility rule only: no geometry, size,
-      // placement, material, lighting, animation, or interaction changes.
-      // The front view keeps both sides visible; once the camera moves into a
-      // side view, the opposite arm/antenna is hidden instead of appearing
-      // through the shell.
-      const cameraWorld = camera.position.clone();
-      body.updateWorldMatrix(true, false);
-      const bodyCameraLocal = body.worldToLocal(cameraWorld.clone());
-      const bodySideRatio = Math.abs(bodyCameraLocal.x) / Math.max(0.001, Math.abs(bodyCameraLocal.z));
-      const sideView = bodySideRatio > 0.12;
-      leftArmRef.current!.visible = !(sideView && bodyCameraLocal.x > 0);
-      rightArmRef.current!.visible = !(sideView && bodyCameraLocal.x < 0);
-      rearBody.visible = bodyCameraLocal.z < -0.12;
-
-      head.updateWorldMatrix(true, false);
-      const headCameraLocal = head.worldToLocal(cameraWorld.clone());
-      const headSideRatio = Math.abs(headCameraLocal.x) / Math.max(0.001, Math.abs(headCameraLocal.z));
-      const headSideView = headSideRatio > 0.12;
-      leftAntennaRef.current!.visible = !(headSideView && headCameraLocal.x > 0);
-      rightAntennaRef.current!.visible = !(headSideView && headCameraLocal.x < 0);
-      leftEarRef.current!.visible = !(headSideView && headCameraLocal.x > 0);
-      rightEarRef.current!.visible = !(headSideView && headCameraLocal.x < 0);
-      rearHead.visible = headCameraLocal.z < -0.12;
+      // Preserve every modeled object while letting the real shell/depth buffer
+      // decide what is visible. Nothing is hidden based on camera angle.
 
       renderer.render(scene, camera);
       animationId = requestAnimationFrame(animate);
