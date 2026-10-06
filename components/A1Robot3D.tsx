@@ -104,6 +104,28 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     torso.receiveShadow = true;
     body.add(torso);
 
+    // Depth-only shell prepass: same closed torso geometry, rendered slightly
+    // farther than the visible shell so it occludes internal/rear hardware
+    // without changing any visible geometry. Polygon offset avoids coplanar
+    // z-fighting that caused the previous depth-prepass shimmer.
+    const torsoDepthPrepass = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.72, 0.72, 10, 32),
+      new THREE.MeshBasicMaterial({
+        colorWrite: false,
+        depthTest: true,
+        depthWrite: true,
+        transparent: false,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1,
+      })
+    );
+    torsoDepthPrepass.scale.copy(torso.scale);
+    torsoDepthPrepass.position.copy(torso.position);
+    torsoDepthPrepass.renderOrder = -10;
+    body.add(torsoDepthPrepass);
+
     // Rear hardware makes the back a real modeled surface, not an empty reverse side.
     const backPanel = new THREE.Mesh(roundedBox(0.70, 0.68, 0.10, 0.13), darkMat);
     backPanel.position.set(0, 0.08, -0.57);
@@ -348,6 +370,28 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     headShell.scale.set(1.0, 0.94, 0.82);
     headShell.castShadow = true;
     head.add(headShell);
+
+    // Matching head depth prepass. The positive polygon offset places the
+    // invisible depth surface just behind the visible shell, preventing
+    // internal rear hardware from winning the depth test while avoiding
+    // coplanar depth shimmer.
+    const headDepthPrepass = new THREE.Mesh(
+      new THREE.SphereGeometry(0.92, 40, 28),
+      new THREE.MeshBasicMaterial({
+        colorWrite: false,
+        depthTest: true,
+        depthWrite: true,
+        transparent: false,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1,
+      })
+    );
+    headDepthPrepass.scale.copy(headShell.scale);
+    headDepthPrepass.position.copy(headShell.position);
+    headDepthPrepass.renderOrder = -10;
+    head.add(headDepthPrepass);
 
     // Premium rear head design: a layered curved shell, central service
     // ring, twin vent details and a small lower neck cover make the 180° view
