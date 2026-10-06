@@ -768,7 +768,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       body.updateWorldMatrix(true, false);
       const bodyCameraLocal = body.worldToLocal(cameraWorld.clone());
       const bodySideRatio = Math.abs(bodyCameraLocal.x) / Math.max(0.001, Math.abs(bodyCameraLocal.z));
-      const sideView = bodySideRatio > 0.36;
+      const sideView = bodySideRatio > 0.12;
       leftArmRef.current!.visible = !(sideView && bodyCameraLocal.x > 0);
       rightArmRef.current!.visible = !(sideView && bodyCameraLocal.x < 0);
       rearBody.visible = bodyCameraLocal.z < -0.12;
@@ -776,7 +776,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       head.updateWorldMatrix(true, false);
       const headCameraLocal = head.worldToLocal(cameraWorld.clone());
       const headSideRatio = Math.abs(headCameraLocal.x) / Math.max(0.001, Math.abs(headCameraLocal.z));
-      const headSideView = headSideRatio > 0.36;
+      const headSideView = headSideRatio > 0.12;
       leftAntennaRef.current!.visible = !(headSideView && headCameraLocal.x > 0);
       rightAntennaRef.current!.visible = !(headSideView && headCameraLocal.x < 0);
       rearHead.visible = headCameraLocal.z < -0.12;
