@@ -126,20 +126,25 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     torsoDepthPrepass.renderOrder = -10;
     body.add(torsoDepthPrepass);
 
-    // Rear hardware makes the back a real modeled surface, not an empty reverse side.
+    // Rear hardware is a real modeled back assembly. Keep it in its own group
+    // so it can be visibility-gated by the camera-facing side instead of ever
+    // appearing through the opaque front shell at grazing angles.
+    const rearBody = new THREE.Group();
+    body.add(rearBody);
+
     const backPanel = new THREE.Mesh(roundedBox(0.70, 0.68, 0.10, 0.13), darkMat);
     backPanel.position.set(0, 0.08, -0.57);
     backPanel.castShadow = true;
-    body.add(backPanel);
+    rearBody.add(backPanel);
 
     const backCore = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.07, 24), cyanMat);
     backCore.rotation.x = Math.PI / 2;
     backCore.position.set(0, 0.08, -0.65);
-    body.add(backCore);
+    rearBody.add(backCore);
 
     const spine = new THREE.Mesh(roundedBox(0.12, 0.44, 0.07, 0.035), trimMat);
     spine.position.set(0, -0.27, -0.64);
-    body.add(spine);
+    rearBody.add(spine);
 
     const chest = new THREE.Mesh(roundedBox(0.72, 0.7, 0.08, 0.14), darkMat);
     chest.position.set(0, 0.1, 0.47);
@@ -393,9 +398,11 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     headDepthPrepass.renderOrder = -10;
     head.add(headDepthPrepass);
 
-    // Premium rear head design: a layered curved shell, central service
-    // ring, twin vent details and a small lower neck cover make the 180° view
-    // feel intentionally designed rather than like the back of a sphere.
+    // Premium rear head design: keep all rear hardware together so it can
+    // never be drawn through the front half of the opaque head shell.
+    const rearHead = new THREE.Group();
+    head.add(rearHead);
+
     const rearHeadCap = new THREE.Mesh(
       new THREE.SphereGeometry(0.68, 36, 24),
       darkMat
@@ -403,7 +410,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     rearHeadCap.scale.set(1.0, 0.76, 0.22);
     rearHeadCap.position.set(0, 0.02, -0.64);
     rearHeadCap.castShadow = true;
-    head.add(rearHeadCap);
+    rearHead.add(rearHeadCap);
 
     const rearTrim = new THREE.Mesh(
       new THREE.TorusGeometry(0.28, 0.035, 10, 36),
@@ -412,21 +419,21 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     rearTrim.rotation.x = Math.PI / 2;
     rearTrim.position.set(0, 0.03, -0.865);
     rearTrim.scale.set(1, 0.88, 1);
-    head.add(rearTrim);
+    rearHead.add(rearTrim);
 
     const rearHeadCore = new THREE.Mesh(
       new THREE.SphereGeometry(0.105, 20, 14),
       cyanMat
     );
     rearHeadCore.position.set(0, 0.03, -0.91);
-    head.add(rearHeadCore);
+    rearHead.add(rearHeadCore);
 
     const rearVentGeo = roundedBox(0.13, 0.045, 0.035, 0.018);
     [-0.24, 0.24].forEach((x) => {
       const vent = new THREE.Mesh(rearVentGeo, trimMat);
       vent.position.set(x, -0.30, -0.83);
       vent.rotation.z = x < 0 ? -0.18 : 0.18;
-      head.add(vent);
+      rearHead.add(vent);
     });
 
     const rearLowerCover = new THREE.Mesh(
@@ -435,7 +442,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     );
     rearLowerCover.scale.set(1.25, 0.34, 0.18);
     rearLowerCover.position.set(0, -0.53, -0.62);
-    head.add(rearLowerCover);
+    rearHead.add(rearLowerCover);
 
     // Deep, curved face visor: keep real thickness so side/back turns reveal volume.
     const facePlate = new THREE.Mesh(new THREE.SphereGeometry(0.67, 40, 28), new THREE.MeshStandardMaterial({ color: 0x090d11, metalness: 0.38, roughness: 0.12, emissive: 0x05080b, emissiveIntensity: 0.35 }));
@@ -747,6 +754,18 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       // Feet/legs stay planted. There is deliberately no leg bob or vertical sway.
       if (leftLegRef.current) leftLegRef.current.rotation.z = 0;
       if (rightLegRef.current) rightLegRef.current.rotation.z = 0;
+
+      // Rear assemblies are valid only from the robot's back half.
+      // This is a visibility rule, not a geometry/material change: the opaque
+      // shell remains untouched while rear hardware cannot leak through it.
+      const cameraWorld = camera.position.clone();
+      body.updateWorldMatrix(true, false);
+      const bodyCameraLocal = body.worldToLocal(cameraWorld.clone());
+      rearBody.visible = bodyCameraLocal.z < -0.12;
+
+      head.updateWorldMatrix(true, false);
+      const headCameraLocal = head.worldToLocal(cameraWorld.clone());
+      rearHead.visible = headCameraLocal.z < -0.12;
 
       renderer.render(scene, camera);
       animationId = requestAnimationFrame(animate);
