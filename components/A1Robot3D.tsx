@@ -31,10 +31,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
   const rightElbowRef = useRef<THREE.Group>(null);
   const leftWristRef = useRef<THREE.Group>(null);
   const rightWristRef = useRef<THREE.Group>(null);
-  const leftAntennaRef = useRef<THREE.Group>(null);
-  const rightAntennaRef = useRef<THREE.Group>(null);
-  const leftEarRef = useRef<THREE.Object3D>(null);
-  const rightEarRef = useRef<THREE.Object3D>(null);
   const leftLegRef = useRef<THREE.Group>(null);
   const rightLegRef = useRef<THREE.Group>(null);
   const eyeLRef = useRef<any>(null);
@@ -116,10 +112,13 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       new THREE.CapsuleGeometry(0.72, 0.72, 10, 32),
       new THREE.MeshBasicMaterial({
         colorWrite: false,
-        depthTest: false,
+        depthTest: true,
         depthWrite: true,
         transparent: false,
-        side: THREE.FrontSide,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1,
       })
     );
     torsoDepthPrepass.scale.copy(torso.scale);
@@ -385,10 +384,13 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       new THREE.SphereGeometry(0.92, 40, 28),
       new THREE.MeshBasicMaterial({
         colorWrite: false,
-        depthTest: false,
+        depthTest: true,
         depthWrite: true,
         transparent: false,
-        side: THREE.FrontSide,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1,
       })
     );
     headDepthPrepass.scale.copy(headShell.scale);
@@ -494,8 +496,6 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const earGeo = new THREE.SphereGeometry(0.27, 20, 14);
     const earL = new THREE.Mesh(earGeo, trimMat);
     const earR = earL.clone();
-    leftEarRef.current = earL;
-    rightEarRef.current = earR;
     earL.position.set(-0.84, 0.02, 0.02);
     earR.position.set(0.84, 0.02, 0.02);
     earL.scale.set(0.5, 1, 0.7);
@@ -514,9 +514,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const antennaMastGeo = new THREE.CylinderGeometry(0.035, 0.055, 0.42, 18);
     const antennaTipGeo = new THREE.SphereGeometry(0.105, 24, 16);
 
-    function addEarAntenna(side: number, ref: MutableRefObject<any>) {
+    function addEarAntenna(side: number) {
       const assembly = new THREE.Group();
-      ref.current = assembly;
       assembly.position.set(side * 0.82, 0.12, 0.02);
       assembly.rotation.z = side * -0.24;
       head.add(assembly);
@@ -537,8 +536,8 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       assembly.add(tip);
     }
 
-    addEarAntenna(-1, leftAntennaRef);
-    addEarAntenna(1, rightAntennaRef);
+    addEarAntenna(-1);
+    addEarAntenna(1);
 
     let animationId = 0;
     const clock = new THREE.Clock();
@@ -756,8 +755,17 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
       if (leftLegRef.current) leftLegRef.current.rotation.z = 0;
       if (rightLegRef.current) rightLegRef.current.rotation.z = 0;
 
-      // Preserve every modeled object while letting the real shell/depth buffer
-      // decide what is visible. Nothing is hidden based on camera angle.
+      // Rear assemblies are valid only from the robot's back half.
+      // This is a visibility rule, not a geometry/material change: the opaque
+      // shell remains untouched while rear hardware cannot leak through it.
+      const cameraWorld = camera.position.clone();
+      body.updateWorldMatrix(true, false);
+      const bodyCameraLocal = body.worldToLocal(cameraWorld.clone());
+      rearBody.visible = bodyCameraLocal.z < -0.12;
+
+      head.updateWorldMatrix(true, false);
+      const headCameraLocal = head.worldToLocal(cameraWorld.clone());
+      rearHead.visible = headCameraLocal.z < -0.12;
 
       renderer.render(scene, camera);
       animationId = requestAnimationFrame(animate);
