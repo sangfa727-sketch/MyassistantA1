@@ -60,7 +60,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     // Render above CSS resolution so browser compositing has real pixels to work with.
     // The canvas is never CSS-scaled; this is deliberate supersampling for crisp edges.
-    const getPixelRatio = () => Math.min(Math.max(window.devicePixelRatio || 1, 1), 4);
+    const getPixelRatio = () => Math.min(Math.max(window.devicePixelRatio || 1, 1), 2);
     renderer.setPixelRatio(getPixelRatio());
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(220, 260, false);
@@ -77,7 +77,7 @@ export default function A1Robot3D({ state, bodyYaw, bodyPitch, headYaw, headPitc
     const key = new THREE.DirectionalLight(0xffffff, 3.1);
     key.position.set(-3.5, 4.5, 5.5);
     key.castShadow = true;
-    key.shadow.mapSize.set(1024, 1024);
+    key.shadow.mapSize.set(512, 512);
     scene.add(key);
 
     const root = new THREE.Group();
