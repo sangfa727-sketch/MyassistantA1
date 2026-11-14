@@ -1,22 +1,23 @@
 name: Resolve Next.js security upgrade
 
 on:
-  push:
+  pull_request:
     branches:
-      - fix/a1-nextjs-critical-security-20261114
+      - main
 
 permissions:
   contents: write
 
 jobs:
   resolve-and-verify:
+    if: github.event.pull_request.head.ref == 'fix/a1-nextjs-critical-security-20261114' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout
+      - name: Checkout the PR branch
         uses: actions/checkout@v5
         with:
-          ref: fix/a1-nextjs-critical-security-20261114
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       - name: Setup Node
@@ -37,7 +38,7 @@ jobs:
             echo "Dependency lock already resolved."
           else
             git commit -m "fix(security): upgrade Next.js to 16.4.6"
-            git push origin HEAD:fix/a1-nextjs-critical-security-20261114
+            git push origin HEAD:${{ github.head_ref }}
           fi
 
       - name: Clean install
