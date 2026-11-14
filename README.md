@@ -53,3 +53,8 @@ Before opening the service to a large public audience, add:
 7. Automated dependency/security scanning.
 
 The current rate limiter is intentionally lightweight and is not a replacement for a shared production limiter.
+
+
+## Deployment status
+
+The GitHub Pages workflow is manual-only until a Pages site is enabled and configured. GitHub Pages can host the static UI only; it does not run the Next.js API routes. Production chat and task-planning features require a separately deployed Next.js-compatible backend with the required server-side environment variables.
