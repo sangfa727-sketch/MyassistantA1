@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addMessage, createSession, getRecentMessages, getSession, updateSessionMemory } from "../../../lib/db";
+import { calculateArithmeticExpression } from "../../../lib/calculator.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,10 +53,8 @@ function executeTool(call: ToolCall) {
   if (call.name === "get_current_time") return { now: new Date().toISOString() };
   if (call.name === "calculator") {
     const expression = typeof call.arguments?.expression === "string" ? call.arguments.expression : "";
-    if (!/^[0-9+\-*/().%\s]+$/.test(expression) || expression.length > 200) throw new Error("Unsupported calculator expression.");
-    // eslint-disable-next-line no-new-func
-    const value = Function('"use strict"; return (' + expression + ')')();
-    if (typeof value !== "number" || !Number.isFinite(value)) throw new Error("Invalid calculation.");
+    if (expression.length > 200) throw new Error("Calculator expression is too long.");
+    const value = calculateArithmeticExpression(expression);
     return { expression, result: value };
   }
   throw new Error("Unknown tool.");
