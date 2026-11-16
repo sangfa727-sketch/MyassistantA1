@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addMessage, createSession, getRecentMessages, getSession, updateSessionMemory } from "../../../lib/db";
 import { calculateArithmeticExpression } from "../../../lib/calculator.mjs";
+import { readBoundedJson } from "../../../lib/request-body.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,6 +9,7 @@ export const dynamic = "force-dynamic";
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 20;
 const MAX_MESSAGE_CHARS = 12_000;
+const MAX_REQUEST_BODY_BYTES = 100_000;
 const MAX_TOOL_ROUNDS = 3;
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 
@@ -87,13 +89,19 @@ export async function POST(request: NextRequest) {
   if (!key) return NextResponse.json({ error: "A1 backend is not configured. Add OPENAI_API_KEY on the server." }, { status: 503 });
 
   try {
-    const body = await request.json();
-    if (JSON.stringify(body).length > 100_000) return NextResponse.json({ error: "Request is too large." }, { status: 413 });
+    const parsedBody = await readBoundedJson(request, MAX_REQUEST_BODY_BYTES);
+    if (!parsedBody.ok) {
+      return NextResponse.json({ error: parsedBody.error }, { status: parsedBody.status });
+    }
+    if (!parsedBody.value || typeof parsedBody.value !== "object" || Array.isArray(parsedBody.value)) {
+      return NextResponse.json({ error: "A JSON object is required." }, { status: 400 });
+    }
+    const body = parsedBody.value as Record<string, unknown>;
 
-    const userMessage = cleanMessage(body?.message);
+    const userMessage = cleanMessage(body.message);
     if (!userMessage) return NextResponse.json({ error: "A user message is required." }, { status: 400 });
 
-    let sessionId = isUuid(body?.sessionId) ? body.sessionId : "";
+    let sessionId = isUuid(body.sessionId) ? body.sessionId : "";
     let session = sessionId ? await getSession(sessionId) : null;
     if (!session) {
       const created = await createSession();
@@ -108,7 +116,7 @@ export async function POST(request: NextRequest) {
     if (!activeSession) throw new Error("A1 session is unavailable.");
 
     const recent = await getRecentMessages(sessionId, 20);
-    const clientMemory = cleanMessage(body?.memory).slice(0, 2000);
+    const clientMemory = cleanMessage(body.memory).slice(0, 2000);
     const storedMemory: Record<string, unknown> =
       activeSession.memory && typeof activeSession.memory === "object" && !Array.isArray(activeSession.memory)
         ? activeSession.memory as Record<string, unknown>
