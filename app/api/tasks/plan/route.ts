@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readBoundedJson } from "../../../../lib/request-body.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -6,6 +7,7 @@ export const dynamic = "force-dynamic";
 const MAX_INPUT = 12_000;
 const MAX_TASKS = 8;
 const MAX_TITLE = 180;
+const MAX_BODY_BYTES = 64_000;
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 10;
 const buckets = new Map<string, { count: number; resetAt: number }>();
@@ -43,8 +45,15 @@ export async function POST(request: NextRequest) {
   if (!key) return NextResponse.json({ error: "A1 backend is not configured." }, { status: 503 });
 
   try {
-    const body = await request.json();
-    const input = typeof body?.text === "string" ? body.text.trim().slice(0, MAX_INPUT) : "";
+    const parsedBody = await readBoundedJson(request, MAX_BODY_BYTES);
+    if (!parsedBody.ok) {
+      return NextResponse.json({ error: parsedBody.error }, { status: parsedBody.status });
+    }
+    if (!parsedBody.value || typeof parsedBody.value !== "object" || Array.isArray(parsedBody.value)) {
+      return NextResponse.json({ error: "A JSON object is required." }, { status: 400 });
+    }
+    const body = parsedBody.value as Record<string, unknown>;
+    const input = typeof body.text === "string" ? body.text.trim().slice(0, MAX_INPUT) : "";
     if (!input) return NextResponse.json({ error: "Text is required." }, { status: 400 });
 
     const response = await fetch(baseUrl + "/chat/completions", {
