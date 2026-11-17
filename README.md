@@ -29,6 +29,8 @@ Deploy the full app to a Next.js-compatible host such as Vercel. Add OPENAI_API_
 
 GitHub Pages can host the static UI, but it cannot execute the server-side `/api/chat`, `/api/tasks/plan` or `/api/health` routes. When the UI is hosted on Pages and the API is hosted separately, set `NEXT_PUBLIC_API_BASE_URL` at build time to the HTTPS origin of that backend.
 
+The current chat session proof uses an HttpOnly cookie scoped to `/api/chat`; the browser UI and API must therefore be same-origin for session continuity. `NEXT_PUBLIC_API_BASE_URL` by itself does not enable credentialed cross-origin requests. For a separately hosted API, proxy `/api/chat` through the UI's same origin; credentialed CORS is not configured.
+
 ## Architecture
 
 Phone/PWA -> Next.js /api/chat -> OpenAI-compatible model provider.
