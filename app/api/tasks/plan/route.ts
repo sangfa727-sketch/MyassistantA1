@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readBoundedJson } from "../../../../lib/request-body.mjs";
+import { createInMemoryRateLimiter } from "../../../../lib/rate-limit.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,25 +9,16 @@ const MAX_INPUT = 12_000;
 const MAX_TASKS = 8;
 const MAX_TITLE = 180;
 const MAX_BODY_BYTES = 64_000;
-const WINDOW_MS = 60_000;
-const MAX_REQUESTS = 10;
-const buckets = new Map<string, { count: number; resetAt: number }>();
+const taskRateLimiter = createInMemoryRateLimiter({
+  windowMs: 60_000,
+  maxRequests: 10,
+  maxEntries: 10_000
+});
 
 function keyOf(request: NextRequest) {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
     || request.headers.get("x-real-ip")
     || "unknown";
-}
-
-function allowed(key: string) {
-  const now = Date.now();
-  const current = buckets.get(key);
-  if (!current || current.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + WINDOW_MS });
-    return true;
-  }
-  current.count += 1;
-  return current.count <= MAX_REQUESTS;
 }
 
 function cleanTitle(value: unknown) {
@@ -35,8 +27,12 @@ function cleanTitle(value: unknown) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!allowed(keyOf(request))) {
-    return NextResponse.json({ error: "Task planner rate limit reached. Please try again shortly." }, { status: 429 });
+  const limit = taskRateLimiter.check(keyOf(request));
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Task planner rate limit reached. Please try again shortly.", retryAfter: limit.retryAfter },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+    );
   }
 
   const key = process.env.OPENAI_API_KEY;
