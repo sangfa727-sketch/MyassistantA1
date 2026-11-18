@@ -11,8 +11,10 @@ const sessionId = "7b5b6c64-3b4e-4a3e-9c9a-9d6b5d8b8c11";
 const secret = "a1-test-session-secret-with-at-least-32-bytes";
 const now = Date.UTC(2026, 10, 17, 5, 30, 0);
 
-test("creates a session-specific cookie name", () => {
-  assert.equal(sessionCookieName(sessionId), `a1_session_${sessionId}`);
+test("uses one stable cookie name while validating session UUIDs", () => {
+  const otherSession = "0d5b6c64-3b4e-4a3e-9c9a-9d6b5d8b8c11";
+  assert.equal(sessionCookieName(sessionId), "a1_session_proof");
+  assert.equal(sessionCookieName(otherSession), "a1_session_proof");
   assert.throws(() => sessionCookieName("not-a-uuid"), /UUID/);
 });
 
