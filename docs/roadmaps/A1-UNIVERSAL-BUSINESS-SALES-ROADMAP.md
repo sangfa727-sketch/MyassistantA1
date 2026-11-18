@@ -1,4 +1,4 @@
-# Assistant A1 — Universal Personal, Business Admin & Sales AI Roadmap
+# Assistant A1 — Universal AI Business Brain & Multi-Business Orchestration Roadmap
 
 **Snapshot:** 2026-11-17  
 **Repository:** `sangfa727-sketch/MyassistantA1`  
@@ -10,6 +10,30 @@
 Build one Assistant A1 that can serve personal users and multiple independent business accounts. Within a business account it can act as an authorized seller/admin over thousands of products, customers, stock locations, prices, orders and operational workflows.
 
 A1 must always derive its active identity, workspace, role and permissions from a verified server-side session. It must never trust a client-supplied account/workspace ID, product owner, role, or permission claim.
+
+## 1A. Universal AI Business Brain north star
+
+A1 is the **reasoning, context and orchestration layer**, not a replacement for every business system. It understands intent, assembles only authorized context, decomposes work, routes to a narrowly scoped agent, selects typed tools, tracks durable execution state, verifies results and explains what happened.
+
+The target architecture has nine layers:
+
+1. **Central Brain & Orchestration:** intent classification, context assembly, bounded planning, agent routing, tool selection, execution state, result verification, retries/recovery and clear explanations.
+2. **Multi-Business / Multi-Workspace:** personal scope plus multiple organizations/workspaces, industry profiles, membership, roles, action-level permissions and tenant-specific goals/knowledge. Every query, prompt, memory, file, cache, job, log and tool call must remain tenant-scoped.
+3. **Persistent Context & Knowledge:** governed user preferences, business profiles, policies, products/services, customers, decisions and outcomes with provenance, timestamps, correction, staleness, retention and deletion controls. Personal memory must never be joined to business memory.
+4. **Specialized Agent Network:** strategy/business advisor, sales, marketing/research, customer support, finance analysis, HR, operations, inventory/procurement, real estate/property and personal productivity. Agents receive only narrow tools and authorized context; handoffs are bounded and auditable.
+5. **Universal Tool & Integration Engine:** typed, schema-validated connectors for ERP2, CRM, databases, files, email, messaging, calendars and automation. Credentials are server-side, least-privilege and scoped; every connector has timeouts, retries, idempotency, rate limits and health telemetry.
+6. **Controlled Action Engine:** reasoning proposes; deterministic policy authorizes; a separate executor acts. Actor, workspace, tenant, role, resource and limits are revalidated server-side. Payments, transfers, irreversible deletion, order cancellation, campaign publishing/sending and property commitments require explicit in-product confirmation and an audit record.
+7. **Business Intelligence & Decision Support:** evidence-grounded KPIs, forecasts, anomaly/risk detection, scenario comparisons and measurable recommendations. State assumptions and uncertainty; do not fabricate live facts or certainty.
+8. **Learning & Evaluation:** evaluation datasets, task-success and tool-use metrics, hallucination/security regression tests, feedback, model routing, cost/latency telemetry and versioned prompts. No uncontrolled self-modification or safety-policy weakening.
+9. **Production Scale:** concurrency controls, durable background workflows, tenant-aware caches, backup/restore drills, observability, alerts, incident response, privacy/retention and controlled rollout.
+
+### ERP2 boundary
+
+ERP2 remains the authoritative sales/POS/inventory/accounting execution system when its APIs and security are verified. A1 should interpret requests, analyze authorized ERP2 data, recommend, prepare drafts and invoke approved APIs. Do not duplicate ERP2 transaction engines. An ERP2 integration is not complete until API contracts, credential scope, tenant mapping, permission checks, idempotency, audit trail, failure recovery and end-to-end tests all pass. This A1 roadmap does not authorize changes to ERP2.
+
+### Delivery order
+
+Identity and workspace membership → tenant isolation and server/database authorization → durable conversation/memory/knowledge → typed tool registry and policy engine → central orchestrator plus one complete specialized-agent workflow → additional agents/connectors → approvals/durable execution/audit/recovery → intelligence/evaluation/scaling/release.
 
 ### Non-negotiable invariants
 
@@ -33,8 +57,9 @@ A1 must always derive its active identity, workspace, role and permissions from 
 
 ### Open pull requests
 
-- **PR #44** — signed HttpOnly session-cookie proof. Open, unmerged, mergeable. Exact head `69f17491dc926822d532cba91950cc871e588c45`. Its PR description records 20/20 tests, production build and high-severity dependency audit passing. This is session possession protection only — not account authentication, workspace membership or tenant authorization. Its checks need re-verification on the exact head before any merge decision.
-- **PR #35** — robot shell occlusion correction. Open, unmerged, mergeable; runtime 360-degree verification remains a separate visual acceptance gate. Keep this unrelated UI work isolated from business-backend changes.
+- **PR #44** — signed HttpOnly session-cookie proof. Open and unmerged. The 2026-11-18 hardening changed it to one stable cookie name (avoids unbounded cookie accumulation) while the HMAC remains bound to the session UUID. Latest recorded head after this change: `6893d9419cef6e1b944f3948cad2bef75a41c686`; fresh CI/security checks are pending. It is still not account authentication, workspace membership or tenant authorization.
+- **PR #45** — this Universal AI Business Brain roadmap. Open and documentation-only; latest checks must be re-run after the 2026-11-18 update.
+- **PR #35 and PR #16** — older robot-rendering/occlusion fixes, open and unrelated to the business-brain backend. Leave them isolated; each still needs its own visual runtime acceptance before merge.
 
 ### Neon database
 
@@ -51,7 +76,7 @@ A1 must always derive its active identity, workspace, role and permissions from 
 | Phase | Scope | Acceptance gate |
 |---|---|---|
 | 0. Baseline & release controls | Reconcile open PRs, confirm repository privacy, hosting, secrets, backup/restore, staging environment and CI protection | Signed-off inventory; no production mutation; CI/security baseline recorded |
-| 1. Identity & authentication | Integrate existing staged Managed Better Auth with Next.js server/client; sign-up, email verification, sign-in/out, recovery, session rotation/revocation; server-side identity | Auth E2E passes; unauthenticated requests denied; no client-trusted identity |
+| 1. Identity & authentication | Integrate the staged Managed Better Auth using the current official Next.js SDK (`@neon/auth`); sign-up, OTP email verification, sign-in/out, recovery, session rotation/revocation and server-side identity | Auth E2E passes; unauthenticated requests denied; no client-trusted identity |
 | 2. Personal + workspace model | Personal scope, business workspaces, users, memberships, roles, invitations, active-workspace resolution | User can belong to multiple workspaces; switching is explicit; personal data never joins business scope |
 | 3. Tenant security foundation | Tenant ownership columns, composite foreign keys, scoped repository/query layer, database role strategy, RLS policies and FORCE RLS where appropriate; audit trail | A/B adversarial tests deny cross-tenant SELECT/INSERT/UPDATE/DELETE and side-channel leakage |
 | 4. Product catalog | Products, variants, SKU, barcode, categories, units, attributes, images/imports, price lists; indexed search and pagination | Import/search/update 10k+ synthetic products with tenant isolation and bounded latency |
