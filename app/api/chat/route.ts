@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { addMessage, createSession, getRecentMessages, getSession, updateSessionMemory } from "../../../lib/db";
 import { calculateArithmeticExpression } from "../../../lib/calculator.mjs";
 import { readBoundedJson } from "../../../lib/request-body.mjs";
+import { createInMemoryRateLimiter } from "../../../lib/rate-limit.mjs";
 import {
   createSessionCookieValue,
   sessionCookieName,
@@ -12,29 +13,18 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const WINDOW_MS = 60_000;
-const MAX_REQUESTS = 20;
+const chatRateLimiter = createInMemoryRateLimiter({
+  windowMs: 60_000,
+  maxRequests: 20,
+  maxEntries: 10_000
+});
 const MAX_MESSAGE_CHARS = 12_000;
 const MAX_REQUEST_BODY_BYTES = 100_000;
 const MAX_TOOL_ROUNDS = 3;
-const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 
 function rateLimitKey(request: NextRequest) {
   const forwarded = request.headers.get("x-forwarded-for");
   return forwarded?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
-}
-
-function checkRateLimit(key: string) {
-  const now = Date.now();
-  const current = rateBuckets.get(key);
-  if (!current || current.resetAt <= now) {
-    rateBuckets.set(key, { count: 1, resetAt: now + WINDOW_MS });
-    return { allowed: true, retryAfter: 0 };
-  }
-  current.count += 1;
-  return current.count <= MAX_REQUESTS
-    ? { allowed: true, retryAfter: 0 }
-    : { allowed: false, retryAfter: Math.ceil((current.resetAt - now) / 1000) };
 }
 
 const SYSTEM_PROMPT = `You are My Assistant A1, a practical, friendly, multilingual personal AI assistant.
@@ -84,7 +74,7 @@ function isUuid(value: unknown): value is string {
 }
 
 export async function POST(request: NextRequest) {
-  const limit = checkRateLimit(rateLimitKey(request));
+  const limit = chatRateLimiter.check(rateLimitKey(request));
   if (!limit.allowed) {
     return NextResponse.json({ error: "Request limit reached. Please try again shortly.", retryAfter: limit.retryAfter }, { status: 429, headers: { "Retry-After": String(limit.retryAfter) } });
   }
