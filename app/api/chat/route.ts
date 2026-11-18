@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { addMessage, createSession, getRecentMessages, getSession, updateSessionMemory } from "../../../lib/db";
 import { calculateArithmeticExpression } from "../../../lib/calculator.mjs";
 import { readBoundedJson } from "../../../lib/request-body.mjs";
+import {
+  createSessionCookieValue,
+  sessionCookieName,
+  SESSION_TTL_SECONDS,
+  verifySessionCookieValue
+} from "../../../lib/session-cookie.mjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -101,15 +107,37 @@ export async function POST(request: NextRequest) {
     const userMessage = cleanMessage(body.message);
     if (!userMessage) return NextResponse.json({ error: "A user message is required." }, { status: 400 });
 
-    let sessionId = isUuid(body.sessionId) ? body.sessionId : "";
-    let session = sessionId ? await getSession(sessionId) : null;
+    const sessionSecret = process.env.A1_SESSION_SECRET;
+    if (!sessionSecret || Buffer.byteLength(sessionSecret, "utf8") < 32) {
+      return NextResponse.json(
+        { error: "A1 session security is not configured. Set A1_SESSION_SECRET to a random value of at least 32 bytes." },
+        { status: 503 }
+      );
+    }
+
+    let sessionId = isUuid(body.sessionId) ? body.sessionId.toLowerCase() : "";
+    let session = null;
+    let newSessionCookie: { name: string; value: string } | null = null;
+
+    if (sessionId) {
+      const cookieName = sessionCookieName(sessionId);
+      const cookieValue = request.cookies.get(cookieName)?.value;
+      if (verifySessionCookieValue(sessionId, cookieValue, sessionSecret)) {
+        session = await getSession(sessionId);
+      }
+    }
+
     if (!session) {
       const created = await createSession();
       if (!created || typeof created !== "object" || !("id" in created)) {
         throw new Error("Could not create A1 session.");
       }
-      sessionId = String(created.id);
+      sessionId = String(created.id).toLowerCase();
       session = created as Awaited<ReturnType<typeof getSession>>;
+      newSessionCookie = {
+        name: sessionCookieName(sessionId),
+        value: createSessionCookieValue(sessionId, sessionSecret)
+      };
     }
 
     const activeSession = session;
@@ -178,7 +206,17 @@ export async function POST(request: NextRequest) {
 
     if (!reply) return NextResponse.json({ error: "AI returned an empty response." }, { status: 502 });
     await addMessage(sessionId, "assistant", reply);
-    return NextResponse.json({ reply, sessionId });
+    const response = NextResponse.json({ reply, sessionId });
+    if (newSessionCookie) {
+      response.cookies.set(newSessionCookie.name, newSessionCookie.value, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/api/chat",
+        maxAge: SESSION_TTL_SECONDS
+      });
+    }
+    return response;
   } catch (error) {
     const message = error instanceof Error && error.name === "AbortError" ? "AI request timed out. Please try again." : "A1 could not process the request.";
     return NextResponse.json({ error: message }, { status: 500 });

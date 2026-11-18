@@ -18,7 +18,7 @@ Mobile-first AI assistant web app for phones, tablets and desktop browsers.
 
 1. Use Node.js 20+.
 2. Copy .env.example to .env.local.
-3. Set OPENAI_API_KEY on the server.
+3. Set OPENAI_API_KEY and A1_SESSION_SECRET on the server. Generate A1_SESSION_SECRET with `openssl rand -base64 32`; never commit it or expose it as a `NEXT_PUBLIC_*` variable.
 4. Run npm ci.
 5. Run npm run dev.
 6. Open http://localhost:3000.
@@ -29,6 +29,8 @@ Deploy the full app to a Next.js-compatible host such as Vercel. Add OPENAI_API_
 
 GitHub Pages can host the static UI, but it cannot execute the server-side `/api/chat`, `/api/tasks/plan` or `/api/health` routes. When the UI is hosted on Pages and the API is hosted separately, set `NEXT_PUBLIC_API_BASE_URL` at build time to the HTTPS origin of that backend.
 
+The current chat session proof uses an HttpOnly cookie scoped to `/api/chat`; the browser UI and API must therefore be same-origin for session continuity. `NEXT_PUBLIC_API_BASE_URL` by itself does not enable credentialed cross-origin requests. For a separately hosted API, proxy `/api/chat` through the UI's same origin; credentialed CORS is not configured.
+
 ## Architecture
 
 Phone/PWA -> Next.js /api/chat -> OpenAI-compatible model provider.
@@ -36,6 +38,8 @@ Phone/PWA -> Next.js /api/chat -> OpenAI-compatible model provider.
 ## Security baseline
 
 - API request rate limit: 20 requests/minute per detected client address (in-memory; use a shared store for multi-instance deployment).
+- Chat sessions require a per-session signed, HttpOnly, Secure-in-production, SameSite=Strict cookie proof. The signing key is `A1_SESSION_SECRET` (32 bytes minimum).
+- This cookie proof protects against session-ID-only access; it is not account authentication, user identity, or multi-tenant authorization. Do not use it as a substitute for the pending Managed Better Auth integration and RLS policies.
 - Request body size guard on the chat endpoint.
 - Security response headers via middleware.
 - API responses are marked no-store where appropriate.
